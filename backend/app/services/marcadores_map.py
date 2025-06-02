@@ -4,7 +4,9 @@ from typing import Dict
 
 KEY_TO_JINJA_VARIABLE_MAP: Dict[str, str] = {
     "Make": "A1",  
-    "Model": "A2",  
+    "Model": "A2",
+    "Variant": "A3",
+
     "Remark_6": "A16", 
 
     "Number of axles / wheels": "B1",  # [cite: 7]
