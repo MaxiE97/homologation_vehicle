@@ -1,20 +1,26 @@
-// src/pages/VehicleHomologationPage.tsx
-import  { useState, useMemo } from 'react';
-import FormHeader from '../components/layout/FormHeader';
-import FormActions from '../components/layout/FormActions';
-import ExtractedDataView from '../components/vehicleForm/ExtractedDataView';
-import SectionsView from '../components/vehicleForm/SectionsView';
-import UnifiedView from '../components/vehicleForm/UnifiedView';
-import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs';
-import { sections as allSections } from '../constants/vehicleFormSections';
+// frontend/src/pages/VehicleHomologationPage.tsx
+import { useState, useMemo } from 'react';
+import FormHeader from '../components/layout/FormHeader'; //
+import FormActions from '../components/layout/FormActions'; //
+import ExtractedDataView from '../components/vehicleForm/ExtractedDataView'; //
+import SectionsView from '../components/vehicleForm/SectionsView'; //
+import UnifiedView from '../components/vehicleForm/UnifiedView'; //
+import UrlInputSection from '../components/vehicleForm/UrlInputSection';
+import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs'; //
+import { sections as allSections } from '../constants/vehicleFormSections'; //
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
 const VehicleHomologationPage = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({});
-  const [viewMode, setViewMode] = useState<ViewMode>('sections');
+  const [viewMode, setViewMode] = useState<ViewMode>('extracted'); // Iniciamos en 'extracted' para ver UrlInputSection
   const [extractedData, setExtractedData] = useState<ExtractedData>({});
+
+  const [url1, setUrl1] = useState<string>('');
+  const [url2, setUrl2] = useState<string>('');
+  const [url3, setUrl3] = useState<string>('');
+  const [transmissionOption, setTransmissionOption] = useState<string>('Por defecto');
 
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -30,8 +36,6 @@ const VehicleHomologationPage = () => {
     }));
   };
 
-  // updateFinalValue es lo mismo que updateField en este contexto,
-  // pero mantenemos la semántica si planeas diferenciarla más tarde.
   const updateFinalValue = (fieldKey: string, value: string) => {
     updateField(fieldKey, value);
   };
@@ -43,18 +47,25 @@ const VehicleHomologationPage = () => {
     }));
   };
 
+  const handleProcessUrls = () => {
+    console.log("Procesando URLs:");
+    console.log("URL 1:", url1);
+    console.log("URL 2:", url2);
+    console.log("URL 3:", url3);
+    console.log("Opción de Transmisión:", transmissionOption);
+    // En el siguiente paso, aquí generaremos los datos simulados.
+  };
+
   const totalFields = useMemo(() => allSections.reduce((acc, section) => acc + section.fields.length, 0), []);
   const completedFields = useMemo(() => Object.keys(formData).filter(key => formData[key] && String(formData[key]).trim() !== '').length, [formData]);
   const completedPercentage = useMemo(() => totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0, [completedFields, totalFields]);
 
   const handleSaveDraft = () => {
-    console.log("Guardar Borrador:", formData);
-    // Aquí iría la lógica para guardar el borrador
+    console.log("Guardar Borrador:", { urls: {url1, url2, url3}, transmission: transmissionOption, data: formData });
   };
 
   const handleSubmit = () => {
-    console.log("Finalizar y Enviar:", formData);
-    // Aquí iría la lógica para enviar el formulario
+    console.log("Finalizar y Enviar:", { urls: {url1, url2, url3}, transmission: transmissionOption, data: formData });
   };
 
 
@@ -68,6 +79,22 @@ const VehicleHomologationPage = () => {
       />
 
       <div className="max-w-5xl mx-auto px-6 py-6">
+        {/* Mostrar UrlInputSection solo si viewMode es 'extracted' */}
+        {viewMode === 'extracted' && (
+          <UrlInputSection
+            url1={url1}
+            setUrl1={setUrl1}
+            url2={url2}
+            setUrl2={setUrl2}
+            url3={url3}
+            setUrl3={setUrl3}
+            transmissionOption={transmissionOption}
+            setTransmissionOption={setTransmissionOption}
+            onProcessUrls={handleProcessUrls}
+          />
+        )}
+
+        {/* Las vistas de datos se muestran según el viewMode */}
         {viewMode === 'extracted' && (
           <ExtractedDataView
             formData={formData}
