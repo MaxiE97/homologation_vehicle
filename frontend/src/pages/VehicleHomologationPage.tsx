@@ -9,49 +9,12 @@ import UrlInputSection from '../components/vehicleForm/UrlInputSection';
 import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs'; //
 import { sections as allSections } from '../constants/vehicleFormSections'; //
 import { supportedLanguages, predefinedTranslations } from '../constants/localization';
+// Importamos la función desde su nueva ubicación
+import { generateMockData } from '../utils/mockDataGenerator';
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
-// La función generateMockData se mantiene igual que en la respuesta anterior
-const generateMockData = (sections: typeof allSections): { mockExtractedData: ExtractedData, initialFormData: FormData } => {
-  const mockExtractedData: ExtractedData = {};
-  const initialFormData: FormData = {};
-
-  sections.forEach(section => {
-    section.fields.forEach(field => {
-      let site1Value = Math.random() > 0.3 ? `${field.label} S1 - ${Math.floor(Math.random() * 1000)}` : (Math.random() > 0.5 ? null : 'N/A');
-      const site2Value = Math.random() > 0.4 ? `${field.label} S2 - ${Math.floor(Math.random() * 1000)}` : null;
-      const site3Value = Math.random() > 0.2 ? `${field.label} S3 - ${Math.floor(Math.random() * 1000)}` : 'N/A';
-      
-      if (field.key === 'working_principle' && Math.random() > 0.5) site1Value = 'In-line';
-      else if (field.key === 'fuel' && Math.random() > 0.5) site1Value = 'Gasoline';
-      else if (field.key === 'direct_injection' && Math.random() > 0.5) {
-          site1Value = Math.random() > 0.5 ? 'Yes' : 'No';
-      }
-
-      mockExtractedData[field.key] = {
-        site1: field.type === 'number' && site1Value && site1Value !== 'N/A' ? parseFloat(String(site1Value).split('-').pop()!) : site1Value,
-        site2: field.type === 'number' && site2Value ? parseFloat(String(site2Value).split('-').pop()!) : site2Value,
-        site3: field.type === 'number' && site3Value && site3Value !== 'N/A' ? parseFloat(String(site3Value).split('-').pop()!) : site3Value,
-      };
-
-      let finalValue: string | number | null = mockExtractedData[field.key]?.site1;
-      if (finalValue === null || finalValue === 'N/A') {
-        finalValue = mockExtractedData[field.key]?.site2;
-      }
-      if (finalValue === null || finalValue === 'N/A') {
-        finalValue = mockExtractedData[field.key]?.site3;
-      }
-      if (finalValue === null || finalValue === 'N/A' || (typeof finalValue === 'string' && finalValue.trim() === '')) {
-        finalValue = field.type === 'number' ? 0 : (field.options && field.options.length > 0 ? field.options[0] : `Default ${field.label}`);
-      }
-      initialFormData[field.key] = finalValue as string | number;
-    });
-  });
-
-  return { mockExtractedData, initialFormData };
-};
-
+// Eliminamos la definición local de generateMockData, ya que ahora se importa.
 
 const VehicleHomologationPage = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -92,11 +55,13 @@ const VehicleHomologationPage = () => {
   };
 
   const handleProcessUrls = () => {
+    // Llamamos a la función importada, pasándole allSections
     const { mockExtractedData, initialFormData } = generateMockData(allSections);
     setExtractedData(mockExtractedData);
     setOriginalFormData(initialFormData); 
     setFormData(initialFormData);        
     setSelectedLanguage('en'); 
+    console.log("Datos simulados generados y cargados.");
   };
 
   const handleLanguageChange = (languageCode: string) => {
@@ -126,7 +91,6 @@ const VehicleHomologationPage = () => {
         if (translationForCurrentLang) {
           newTranslatedFormData[fieldKey] = translationForCurrentLang;
           changesMade = true;
-          console.log(`Campo '${fieldKey}': Original '${originalValue}' -> Traducido '${translationForCurrentLang}'`);
         } else {
           newTranslatedFormData[fieldKey] = originalValue;
         }
@@ -160,13 +124,10 @@ const VehicleHomologationPage = () => {
      alert("Borrador guardado en consola (simulado).");
   };
 
-  // Refinamos handleSubmit para asegurar que los valores vacíos se envíen como "-"
   const handleSubmit = () => {
     const finalDataForExport = allSections.flatMap(section =>
       section.fields.map(field => {
         const currentValue = formData[field.key];
-        // Si el valor es null, undefined, o un string vacío, enviar "-", de lo contrario, el valor.
-        // La coerción a String es importante si el valor es numérico (ej. 0).
         const valorFinalParaExportar = (currentValue === null || currentValue === undefined || String(currentValue).trim() === '') 
                                        ? "-" 
                                        : String(currentValue);
@@ -178,15 +139,14 @@ const VehicleHomologationPage = () => {
     );
 
     const payload = {
-        language: supportedLanguages.find(l => l.code === selectedLanguage)?.name || selectedLanguage, // Enviar el nombre del idioma o el código
+        language: supportedLanguages.find(l => l.code === selectedLanguage)?.name || selectedLanguage,
         final_data: finalDataForExport
     };
 
     console.log("Finalizar y Enviar (Simulado): Payload para el backend");
-    console.log(JSON.stringify(payload, null, 2)); // Mostramos el JSON formateado
+    console.log(JSON.stringify(payload, null, 2));
     alert(`Simulación de envío para exportar en ${payload.language}. Revisa la consola para ver el payload detallado.`);
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
