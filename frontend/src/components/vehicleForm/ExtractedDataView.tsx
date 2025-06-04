@@ -1,7 +1,11 @@
-// src/components/vehicleForm/ExtractedDataView.tsx
+// frontend/src/components/vehicleForm/ExtractedDataView.tsx
 import React from 'react';
-import type { FieldConfig, FormData, ExtractedData } from '../../types/vehicleSpecs';
-import { demonstrationFields } from '../../constants/vehicleFormSections'; // Usaremos los campos de demostración
+import type { FieldConfig, FormData, ExtractedData } from '../../types/vehicleSpecs'; //
+// Importamos allSections y creamos una lista plana de todos los campos
+import { sections as allSections } from '../../constants/vehicleFormSections'; //
+
+// Creamos una lista plana de todos los campos de todas las secciones
+const allFields: FieldConfig[] = allSections.flatMap(section => section.fields);
 
 interface ExtractedDataViewProps {
   formData: FormData;
@@ -16,12 +20,9 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
   onExtractedDataChange,
   onFinalValueChange,
 }) => {
-  // Lógica para los botones "Copiar de Sitio X"
-  // Por simplicidad, esta lógica se deja como ejercicio,
-  // o puedes implementarla directamente aquí o pasar funciones desde el padre.
-  // Ejemplo rápido:
   const handleCopyFromSite = (siteKey: 'site1' | 'site2' | 'site3') => {
-    demonstrationFields.forEach(field => {
+    // Ahora usamos allFields para la lógica de copia
+    allFields.forEach(field => {
       const siteValue = extractedData[field.key]?.[siteKey];
       if (siteValue !== undefined && siteValue !== null) {
         onFinalValueChange(field.key, String(siteValue));
@@ -39,7 +40,8 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50/50">
+            {/* ... (Cabecera de la tabla sin cambios) ... */}
+             <tr className="bg-gray-50/50">
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 min-w-[250px]">Campo</th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
                 <div className="flex flex-col items-center space-y-1">
@@ -76,7 +78,8 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
             </tr>
           </thead>
           <tbody>
-            {demonstrationFields.map((field, index) => (
+            {/* Cambiamos demonstrationFields por allFields */}
+            {allFields.map((field, index) => (
               <tr key={field.key} className={`border-b border-gray-100 hover:bg-blue-50/30 transition-colors ${
                 index % 2 === 0 ? 'bg-white/50' : 'bg-gray-50/30'
               }`}>
@@ -89,7 +92,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                 {/* Site 1 */}
                 <td className="px-4 py-4">
                   <input
-                    type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type} // inputs básicos aquí
+                    type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type}
                     className="w-full px-3 py-2 text-sm border border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none bg-blue-50/50 text-center"
                     placeholder="Sitio 1"
                     value={extractedData[field.key]?.site1 || ''}
@@ -126,7 +129,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                       value={formData[field.key] || ''}
                       onChange={(e) => onFinalValueChange(field.key, e.target.value)}
                     />
-                    {formData[field.key] && (
+                    {formData[field.key] && String(formData[field.key]).trim() !== '' && ( // Condición mejorada para el tick
                       <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">✓</span>
                       </div>
@@ -143,8 +146,9 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-600">
             <span className="font-semibold text-green-600">
-              {demonstrationFields.filter(field => formData[field.key] && String(formData[field.key]).trim() !== '').length}
-            </span> de {demonstrationFields.length} valores finales definidos
+              {/* Usamos allFields para el conteo */}
+              {allFields.filter(field => formData[field.key] && String(formData[field.key]).trim() !== '').length}
+            </span> de {allFields.length} valores finales definidos
           </div>
           <div className="flex space-x-2">
             <button onClick={() => handleCopyFromSite('site1')} className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
