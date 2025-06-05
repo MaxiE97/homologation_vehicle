@@ -6,20 +6,20 @@ export interface Language {
 }
 
 export const supportedLanguages: Language[] = [
-  { code: 'es', name: 'Español' },
-  { code: 'en', name: 'Inglés' },
-  { code: 'de', name: 'Alemán' },
-  { code: 'pt', name: 'Portugués' },
-  // Puedes añadir más idiomas aquí
+  { code: 'es', name: 'Spanish' },
+  { code: 'en', name: 'English' },
+  { code: 'de', name: 'German' },
+  { code: 'pt', name: 'Portuguese' },
+  // You can add more languages here
 ];
 
-// Ejemplo de un diccionario de traducciones predefinidas
-// La clave externa es el field.key, la interna es el valor original, y luego el valor traducido.
+// Example of a predefined translations dictionary
+// The outer key is the field.key, the inner key is the original value, and then the translated value.
 export const predefinedTranslations: Record<string, Record<string, Record<string, string>>> = {
-  // Ejemplo para el campo 'working_principle' (Principio de funcionamiento)
-  // (Este es el 'key' del FieldConfig en vehicleFormSections.tsx)
+  // Example for the 'working_principle' field (Principio de funcionamiento)
+  // (This is the 'key' of the FieldConfig in vehicleFormSections.tsx)
   'working_principle': {
-    'In-line': { // Valor original que podría venir del backend o ser un estándar
+    'In-line': { // Original value that could come from the backend or be a standard
       'es': 'En línea',
       'de': 'In Reihe',
       'pt': 'Em linha'
@@ -29,9 +29,9 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
       'de': 'V-Motor',
       'pt': 'Motor em V'
     },
-    // ... más valores a traducir para el campo 'working_principle'
+    // ... more values to translate for the 'working_principle' field
   },
-  // Ejemplo para el campo 'fuel' (Combustible)
+  // Example for the 'fuel' field (Combustible)
   'fuel': {
     'Gasoline': {
       'es': 'Gasolina',
@@ -43,11 +43,11 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
       'de': 'Diesel',
       'pt': 'Diesel'
     },
-    // ... más valores para 'fuel'
+    // ... more values for 'fuel'
   },
-  // Ejemplo para el campo 'direct_injection' (Inyección directa) que usa "Sí"/"No"
+  // Example for the 'direct_injection' field (Inyección directa) that uses "Yes"/"No"
   'direct_injection': {
-    'Sí': { // Asumiendo que el valor base podría ser "Sí" si se procesa en español primero
+    'Sí': { // Assuming the base value could be "Sí" if processed in Spanish first
       'en': 'Yes',
       'de': 'Ja',
       'pt': 'Sim'
@@ -57,13 +57,13 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
       'de': 'Nein',
       'pt': 'Não'
     },
-    // También podrías tener las versiones en inglés como base si los datos vienen así
+    // You could also have the English versions as the base if the data comes that way
     'Yes': {
         'es': 'Sí',
         'de': 'Ja',
         'pt': 'Sim'
     }
-    // Considera una estrategia consistente para el "valor original"
+    // Consider a consistent strategy for the "original value"
   }
-  // ... más campos con valores predefinidos a traducir
+  // ... more fields with predefined values to translate
 };

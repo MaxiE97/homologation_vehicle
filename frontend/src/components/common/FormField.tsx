@@ -1,6 +1,6 @@
 // src/components/common/FormField.tsx
 import React from 'react';
-import type { FieldConfig, FormData } from '../../types/vehicleSpecs';
+import type { FieldConfig } from '../../types/vehicleSpecs';
 
 interface FormFieldProps {
   field: FieldConfig;
@@ -16,7 +16,7 @@ const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
       return (
         <textarea
           className={`${baseClasses} min-h-[80px] resize-none`}
-          placeholder={`Ingrese ${field.label.toLowerCase()}`}
+          placeholder={`Enter ${field.label.toLowerCase()}`}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -28,7 +28,7 @@ const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">Seleccione...</option>
+          <option value="">Select...</option>
           {field.options?.map(option => (
             <option key={option} value={option}>{option}</option>
           ))}
@@ -39,7 +39,7 @@ const FormField: React.FC<FormFieldProps> = ({ field, value, onChange }) => {
         <input
           type={field.type}
           className={baseClasses}
-          placeholder={`Ingrese ${field.label.toLowerCase()}`}
+          placeholder={`Enter ${field.label.toLowerCase()}`}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         />

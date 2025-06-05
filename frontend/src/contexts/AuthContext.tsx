@@ -1,8 +1,8 @@
 // frontend/src/contexts/AuthContext.tsx
-// Hacemos la importación de ReactNode como tipo explícito
+// We import ReactNode as an explicit type
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 
-// Valores simulados para el login
+// Simulated values for login
 const MOCK_USERNAME = "tecnico";
 const MOCK_PASSWORD = "password123";
 
@@ -18,9 +18,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
   });
-  // useNavigate no se usa directamente en AuthProvider en la versión anterior,
-  // pero lo mantendré por si lo necesitas para alguna lógica de redirección centralizada aquí en el futuro.
-  // Si no, se podría quitar de este archivo específico.
+  // useNavigate is not used directly in AuthProvider in the previous version,
+  // but I'll keep it in case you need it for some centralized redirection logic here in the future.
+  // If not, it could be removed from this specific file.
   // const navigate = useNavigate(); 
 
   useEffect(() => {
@@ -36,10 +36,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setTimeout(() => {
         if (usernameInput === MOCK_USERNAME && passwordInput === MOCK_PASSWORD) {
           setIsAuthenticated(true);
-          console.log('AuthContext: Login exitoso');
+          console.log('AuthContext: Login successful');
           resolve(true);
         } else {
-          console.log('AuthContext: Falló el login');
+          console.log('AuthContext: Login failed');
           resolve(false);
         }
       }, 500);
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setIsAuthenticated(false);
-    console.log('AuthContext: Logout realizado');
+    console.log('AuthContext: Logout performed');
   };
 
   return (
@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

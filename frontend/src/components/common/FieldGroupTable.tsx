@@ -11,8 +11,8 @@ interface FieldGroupTableProps {
   tableConfig: TableGroupConfig;
   formData: FormData;
   onFieldChange: (fieldKey: string, value: string) => void;
-  // Necesitamos acceso a las configuraciones de todos los campos
-  // para poder pasar la FieldConfig correcta a cada FormField.
+  // We need access to the configurations of all fields
+  // to be able to pass the correct FieldConfig to each FormField.
   allFields: FieldConfig[];
 }
 
@@ -22,7 +22,7 @@ const FieldGroupTable: React.FC<FieldGroupTableProps> = ({
   onFieldChange,
   allFields,
 }) => {
-  // Helper para encontrar la FieldConfig completa a partir de su key
+  // Helper to find the complete FieldConfig from its key
   const getFieldConfig = (key: string): FieldConfig | undefined => {
     return allFields.find(f => f.key === key);
   };
@@ -52,15 +52,15 @@ const FieldGroupTable: React.FC<FieldGroupTableProps> = ({
           <tbody className="divide-y divide-gray-100">
             {tableConfig.rowData.map((row, rowIndex) => (
               <tr key={`${tableConfig.id}-row-${rowIndex}`} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                {/* Primera celda para la etiqueta de la fila */}
+                {/* First cell for the row label */}
                 <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">
                   {row.rowLabel}
                 </td>
-                {/* Celdas restantes para los FormField */}
+                {/* Remaining cells for the FormFields */}
                 {tableConfig.columnHeaders.slice(1).map((header) => {
                   const fieldKey = row.fieldKeys[header.key];
                   if (!fieldKey) {
-                    // Si no hay fieldKey para esta cabecera en esta fila, renderizar celda vacía o un placeholder
+                    // If there is no fieldKey for this header in this row, render an empty cell or a placeholder
                     return (
                       <td key={`${tableConfig.id}-row-${rowIndex}-col-${header.key}`} className="px-4 py-3">
                         <span className="text-sm text-gray-400">-</span>
@@ -71,10 +71,10 @@ const FieldGroupTable: React.FC<FieldGroupTableProps> = ({
                   const fieldSpecificConfig = getFieldConfig(fieldKey);
 
                   if (!fieldSpecificConfig) {
-                    console.warn(`FieldGroupTable: No se encontró FieldConfig para la key: ${fieldKey}`);
+                    console.warn(`FieldGroupTable: FieldConfig not found for key: ${fieldKey}`);
                     return (
                       <td key={`${tableConfig.id}-row-${rowIndex}-col-${header.key}`} className="px-4 py-3">
-                        <span className="text-sm text-red-500">Error: Configuración no encontrada</span>
+                        <span className="text-sm text-red-500">Error: Configuration not found</span>
                       </td>
                     );
                   }

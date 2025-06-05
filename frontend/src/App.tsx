@@ -4,35 +4,35 @@ import VehicleHomologationPage from './pages/VehicleHomologationPage'; //
 import LoginPage from './pages/LoginPage';
 import UserProfilePage from './pages/UserProfilePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-// import { useAuth } from './contexts/AuthContext'; // Podríamos usarlo aquí si es necesario
+// import { useAuth } from './contexts/AuthContext'; // We might use it here if necessary
 
 function App() {
-  // const { isAuthenticated } = useAuth(); // Podríamos usarlo para la ruta raíz
-                                        // o para una navbar global, etc.
+  // const { isAuthenticated } = useAuth(); // We could use it for the root path
+                                        // or for a global navbar, etc.
 
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Rutas Protegidas */}
+      {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/homologation" element={<VehicleHomologationPage />} />
         <Route path="/profile" element={<UserProfilePage />} />
-        {/* Si "/" debe ser una ruta protegida que va a homologación por defecto: */}
+        {/* If "/" should be a protected route that defaults to homologation: */}
         <Route path="/" element={<Navigate replace to="/homologation" />} />
       </Route>
       
-      {/* Si "/" es pública y solo redirige basado en auth, la lógica anterior estaba bien, 
-          pero con ProtectedRoute, es más limpio manejar la raíz DENTRO o FUERA 
-          del bloque protegido. Si está fuera y es pública, redirige a /login o /homologation.
-          Si la raíz DEBE ser /homologation (y por ende protegida), la ponemos dentro del ProtectedRoute.
-          La siguiente línea es una alternativa si la raíz NO es protegida por defecto:
+      {/* If "/" is public and only redirects based on auth, the previous logic was fine, 
+          but with ProtectedRoute, it's cleaner to handle the root INSIDE or OUTSIDE
+          the protected block. If it's outside and public, it redirects to /login or /homologation.
+          If the root MUST be /homologation (and therefore protected), we place it inside the ProtectedRoute.
+          The following line is an alternative if the root is not protected by default:
       */}
       {/* <Route 
         path="/" 
         element={
-          // Esta lógica se puede simplificar si la ruta raíz siempre va a login o es manejada por ProtectedRoute
-          localStorage.getItem('isAuthenticated') === 'true'  // O usar useAuth().isAuthenticated
+          // This logic can be simplified if the root path always goes to login or is handled by ProtectedRoute
+          localStorage.getItem('isAuthenticated') === 'true'  // Or use useAuth().isAuthenticated
             ? <Navigate replace to="/homologation" /> 
             : <Navigate replace to="/login" />
         } 
@@ -42,13 +42,13 @@ function App() {
       <Route path="*" element={
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
           <h1 className="text-4xl font-bold text-red-600 mb-4">Error 404</h1>
-          <p className="text-lg text-gray-700 mb-6">Página no encontrada.</p>
-          {/* El enlace podría ser más dinámico si useAuth estuviera disponible aquí */}
+          <p className="text-lg text-gray-700 mb-6">Page not found.</p>
+          {/* The link could be more dynamic if useAuth were available here */}
           <a 
-            href="/" // Simplemente enlaza a la raíz, que ya tiene lógica de redirección
+            href="/" // Simply links to the root, which already has redirect logic
             className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
-            Volver al Inicio
+            Back to Home
           </a>
         </div>
       } />

@@ -18,8 +18,8 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
   onExtractedDataChange,
   onFinalValueChange,
 }) => {
-  // La función handleCopyFromSite ya no es necesaria si eliminamos los botones.
-  // Si alguna vez se necesitara de nuevo, habría que reevaluarla.
+  // The handleCopyFromSite function is no longer necessary if we remove the buttons.
+  // If it were ever needed again, it would have to be re-evaluated.
   // const handleCopyFromSite = (siteKey: 'site1' | 'site2' | 'site3') => {
   //   allFields.forEach(field => {
   //     const siteValue = extractedData[field.key]?.[siteKey];
@@ -32,21 +32,21 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-cyan-50">
-        <h2 className="text-lg font-semibold text-gray-800">Comparación de Datos Extraídos</h2>
-        <p className="text-sm text-gray-600">Compare datos de múltiples fuentes y establezca el valor final</p>
+        <h2 className="text-lg font-semibold text-gray-800">Extracted Data Comparison</h2>
+        <p className="text-sm text-gray-600">Compare data from multiple sources and set the final value</p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50/50">
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 min-w-[250px]">Campo</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 min-w-[250px]">Field</th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
                 <div className="flex flex-col items-center space-y-1">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S1</span>
                   </div>
-                  <span>Sitio 1</span>
+                  <span>Source 1</span>
                 </div>
               </th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
@@ -54,7 +54,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S2</span>
                   </div>
-                  <span>Sitio 2</span>
+                  <span>Source 2</span>
                 </div>
               </th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
@@ -62,7 +62,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S3</span>
                   </div>
-                  <span>Sitio 3</span>
+                  <span>Source 3</span>
                 </div>
               </th>
               <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700 min-w-[180px]">
@@ -70,7 +70,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">✓</span>
                   </div>
-                  <span>Valor Final</span>
+                  <span>Final Value</span>
                 </div>
               </th>
             </tr>
@@ -91,7 +91,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <input
                     type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type}
                     className="w-full px-3 py-2 text-sm border border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none bg-blue-50/50 text-center"
-                    placeholder="Sitio 1"
+                    placeholder="Source 1"
                     value={extractedData[field.key]?.site1 || ''}
                     onChange={(e) => onExtractedDataChange(field.key, 'site1', e.target.value)}
                   />
@@ -101,7 +101,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <input
                     type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type}
                     className="w-full px-3 py-2 text-sm border border-purple-200 rounded-lg focus:border-purple-500 focus:outline-none bg-purple-50/50 text-center"
-                    placeholder="Sitio 2"
+                    placeholder="Source 2"
                     value={extractedData[field.key]?.site2 || ''}
                     onChange={(e) => onExtractedDataChange(field.key, 'site2', e.target.value)}
                   />
@@ -111,7 +111,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <input
                     type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type}
                     className="w-full px-3 py-2 text-sm border border-green-200 rounded-lg focus:border-green-500 focus:outline-none bg-green-50/50 text-center"
-                    placeholder="Sitio 3"
+                    placeholder="Source 3"
                     value={extractedData[field.key]?.site3 || ''}
                     onChange={(e) => onExtractedDataChange(field.key, 'site3', e.target.value)}
                   />
@@ -122,7 +122,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                     <input
                       type={field.type === 'select' || field.type === 'textarea' ? 'text' : field.type}
                       className="flex-1 px-3 py-2 text-sm border-2 border-orange-200 rounded-lg focus:border-orange-500 focus:outline-none bg-gradient-to-r from-orange-50 to-red-50 font-semibold text-center"
-                      placeholder="Valor final"
+                      placeholder="Final value"
                       value={formData[field.key] || ''}
                       onChange={(e) => onFinalValueChange(field.key, e.target.value)}
                     />
@@ -139,7 +139,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
         </table>
       </div>
 
-      {/* La siguiente sección <div className="px-6 py-4 ..."> HA SIDO ELIMINADA */}
+      {/* The following section <div className="px-6 py-4 ..."> HAS BEEN REMOVED */}
       {/* <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/30">
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-600">

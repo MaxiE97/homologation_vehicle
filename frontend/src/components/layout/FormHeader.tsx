@@ -1,8 +1,8 @@
-// frontend/src/components/layout/FormHeader.tsx
+// src/components/layout/FormHeader.tsx
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Importamos Link y useNavigate
-import { Car, Languages, UserCircle, LogOut } from 'lucide-react'; // Importamos más íconos
-import { useAuth } from '../../contexts/AuthContext'; // Importamos useAuth
+import { Link, useNavigate } from 'react-router-dom'; // We import Link and useNavigate
+import { Car, Languages, UserCircle, LogOut } from 'lucide-react'; // We import more icons
+import { useAuth } from '../../contexts/AuthContext'; // We import useAuth
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 interface Language {
@@ -30,7 +30,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
   onLanguageChange,
   onTranslateRequest,
 }) => {
-  const { isAuthenticated, logout } = useAuth(); // Obtenemos estado y función del contexto
+  const { isAuthenticated, logout } = useAuth(); // We get state and function from the context
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -42,22 +42,22 @@ const FormHeader: React.FC<FormHeaderProps> = ({
     <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo y título */}
+          {/* Logo and title */}
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
               <Car className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-800">Especificaciones Técnicas del Vehículo</h1>
+              <h1 className="text-xl font-bold text-gray-800">Vehicle Technical Specifications</h1>
             </div>
           </div>
 
-          {/* Controles y Acciones del Usuario */}
+          {/* Controls and User Actions */}
           <div className="flex items-center space-x-4">
-            {isAuthenticated && ( // Solo mostrar si está autenticado (aunque esta página ya es protegida)
+            {isAuthenticated && ( // Only show if authenticated (although this page is already protected)
               <>
                 <div className="text-sm text-gray-600">
-                  <span className="font-semibold text-blue-600">{completedFields}</span> de {totalFields} campos
+                  <span className="font-semibold text-blue-600">{completedFields}</span> of {totalFields} fields
                 </div>
                 
                 <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
@@ -65,7 +65,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                     value={selectedLanguage}
                     onChange={(e) => onLanguageChange(e.target.value)}
                     className="px-2 py-1 text-xs font-medium rounded bg-white border border-gray-300 focus:outline-none focus:border-blue-500"
-                    aria-label="Seleccionar idioma"
+                    aria-label="Select language"
                   >
                     {supportedLanguages.map(lang => (
                       <option key={lang.code} value={lang.code}>
@@ -75,7 +75,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                   </select>
                   <button
                     onClick={onTranslateRequest}
-                    title="Traducir valores finales predefinidos"
+                    title="Translate final predefined values"
                     className="p-1.5 text-xs font-medium rounded transition-colors bg-blue-500 text-white hover:bg-blue-600"
                   >
                     <Languages className="w-4 h-4" />
@@ -91,9 +91,9 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                   >
-                    Datos Extraídos
+                    Extracted Data
                   </button>
-                  {/* ... otros botones de vista ... */}
+                  {/* ... other view buttons ... */}
                   <button
                     onClick={() => onViewModeChange('sections')}
                     className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
@@ -102,7 +102,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     >
-                    Por Secciones
+                    By Sections
                   </button>
                   <button
                     onClick={() => onViewModeChange('unified')}
@@ -112,22 +112,22 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     >
-                    Vista Unificada
+                    Unified View
                   </button>
                 </div>
 
-                {/* Sección de Usuario: Perfil y Logout */}
+                {/* User Section: Profile and Logout */}
                 <div className="flex items-center space-x-2">
                   <Link
                     to="/profile"
-                    title="Ver Perfil"
+                    title="View Profile"
                     className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                   >
                     <UserCircle className="w-5 h-5 text-gray-600" />
                   </Link>
                   <button
                     onClick={handleLogout}
-                    title="Cerrar Sesión"
+                    title="Logout"
                     className="p-2 rounded-full hover:bg-red-100 transition-colors"
                   >
                     <LogOut className="w-5 h-5 text-red-500" />

@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext'; // Importamos useAuth
+import { useAuth } from '../contexts/AuthContext'; // We import useAuth
 
-// Las credenciales MOCK ahora están centralizadas en AuthContext,
-// pero para la UI podríamos mantener la pista de qué usar.
+// MOCK credentials are now centralized in AuthContext,
+// but for the UI, we could keep track of what to use.
 const MOCK_USERNAME_HINT = "tecnico";
 const MOCK_PASSWORD_HINT = "password123";
 
@@ -14,23 +14,23 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Para feedback visual
+  const [isLoading, setIsLoading] = useState(false); // For visual feedback
   
   const navigate = useNavigate();
-  const { login } = useAuth(); // Usamos el contexto
+  const { login } = useAuth(); // We use the context
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    const success = await login(username, password); // Llamamos al login del contexto
+    const success = await login(username, password); // We call the login from the context
 
     setIsLoading(false);
     if (success) {
       navigate('/homologation', { replace: true });
     } else {
-      setError('Usuario o contraseña incorrectos. Intente con tecnico / password123');
+      setError('Incorrect username or password. Try with tecnico / password123');
     }
   };
 
@@ -44,14 +44,14 @@ const LoginPage: React.FC = () => {
           <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Iniciar Sesión</h1>
-          <p className="text-sm text-gray-600">Acceda a la plataforma de homologación.</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Login</h1>
+          <p className="text-sm text-gray-600">Access the homologation platform.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label htmlFor="username" className={labelClasses}>
-              Nombre de Usuario
+              Username
             </label>
             <input
               type="text"
@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className={inputClasses}
-              placeholder={`ej: ${MOCK_USERNAME_HINT}`}
+              placeholder={`e.g., ${MOCK_USERNAME_HINT}`}
               required
               disabled={isLoading}
             />
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
 
           <div>
             <label htmlFor="password" className={labelClasses}>
-              Contraseña
+              Password
             </label>
             <input
               type="password"
@@ -98,12 +98,12 @@ const LoginPage: React.FC = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-              ) : 'Ingresar'}
+              ) : 'Login'}
             </button>
           </div>
         </form>
         <p className="mt-6 text-center text-xs text-gray-500">
-          Versión simulada. Use {MOCK_USERNAME_HINT} / {MOCK_PASSWORD_HINT} para ingresar.
+          Simulated version. Use {MOCK_USERNAME_HINT} / {MOCK_PASSWORD_HINT} to log in.
         </p>
       </div>
     </div>

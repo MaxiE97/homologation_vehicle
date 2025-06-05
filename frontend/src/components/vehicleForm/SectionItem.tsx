@@ -2,7 +2,7 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import FormField from '../common/FormField'; //
-import FieldGroupTable from '../common/FieldGroupTable'; // Importamos el nuevo componente
+import FieldGroupTable from '../common/FieldGroupTable'; // We import the new component
 import type { SectionConfig, FormData, FieldConfig } from '../../types/vehicleSpecs'; //
 
 interface SectionItemProps {
@@ -11,7 +11,7 @@ interface SectionItemProps {
   formData: FormData;
   onToggle: () => void;
   onFieldChange: (fieldKey: string, value: string) => void;
-  allFields: FieldConfig[]; // Nueva prop
+  allFields: FieldConfig[]; // New prop
 }
 
 const SectionItem: React.FC<SectionItemProps> = ({
@@ -20,7 +20,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
   formData,
   onToggle,
   onFieldChange,
-  allFields, // Recibimos allFields
+  allFields, // We receive allFields
 }) => {
   const IconComponent = section.icon;
 
@@ -28,7 +28,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
     formData[field.key] && String(formData[field.key]).trim() !== ''
   ).length;
 
-  // Creamos un conjunto de keys de campos que están en tablas para fácil búsqueda
+  // We create a set of keys for fields that are in tables for easy lookup
   const fieldsInAnyTable = new Set(
     section.tableGroups?.flatMap(tg => tg.fieldsInTable) || []
   );
@@ -39,7 +39,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
         onClick={onToggle}
         className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
       >
-        {/* ... (Contenido del botón sin cambios) ... */}
+        {/* ... (Button content unchanged) ... */}
         <div className="flex items-center space-x-3">
           <div className={`p-2 bg-gradient-to-r ${section.color} rounded-lg`}>
             <IconComponent className="w-4 h-4 text-white" />
@@ -47,7 +47,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
           <div className="text-left">
             <h3 className="font-semibold text-gray-800">{section.title}</h3>
             <p className="text-sm text-gray-600">
-              {sectionCompletedFields} de {section.fields.length} campos completados
+              {sectionCompletedFields} of {section.fields.length} fields completed
             </p>
           </div>
         </div>
@@ -68,7 +68,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
 
       {!isCollapsed && (
         <div className="px-6 pb-6 border-t border-gray-100">
-          {/* Renderizar TableGroups primero */}
+          {/* Render TableGroups first */}
           {section.tableGroups?.map(tableConfig => (
             <FieldGroupTable
               key={tableConfig.id}
@@ -79,10 +79,10 @@ const SectionItem: React.FC<SectionItemProps> = ({
             />
           ))}
 
-          {/* Luego renderizar campos individuales que NO están en una tabla */}
+          {/* Then render individual fields that are NOT in a table */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {section.fields
-              .filter(field => !fieldsInAnyTable.has(field.key)) // Omitir campos que ya están en tablas
+              .filter(field => !fieldsInAnyTable.has(field.key)) // Skip fields that are already in tables
               .map((field) => (
                 <div key={field.key} className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700">

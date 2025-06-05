@@ -23,11 +23,11 @@ const VehicleHomologationPage = () => {
   const [url1, setUrl1] = useState<string>('');
   const [url2, setUrl2] = useState<string>('');
   const [url3, setUrl3] = useState<string>('');
-  const [transmissionOption, setTransmissionOption] = useState<string>('Por defecto');
+  const [transmissionOption, setTransmissionOption] = useState<string>('Default');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en'); 
 
-  // Creamos una lista plana de todas las FieldConfigs.
-  // Esto es útil para pasar a componentes que necesiten buscar FieldConfig por key.
+  // We create a flat list of all FieldConfigs.
+  // This is useful for passing to components that need to look up FieldConfig by key.
   const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), [allSections]);
 
   const updateField = (fieldKey: string, value: string) => {
@@ -61,21 +61,21 @@ const VehicleHomologationPage = () => {
     setOriginalFormData(initialFormData); 
     setFormData(initialFormData);        
     setSelectedLanguage('en'); 
-    console.log("Datos simulados generados y cargados.");
+    console.log("Simulated data generated and loaded.");
   };
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
     if (languageCode === 'en') {
       setFormData(originalFormData);
-      console.log("Idioma cambiado a Inglés. Mostrando valores originales.");
+      console.log("Language changed to English. Showing original values.");
     }
   };
   
   const handleTranslateFinalValues = useCallback(() => {
     if (selectedLanguage === 'en') {
       setFormData(originalFormData);
-      alert('Valores restaurados al Inglés original.');
+      alert('Values restored to the original English.');
       return;
     }
     const newTranslatedFormData: FormData = { ...originalFormData }; 
@@ -96,35 +96,35 @@ const VehicleHomologationPage = () => {
     }
     setFormData(newTranslatedFormData); 
     if (changesMade) {
-      alert(`Valores traducidos (o intentados traducir) a: ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}. Revisa la consola.`);
+      alert(`Values translated (or translation attempted) to: ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}. Check the console.`);
     } else {
-      alert(`No se encontraron traducciones predefinidas aplicables para ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}. Se muestran valores originales.`);
+      alert(`No applicable predefined translations were found for ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}. Original values are shown.`);
     }
   }, [originalFormData, selectedLanguage]); 
 
-  const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]); // Usamos allFieldsFlat para el total
+  const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]); // We use allFieldsFlat for the total
   const completedFields = useMemo(() => Object.keys(formData).filter(key => formData[key] && String(formData[key]).trim() !== '').length, [formData]);
   const completedPercentage = useMemo(() => totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0, [completedFields, totalFields]);
 
   const handleSaveDraft = () => {
-    console.log("Guardar Borrador:", { urls: {url1, url2, url3}, transmission: transmissionOption, language: selectedLanguage, data: formData, originalData: originalFormData, extracted: extractedData });
-    alert("Borrador guardado en consola (simulado).");
+    console.log("Save Draft:", { urls: {url1, url2, url3}, transmission: transmissionOption, language: selectedLanguage, data: formData, originalData: originalFormData, extracted: extractedData });
+    alert("Draft saved to console (simulated).");
   };
 
   const handleSubmit = () => {
-    const finalDataForExport = allFieldsFlat.map(field => { // Usamos allFieldsFlat para asegurar todos los campos
+    const finalDataForExport = allFieldsFlat.map(field => { // We use allFieldsFlat to ensure all fields
         const currentValue = formData[field.key];
-        const valorFinalParaExportar = (currentValue === null || currentValue === undefined || String(currentValue).trim() === '') 
+        const finalValueForExport = (currentValue === null || currentValue === undefined || String(currentValue).trim() === '') 
                                        ? "-" 
                                        : String(currentValue);
         return {
           Key: field.label, 
-          "Valor Final": valorFinalParaExportar
+          "Final Value": finalValueForExport
         };
       });
     const payload = { language: supportedLanguages.find(l => l.code === selectedLanguage)?.name || selectedLanguage, final_data: finalDataForExport };
-    console.log("Finalizar y Enviar (Simulado): Payload para el backend", JSON.stringify(payload, null, 2));
-    alert(`Simulación de envío para exportar en ${payload.language}. Revisa la consola para ver el payload detallado.`);
+    console.log("Finalize and Submit (Simulated): Payload for the backend", JSON.stringify(payload, null, 2));
+    alert(`Simulating submission for export in ${payload.language}. Check the console for the detailed payload.`);
   };
 
   return (
@@ -155,14 +155,14 @@ const VehicleHomologationPage = () => {
             collapsedSections={collapsedSections}
             onToggleSection={toggleSection}
             onFieldChange={updateField}
-            allFields={allFieldsFlat} // Pasamos allFieldsFlat
+            allFields={allFieldsFlat} // We pass allFieldsFlat
           />
         )}
         {viewMode === 'unified' && (
           <UnifiedView
             formData={formData}
             onFieldChange={updateField}
-            allFields={allFieldsFlat} // Pasamos allFieldsFlat
+            allFields={allFieldsFlat} // We pass allFieldsFlat
           />
         )}
         <FormActions /* ...props... */ 

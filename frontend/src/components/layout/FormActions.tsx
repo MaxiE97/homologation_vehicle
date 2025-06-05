@@ -11,7 +11,7 @@ const FormActions: React.FC<FormActionsProps> = ({ completedPercentage, onSaveDr
   return (
     <div className="mt-8 flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 p-4">
       <div className="text-sm text-gray-600">
-        Progreso: <span className="font-semibold text-blue-600">{completedPercentage}%</span>
+        Progress: <span className="font-semibold text-blue-600">{completedPercentage}%</span>
       </div>
 
       <div className="flex space-x-3">
@@ -19,13 +19,13 @@ const FormActions: React.FC<FormActionsProps> = ({ completedPercentage, onSaveDr
           onClick={onSaveDraft}
           className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium transition-colors hover:bg-gray-200"
         >
-          Guardar Borrador
+          Save Draft
         </button>
         <button
           onClick={onSubmit}
           className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg"
         >
-          Finalizar y Enviar
+          Finalize and Submit
         </button>
       </div>
     </div>

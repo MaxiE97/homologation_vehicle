@@ -29,66 +29,66 @@ const UrlInputSection: React.FC<UrlInputSectionProps> = ({
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 p-6 mb-6 shadow">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Ingresar URLs y Opciones</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Enter URLs and Options</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Columna Izquierda: URLs */}
+        {/* Left Column: URLs */}
         <div className="space-y-4">
           <div>
-            <label htmlFor="url1" className={labelClasses}>URL Sitio 1 (Opcional)</label>
+            <label htmlFor="url1" className={labelClasses}>Source 1 URL (Optional)</label>
             <input
               type="url"
               id="url1"
               value={url1}
               onChange={(e) => setUrl1(e.target.value)}
-              placeholder="https://ejemplo.sitio1.com/vehiculoA"
+              placeholder="https://example.site1.com/vehicleA"
               className={inputClasses}
             />
           </div>
           <div>
-            <label htmlFor="url2" className={labelClasses}>URL Sitio 2 (Opcional)</label>
+            <label htmlFor="url2" className={labelClasses}>Source 2 URL (Optional)</label>
             <input
               type="url"
               id="url2"
               value={url2}
               onChange={(e) => setUrl2(e.target.value)}
-              placeholder="https://ejemplo.sitio2.com/vehiculoB"
+              placeholder="https://example.site2.com/vehicleB"
               className={inputClasses}
             />
           </div>
           <div>
-            <label htmlFor="url3" className={labelClasses}>URL Sitio 3 (Opcional)</label>
+            <label htmlFor="url3" className={labelClasses}>Source 3 URL (Optional)</label>
             <input
               type="url"
               id="url3"
               value={url3}
               onChange={(e) => setUrl3(e.target.value)}
-              placeholder="https://ejemplo.sitio3.com/vehiculoC"
+              placeholder="https://example.site3.com/vehicleC"
               className={inputClasses}
             />
           </div>
         </div>
 
-        {/* Columna Derecha: Opciones y Botón */}
+        {/* Right Column: Options and Button */}
         <div className="space-y-4">
           <div>
-            <label htmlFor="transmissionOption" className={labelClasses}>Opción de Transmisión</label>
+            <label htmlFor="transmissionOption" className={labelClasses}>Transmission Option</label>
             <select
               id="transmissionOption"
               value={transmissionOption}
               onChange={(e) => setTransmissionOption(e.target.value)}
               className={inputClasses}
             >
-              <option value="Por defecto">Por defecto</option>
+              <option value="Default">Default</option>
               <option value="Manual">Manual</option>
-              <option value="Automático">Automático</option>
+              <option value="Automatic">Automatic</option>
             </select>
           </div>
-          <div className="pt-5"> {/* Ajuste para alinear mejor el botón o darle espacio */}
+          <div className="pt-5"> {/* Adjustment to better align the button or give it space */}
             <button
               onClick={onProcessUrls}
               className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
-              Procesar URLs y Obtener Datos
+              Process URLs and Get Data
             </button>
           </div>
         </div>
