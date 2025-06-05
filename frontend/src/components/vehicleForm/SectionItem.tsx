@@ -1,8 +1,9 @@
-// src/components/vehicleForm/SectionItem.tsx
+// frontend/src/components/vehicleForm/SectionItem.tsx
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import FormField from '../common/FormField';
-import type { SectionConfig, FormData } from '../../types/vehicleSpecs';
+import FormField from '../common/FormField'; //
+import FieldGroupTable from '../common/FieldGroupTable'; // Importamos el nuevo componente
+import type { SectionConfig, FormData, FieldConfig } from '../../types/vehicleSpecs'; //
 
 interface SectionItemProps {
   section: SectionConfig;
@@ -10,6 +11,7 @@ interface SectionItemProps {
   formData: FormData;
   onToggle: () => void;
   onFieldChange: (fieldKey: string, value: string) => void;
+  allFields: FieldConfig[]; // Nueva prop
 }
 
 const SectionItem: React.FC<SectionItemProps> = ({
@@ -18,6 +20,7 @@ const SectionItem: React.FC<SectionItemProps> = ({
   formData,
   onToggle,
   onFieldChange,
+  allFields, // Recibimos allFields
 }) => {
   const IconComponent = section.icon;
 
@@ -25,12 +28,18 @@ const SectionItem: React.FC<SectionItemProps> = ({
     formData[field.key] && String(formData[field.key]).trim() !== ''
   ).length;
 
+  // Creamos un conjunto de keys de campos que están en tablas para fácil búsqueda
+  const fieldsInAnyTable = new Set(
+    section.tableGroups?.flatMap(tg => tg.fieldsInTable) || []
+  );
+
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 overflow-hidden">
       <button
         onClick={onToggle}
         className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
       >
+        {/* ... (Contenido del botón sin cambios) ... */}
         <div className="flex items-center space-x-3">
           <div className={`p-2 bg-gradient-to-r ${section.color} rounded-lg`}>
             <IconComponent className="w-4 h-4 text-white" />
@@ -59,19 +68,33 @@ const SectionItem: React.FC<SectionItemProps> = ({
 
       {!isCollapsed && (
         <div className="px-6 pb-6 border-t border-gray-100">
+          {/* Renderizar TableGroups primero */}
+          {section.tableGroups?.map(tableConfig => (
+            <FieldGroupTable
+              key={tableConfig.id}
+              tableConfig={tableConfig}
+              formData={formData}
+              onFieldChange={onFieldChange}
+              allFields={allFields}
+            />
+          ))}
+
+          {/* Luego renderizar campos individuales que NO están en una tabla */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {section.fields.map((field) => (
-              <div key={field.key} className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  {field.label}
-                </label>
-                <FormField
-                  field={field}
-                  value={formData[field.key]}
-                  onChange={(value) => onFieldChange(field.key, value)}
-                />
-              </div>
-            ))}
+            {section.fields
+              .filter(field => !fieldsInAnyTable.has(field.key)) // Omitir campos que ya están en tablas
+              .map((field) => (
+                <div key={field.key} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {field.label}
+                  </label>
+                  <FormField
+                    field={field}
+                    value={formData[field.key]}
+                    onChange={(value) => onFieldChange(field.key, value)}
+                  />
+                </div>
+              ))}
           </div>
         </div>
       )}

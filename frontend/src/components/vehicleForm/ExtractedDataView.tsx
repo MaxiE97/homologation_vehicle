@@ -1,10 +1,8 @@
 // frontend/src/components/vehicleForm/ExtractedDataView.tsx
 import React from 'react';
 import type { FieldConfig, FormData, ExtractedData } from '../../types/vehicleSpecs'; //
-// Importamos allSections y creamos una lista plana de todos los campos
 import { sections as allSections } from '../../constants/vehicleFormSections'; //
 
-// Creamos una lista plana de todos los campos de todas las secciones
 const allFields: FieldConfig[] = allSections.flatMap(section => section.fields);
 
 interface ExtractedDataViewProps {
@@ -20,15 +18,16 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
   onExtractedDataChange,
   onFinalValueChange,
 }) => {
-  const handleCopyFromSite = (siteKey: 'site1' | 'site2' | 'site3') => {
-    // Ahora usamos allFields para la lógica de copia
-    allFields.forEach(field => {
-      const siteValue = extractedData[field.key]?.[siteKey];
-      if (siteValue !== undefined && siteValue !== null) {
-        onFinalValueChange(field.key, String(siteValue));
-      }
-    });
-  };
+  // La función handleCopyFromSite ya no es necesaria si eliminamos los botones.
+  // Si alguna vez se necesitara de nuevo, habría que reevaluarla.
+  // const handleCopyFromSite = (siteKey: 'site1' | 'site2' | 'site3') => {
+  //   allFields.forEach(field => {
+  //     const siteValue = extractedData[field.key]?.[siteKey];
+  //     if (siteValue !== undefined && siteValue !== null) {
+  //       onFinalValueChange(field.key, String(siteValue));
+  //     }
+  //   });
+  // };
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 overflow-hidden">
@@ -40,8 +39,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            {/* ... (Cabecera de la tabla sin cambios) ... */}
-             <tr className="bg-gray-50/50">
+            <tr className="bg-gray-50/50">
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 min-w-[250px]">Campo</th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
                 <div className="flex flex-col items-center space-y-1">
@@ -78,7 +76,6 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
             </tr>
           </thead>
           <tbody>
-            {/* Cambiamos demonstrationFields por allFields */}
             {allFields.map((field, index) => (
               <tr key={field.key} className={`border-b border-gray-100 hover:bg-blue-50/30 transition-colors ${
                 index % 2 === 0 ? 'bg-white/50' : 'bg-gray-50/30'
@@ -129,7 +126,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                       value={formData[field.key] || ''}
                       onChange={(e) => onFinalValueChange(field.key, e.target.value)}
                     />
-                    {formData[field.key] && String(formData[field.key]).trim() !== '' && ( // Condición mejorada para el tick
+                    {formData[field.key] && String(formData[field.key]).trim() !== '' && (
                       <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">✓</span>
                       </div>
@@ -142,11 +139,11 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
         </table>
       </div>
 
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/30">
+      {/* La siguiente sección <div className="px-6 py-4 ..."> HA SIDO ELIMINADA */}
+      {/* <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/30">
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-600">
             <span className="font-semibold text-green-600">
-              {/* Usamos allFields para el conteo */}
               {allFields.filter(field => formData[field.key] && String(formData[field.key]).trim() !== '').length}
             </span> de {allFields.length} valores finales definidos
           </div>
@@ -162,7 +159,8 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
             </button>
           </div>
         </div>
-      </div>
+      </div> 
+      */}
     </div>
   );
 };

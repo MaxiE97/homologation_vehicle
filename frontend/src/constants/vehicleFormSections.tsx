@@ -1,8 +1,40 @@
-// src/constants/vehicleFormSections.tsx
+// frontend/src/constants/vehicleFormSections.tsx
 import { Car, Gauge, Zap, Settings, Palette, Shield, Fuel } from 'lucide-react';
-import type { SectionConfig } from '../types/vehicleSpecs';
+// Importamos los nuevos tipos que acabamos de definir
+import type { SectionConfig, TableGroupConfig } from '../types/vehicleSpecs'; //
+
+// Definición del grupo de tabla para Consumo (ejemplo)
+const consumoTableGroup: TableGroupConfig = {
+  id: "consumoCO2Fuel",
+  title: "Tabla de Consumo y Emisiones CO₂", // Título opcional para la tabla
+  columnHeaders: [
+    { key: "condition", label: "Condición" }, // La primera columna es la descriptiva de la fila
+    { key: "co2", label: "CO₂ (g/km)" },
+    { key: "fuel", label: "Consumo (l/100km)" }
+  ],
+  rowData: [
+    {
+      rowLabel: "Condiciones urbanas",
+      fieldKeys: { co2: "co2_urban", fuel: "fuel_urban" } // Mapea headerKey a field.key
+    },
+    {
+      rowLabel: "Condiciones extraurbanas",
+      fieldKeys: { co2: "co2_extra_urban", fuel: "fuel_extra_urban" }
+    },
+    {
+      rowLabel: "Combinado",
+      fieldKeys: { co2: "co2_combined", fuel: "fuel_combined" }
+    }
+  ],
+  fieldsInTable: [
+    "co2_urban", "fuel_urban",
+    "co2_extra_urban", "fuel_extra_urban",
+    "co2_combined", "fuel_combined"
+  ]
+};
 
 export const sections: SectionConfig[] = [
+  // ... (Otras secciones sin cambios por ahora) ...
   {
     title: "Dimensiones y Estructura",
     icon: Car,
@@ -97,13 +129,20 @@ export const sections: SectionConfig[] = [
     title: "Consumo y Eficiencia",
     icon: Fuel,
     color: "from-yellow-500 to-orange-500",
+    // Añadimos el tableGroup aquí
+    tableGroups: [consumoTableGroup],
     fields: [
+      // Estos campos ahora están definidos en consumoTableGroup.fieldsInTable
+      // Aún deben estar en la lista 'fields' para que la lógica general de 'totalFields', etc., los reconozca
+      // y para que 'generateMockData' pueda encontrar sus 'label' y 'type'.
+      // La lógica de renderizado en las vistas los omitirá si están en 'fieldsInTable' de un TableGroup.
       { label: "CO₂ urbano (g/km)", key: "co2_urban", type: "number" },
       { label: "CO₂ extraurbano (g/km)", key: "co2_extra_urban", type: "number" },
       { label: "CO₂ combinado (g/km)", key: "co2_combined", type: "number" },
       { label: "Consumo urbano (l/100km)", key: "fuel_urban", type: "number" },
       { label: "Consumo extraurbano (l/100km)", key: "fuel_extra_urban", type: "number" },
       { label: "Consumo combinado (l/100km)", key: "fuel_combined", type: "number" },
+      // Estos campos NO están en la tabla y se renderizarán individualmente
       { label: "Consumo eléctrico ponderado/combinado (Wh/km)", key: "power_consumption", type: "number" },
       { label: "Autonomía eléctrica (km)", key: "electric_range", type: "number" },
       { label: "Autonomía eléctrica en ciudad (km)", key: "electric_range_city", type: "number" }
@@ -111,7 +150,7 @@ export const sections: SectionConfig[] = [
   }
 ];
 
-// Los demonstrationFields son un subconjunto o se derivan de 'sections'.
+// Los demonstrationFields siguen siendo un subconjunto o se derivan de 'sections'.
 // Por ahora, para mantener la funcionalidad exacta, los definimos explícitamente.
 // A futuro, podrías generarlos dinámicamente a partir de 'sections' si es necesario.
 export const demonstrationFields: SectionConfig['fields'] = [

@@ -1,20 +1,17 @@
 // frontend/src/pages/VehicleHomologationPage.tsx
 import { useState, useMemo, useCallback } from 'react';
-import FormHeader from '../components/layout/FormHeader'; //
-import FormActions from '../components/layout/FormActions'; //
-import ExtractedDataView from '../components/vehicleForm/ExtractedDataView'; //
-import SectionsView from '../components/vehicleForm/SectionsView'; //
-import UnifiedView from '../components/vehicleForm/UnifiedView'; //
+import FormHeader from '../components/layout/FormHeader';
+import FormActions from '../components/layout/FormActions';
+import ExtractedDataView from '../components/vehicleForm/ExtractedDataView';
+import SectionsView from '../components/vehicleForm/SectionsView';
+import UnifiedView from '../components/vehicleForm/UnifiedView';
 import UrlInputSection from '../components/vehicleForm/UrlInputSection';
-import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs'; //
-import { sections as allSections } from '../constants/vehicleFormSections'; //
+import type {  FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs'; //
+import { sections as allSections } from '../constants/vehicleFormSections';
 import { supportedLanguages, predefinedTranslations } from '../constants/localization';
-// Importamos la función desde su nueva ubicación
 import { generateMockData } from '../utils/mockDataGenerator';
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
-
-// Eliminamos la definición local de generateMockData, ya que ahora se importa.
 
 const VehicleHomologationPage = () => {
   const [formData, setFormData] = useState<FormData>({});
@@ -28,6 +25,10 @@ const VehicleHomologationPage = () => {
   const [url3, setUrl3] = useState<string>('');
   const [transmissionOption, setTransmissionOption] = useState<string>('Por defecto');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en'); 
+
+  // Creamos una lista plana de todas las FieldConfigs.
+  // Esto es útil para pasar a componentes que necesiten buscar FieldConfig por key.
+  const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), [allSections]);
 
   const updateField = (fieldKey: string, value: string) => {
     setFormData(prev => ({ ...prev, [fieldKey]: value }));
@@ -55,7 +56,6 @@ const VehicleHomologationPage = () => {
   };
 
   const handleProcessUrls = () => {
-    // Llamamos a la función importada, pasándole allSections
     const { mockExtractedData, initialFormData } = generateMockData(allSections);
     setExtractedData(mockExtractedData);
     setOriginalFormData(initialFormData); 
@@ -78,14 +78,10 @@ const VehicleHomologationPage = () => {
       alert('Valores restaurados al Inglés original.');
       return;
     }
-
-    console.log(`Traduciendo valores finales de originalFormData al idioma: ${selectedLanguage}`);
     const newTranslatedFormData: FormData = { ...originalFormData }; 
     let changesMade = false;
-
     for (const fieldKey in originalFormData) { 
       const originalValue = String(originalFormData[fieldKey]);
-      
       if (predefinedTranslations[fieldKey] && predefinedTranslations[fieldKey][originalValue]) {
         const translationForCurrentLang = predefinedTranslations[fieldKey][originalValue][selectedLanguage];
         if (translationForCurrentLang) {
@@ -98,9 +94,7 @@ const VehicleHomologationPage = () => {
         newTranslatedFormData[fieldKey] = originalValue;
       }
     }
-
     setFormData(newTranslatedFormData); 
-
     if (changesMade) {
       alert(`Valores traducidos (o intentados traducir) a: ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}. Revisa la consola.`);
     } else {
@@ -108,25 +102,17 @@ const VehicleHomologationPage = () => {
     }
   }, [originalFormData, selectedLanguage]); 
 
-  const totalFields = useMemo(() => allSections.reduce((acc, section) => acc + section.fields.length, 0), []);
+  const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]); // Usamos allFieldsFlat para el total
   const completedFields = useMemo(() => Object.keys(formData).filter(key => formData[key] && String(formData[key]).trim() !== '').length, [formData]);
   const completedPercentage = useMemo(() => totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0, [completedFields, totalFields]);
 
   const handleSaveDraft = () => {
-    console.log("Guardar Borrador:", { 
-      urls: {url1, url2, url3}, 
-      transmission: transmissionOption, 
-      language: selectedLanguage, 
-      data: formData, 
-      originalData: originalFormData, 
-      extracted: extractedData 
-    });
-     alert("Borrador guardado en consola (simulado).");
+    console.log("Guardar Borrador:", { urls: {url1, url2, url3}, transmission: transmissionOption, language: selectedLanguage, data: formData, originalData: originalFormData, extracted: extractedData });
+    alert("Borrador guardado en consola (simulado).");
   };
 
   const handleSubmit = () => {
-    const finalDataForExport = allSections.flatMap(section =>
-      section.fields.map(field => {
+    const finalDataForExport = allFieldsFlat.map(field => { // Usamos allFieldsFlat para asegurar todos los campos
         const currentValue = formData[field.key];
         const valorFinalParaExportar = (currentValue === null || currentValue === undefined || String(currentValue).trim() === '') 
                                        ? "-" 
@@ -135,22 +121,15 @@ const VehicleHomologationPage = () => {
           Key: field.label, 
           "Valor Final": valorFinalParaExportar
         };
-      })
-    );
-
-    const payload = {
-        language: supportedLanguages.find(l => l.code === selectedLanguage)?.name || selectedLanguage,
-        final_data: finalDataForExport
-    };
-
-    console.log("Finalizar y Enviar (Simulado): Payload para el backend");
-    console.log(JSON.stringify(payload, null, 2));
+      });
+    const payload = { language: supportedLanguages.find(l => l.code === selectedLanguage)?.name || selectedLanguage, final_data: finalDataForExport };
+    console.log("Finalizar y Enviar (Simulado): Payload para el backend", JSON.stringify(payload, null, 2));
     alert(`Simulación de envío para exportar en ${payload.language}. Revisa la consola para ver el payload detallado.`);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <FormHeader
+      <FormHeader /* ...props... */ 
         completedFields={completedFields}
         totalFields={totalFields}
         viewMode={viewMode}
@@ -160,53 +139,38 @@ const VehicleHomologationPage = () => {
         onLanguageChange={handleLanguageChange} 
         onTranslateRequest={handleTranslateFinalValues}
       />
-
       <div className="max-w-5xl mx-auto px-6 py-6">
-        {viewMode === 'extracted' && (
-          <UrlInputSection
-            url1={url1}
-            setUrl1={setUrl1}
-            url2={url2}
-            setUrl2={setUrl2}
-            url3={url3}
-            setUrl3={setUrl3}
-            transmissionOption={transmissionOption}
-            setTransmissionOption={setTransmissionOption}
+        {viewMode === 'extracted' && ( <UrlInputSection /* ...props... */ 
+            url1={url1} setUrl1={setUrl1} url2={url2} setUrl2={setUrl2} url3={url3} setUrl3={setUrl3}
+            transmissionOption={transmissionOption} setTransmissionOption={setTransmissionOption}
             onProcessUrls={handleProcessUrls}
-          />
-        )}
-
-        {viewMode === 'extracted' && Object.keys(extractedData).length > 0 && (
-          <ExtractedDataView
-            formData={formData} 
-            extractedData={extractedData}
-            onExtractedDataChange={updateExtractedField}
-            onFinalValueChange={updateFinalValue}
-          />
-        )}
+        /> )}
+        {viewMode === 'extracted' && Object.keys(extractedData).length > 0 && ( <ExtractedDataView /* ...props... */
+            formData={formData} extractedData={extractedData}
+            onExtractedDataChange={updateExtractedField} onFinalValueChange={updateFinalValue}
+        /> )}
         {viewMode === 'sections' && (
           <SectionsView
-            formData={formData} 
+            formData={formData}
             collapsedSections={collapsedSections}
             onToggleSection={toggleSection}
             onFieldChange={updateField}
+            allFields={allFieldsFlat} // Pasamos allFieldsFlat
           />
         )}
         {viewMode === 'unified' && (
           <UnifiedView
-            formData={formData} 
+            formData={formData}
             onFieldChange={updateField}
+            allFields={allFieldsFlat} // Pasamos allFieldsFlat
           />
         )}
-
-        <FormActions
-          completedPercentage={completedPercentage}
-          onSaveDraft={handleSaveDraft}
-          onSubmit={handleSubmit}
+        <FormActions /* ...props... */ 
+            completedPercentage={completedPercentage}
+            onSaveDraft={handleSaveDraft} onSubmit={handleSubmit}
         />
       </div>
     </div>
   );
 };
-
 export default VehicleHomologationPage;
