@@ -2,37 +2,42 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle, LogOut } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext'; // We import useAuth
+import { useAuth } from '../contexts/AuthContext';
 
 const UserProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth(); // We use the context for logout
-  // We could get 'user' from the context if we added it: const { logout, user } = useAuth();
-  const MOCK_USER_DISPLAY_NAME = "Lead Technician"; 
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    logout(); // We call the logout from the context
+    logout();
     navigate('/login', { replace: true });
-    // The console.log is already in the logout function of the context
   };
+
+  const displayName = user?.user_metadata?.username || 'Technician';
+  const userEmail = user?.email || 'No email available';
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <div className="w-full max-w-lg bg-white/90 backdrop-blur-md shadow-xl rounded-xl p-8 border border-gray-200 text-center">
+      <div className="w-full max-w-lg bg-white/90 backdrop-blur-md shadow-xl rounded-xl p-8 border border-gray-200">
         <div className="flex flex-col items-center mb-6">
           <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-4">
             <UserCircle className="w-16 h-16 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">User Profile</h1>
           <p className="text-lg text-gray-700">
-            Welcome, <span className="font-semibold">{MOCK_USER_DISPLAY_NAME}</span>.
+            Welcome, <span className="font-semibold">{displayName}</span>.
           </p>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 text-left">
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 className="text-md font-semibold text-gray-700">Statistics (Simulated)</h3>
-            <p className="text-sm text-gray-600 mt-1">Data Sheets Downloaded: 12</p>
+            <h3 className="text-md font-semibold text-gray-700">Details</h3>
+            <p className="text-sm text-gray-600 mt-2">
+              <span className="font-semibold">Username:</span> {displayName}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">
+              <span className="font-semibold">Email:</span> {userEmail}
+            </p>
           </div>
 
           <button
@@ -44,8 +49,8 @@ const UserProfilePage: React.FC = () => {
           </button>
         </div>
       </div>
-       <button 
-        onClick={() => navigate('/homologation')} 
+      <button
+        onClick={() => navigate('/homologation')}
         className="mt-8 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
       >
         Go to Homologation

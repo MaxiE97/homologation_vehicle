@@ -2,6 +2,9 @@ import pandas as pd
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 import re
+from .master_keys import MASTER_ORDERED_KEYS
+from .key_map import FINAL_KEY_MAP
+
 
 @dataclass
 class VehicleDataConfig:
@@ -36,6 +39,7 @@ class VehicleDataTransformer_site2:
         df = self._process_engine_details(df)
 
         df = self._add_missing_keys(df)
+        df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
         df = self._sort_and_clean(df)
         return df
 
@@ -550,13 +554,8 @@ class VehicleDataTransformer_site2:
 
 
     def _sort_and_clean(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Ordena y limpia el DataFrame final."""
-        df["Key"] = pd.Categorical(
-            df["Key"],
-            categories=self.config.ordered_keys,
-            ordered=True
-        )
-        return df.sort_values("Key").head(70).reset_index(drop=True)
+        df["Key"] = pd.Categorical(df["Key"], categories=self.config.ordered_keys, ordered=True)
+        return df.dropna(subset=['Key']).sort_values("Key").reset_index(drop=True)
 
     @staticmethod
     def _get_max_value(value: str) -> str:
@@ -608,78 +607,7 @@ DEFAULT_CONFIG_2 = VehicleDataConfig(
         "26 Design type": "Working principle",
 
     },
-    ordered_keys=[
-        "Number of axles / wheels",
-        "Powered axles",
-        "Wheelbase",
-        "Axle(s) track – 1 / 2",
-        "Length",
-        "Width",
-        "Height",
-        "Rear overhang",
-        "Mass of the vehicle with bodywork in running order",
-        "Technically permissible maximum laden mass",
-        "Distribution of this mass among the axles – 1 / 2",
-        "Technically permissible max mass on each axle – 1 / 2",
-        "Maximum permissible roof load",
-        "Maximum mass of trailer – braked / unbraked",
-        "Maximum mass of combination",
-        "Maximum vertical load at the coupling point for a trailer",
-        "Engine manufacturer",
-        "Engine code as marked on the enginee",
-        "Working principle",
-        "Direct injection",
-        "Pure electric",
-        "Hybrid [electric] vehicle",
-        "Number and arrangement of cylinders",
-        "Capacity",
-        "Fuel",
-        "Maximum net power",
-        "Clutch",
-        "Gearbox",
-        "Gear",
-        "Final drive ratio",
-        "EC type approval mark of couplind device if fitted",
-        "Maximum speed",
-        "Stationary (dB(A)) at engine speed",
-        "Drive by",
-        "Emissions standard",
-        "Exhaust emission",
-        "Emissions CO",
-        "Emissions HC",
-        "Emissions NOx",
-        "Emissions HC NOx",
-        "Emissions particulates",
-        "Smoke",
-        "NEDC CO2 urban conditions",
-        "NEDC CO2 extra-urban conditions",
-        "NEDC CO2 combined",
-        "NEDC Fuel consumption urban conditions",
-        "NEDC Fuel consumption extra-urban conditions",
-        "NEDC Fuel consumption combined",
-        "WLTP CO2 Low",
-        "WLTP CO2 Medium",
-        "WLTP CO2 High",
-        "WLTP CO2 Maximum Value",
-        "WLTP CO2 combined",
-        "WLTP Fuel consumption Low",
-        "WLTP Fuel consumption Medium",
-        "WLTP Fuel consumption High",
-        "WLTP Fuel consumption Maximum Value",
-        "WLTP Fuel consumption combined",
-        "Steering, method of assistance",
-        "Suspension",
-        "Brakes",
-        "Type of body",
-        "Number and configuration of doors",
-        "Number and position of seats",
-        "Make",
-        "Type",
-        "Variant",
-        "Version",
-        "Commercial name",
-        "Homologation number",
+    ordered_keys = MASTER_ORDERED_KEYS 
 
-    ]
 )
 

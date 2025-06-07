@@ -1,87 +1,80 @@
 // frontend/src/constants/vehicleFormSections.tsx
+
 import { Car, Gauge, Zap, Settings, Palette, Shield, Fuel, TextSearch, IdCard   } from 'lucide-react';
 // We import the new types we just defined
 import type { SectionConfig, TableGroupConfig } from '../types/vehicleSpecs'; //
 
-// Definition of the table group for Consumption (example)
+// Definition of the table group for Consumption (NEDC) - CORRECTED
 const consumoTableGroup: TableGroupConfig = {
-  id: "consumoCO2Fuel",
-  title: "47. CO2 emissions/fuel consumption NEDC values", // Optional title for the table
+  id: "consumoCO2Fuel_nedc",
+  title: "47. CO2 emissions/fuel consumption NEDC values",
   columnHeaders: [
-    { key: "condition", label: "Condition" }, // The first column describes the row
+    { key: "condition", label: "Condition" },
     { key: "co2", label: "CO₂ (g/km)" },
     { key: "fuel", label: "Consumption (l/100km)" }
   ],
   rowData: [
     {
       rowLabel: "Urban conditions",
-      fieldKeys: { co2: "co2_urban", fuel: "fuel_urban" } // Maps headerKey to field.key
+      fieldKeys: { co2: "co2_urban_nedc", fuel: "fuel_urban_nedc" }
     },
     {
       rowLabel: "Extra-urban conditions",
-      fieldKeys: { co2: "co2_extra_urban", fuel: "fuel_extra_urban" }
+      fieldKeys: { co2: "co2_extra_urban_nedc", fuel: "fuel_extra_urban_nedc" }
     },
     {
       rowLabel: "Combined",
-      fieldKeys: { co2: "co2_combined", fuel: "fuel_combined" }
+      fieldKeys: { co2: "co2_combined_nedc", fuel: "fuel_combined_nedc" }
     }
   ],
   fieldsInTable: [
-    "co2_urban", "fuel_urban",
-    "co2_extra_urban", "fuel_extra_urban",
-    "co2_combined", "fuel_combined"
+    "co2_urban_nedc", "fuel_urban_nedc",
+    "co2_extra_urban_nedc", "fuel_extra_urban_nedc",
+    "co2_combined_nedc", "fuel_combined_nedc"
   ]
 };
 
-
+// Definition of the table group for Consumption (WLTP) - CORRECTED
 const consumoTableGroup_2: TableGroupConfig = {
-  id: "consumoCO2Fuel_2",
-  title: "47.1. CO2 emissions/fuel consumption WLTP values", // Optional title for the table
+  id: "consumoCO2Fuel_wltp",
+  title: "47.1. CO2 emissions/fuel consumption WLTP values",
   columnHeaders: [
-    { key: "condition", label: "Condition" }, // The first column describes the row
+    { key: "condition", label: "Condition" },
     { key: "co2", label: "CO₂ (g/km)" },
     { key: "fuel", label: "Consumption (l/100km)" }
   ],
   rowData: [
     {
       rowLabel: "Low",
-      fieldKeys: { co2: "co2_low", fuel: "fuel_low" } // Maps headerKey to field.key
+      fieldKeys: { co2: "co2_low_wltp", fuel: "fuel_low_wltp" }
     },
     {
       rowLabel: "Medium",
-      fieldKeys: { co2: "co2_medium", fuel: "fuel_medium" }
+      fieldKeys: { co2: "co2_medium_wltp", fuel: "fuel_medium_wltp" }
     },
     {
       rowLabel: "High",
-      fieldKeys: { co2: "co2_high", fuel: "fuel_high" }
+      fieldKeys: { co2: "co2_high_wltp", fuel: "fuel_high_wltp" }
     },
     {
       rowLabel: "Maximum value",
-      fieldKeys: { co2: "co2_maximum_value", fuel: "fuel_maximum_value" }
+      fieldKeys: { co2: "co2_maximum_value_wltp", fuel: "fuel_maximum_value_wltp" }
     },
-    
     {
       rowLabel: "Combined",
-      fieldKeys: { co2: "co2_combined", fuel: "fuel_combined" }
-    },
-    {
-      rowLabel: "Weighted combined",
-      fieldKeys: { co2: "co2_weighted_combined", fuel: "fuel_weighted_combined" } // Assuming this is the same for both
+      fieldKeys: { co2: "co2_combined_wltp", fuel: "fuel_combined_wltp" }
     }
-    
   ],
   fieldsInTable: [
-    "co2_low", "fuel_low",
-    "co2_medium", "fuel_medium",
-    "co2_high", "fuel_high",
-    "co2_maximum_value", "fuel_maximum_value",
-    "co2_combined", "fuel_combined",
-    "co2_weighted_combined", "fuel_weighted_combined"
+    "co2_low_wltp", "fuel_low_wltp",
+    "co2_medium_wltp", "fuel_medium_wltp",
+    "co2_high_wltp", "fuel_high_wltp",
+    "co2_maximum_value_wltp", "fuel_maximum_value_wltp",
+    "co2_combined_wltp", "fuel_combined_wltp",
   ]
 };
 
 export const sections: SectionConfig[] = [
-
     {
     title: "Base Vehicle and Identification Details",
     icon: IdCard,
@@ -105,9 +98,7 @@ export const sections: SectionConfig[] = [
       { label: "Date", key: "date", type: "text" },
     ]
    },
-
-
-  {
+   {
     title: "Remarks and Alternatives Types",
     icon: TextSearch,
     color: "from-blue-500 to-cyan-500",
@@ -119,13 +110,9 @@ export const sections: SectionConfig[] = [
       { label: "Alternative type 1", key: "alternative_type_1", type: "text" },
       { label: "Alternative type 2", key: "alternative_type_2", type: "text" },
       { label: "Alternative type 3", key: "alternative_type_3", type: "text" },
-      
     ]
-  },
-
-
-
-  {
+   },
+   {
     title: "Dimensions and Structure",
     icon: Car,
     color: "from-blue-500 to-cyan-500",
@@ -139,10 +126,8 @@ export const sections: SectionConfig[] = [
       { label: "8.    Height:(mm)", key: "height", type: "number" },
       { label: "11.   Rear overhang:(mm)", key: "rear_overhang", type: "number" }
     ]
-  },
-
-
-  {
+   },
+   {
     title: "Masses and Loads",
     icon: Gauge,
     color: "from-purple-500 to-pink-500",
@@ -156,10 +141,8 @@ export const sections: SectionConfig[] = [
       { label: "18.   Maximum mass of combination:(kg)", key: "max_combination_mass", type: "number" },
       { label: "19.1. Maximum vertical load at the coupling point for a trailer:(kg)", key: "max_coupling_load", type: "number" }
     ]
-  },
-
-
-  {
+   },
+   {
     title: "Engine and Propulsion",
     icon: Zap,
     color: "from-orange-500 to-red-500",
@@ -175,30 +158,24 @@ export const sections: SectionConfig[] = [
       { label: "26.    Fuel:", key: "fuel", type: "text" },
       { label: "27.    Maximum net power:( kW/min -1)", key: "max_power", type: "text" }
     ]
-  },
-
-
-  {
+   },
+   {
     title: "Transmission and Chassis",
     icon: Settings,
     color: "from-green-500 to-teal-500",
     fields: [
       { label: "28.   Clutch (type):", key: "clutch_type", type: "text" },
       { label: "29.   Gearbox (type):", key: "gearbox_type", type: "text" },
+      { label: "29.1. Gear", key: "gear", type: "text" },
       { label: "30.   Final drive ratio:", key: "final_drive_ratio", type: "text" },
       { label: "32.   Tyres on wheels 1:", key: "tyres_wheels_1", type: "text" },
       { label: "32.   Tyres on wheels 2:", key: "tyres_wheels_2", type: "text" },
       { label: "34.   Steering, method of assistance:", key: "steering_assistance", type: "text" },
       { label: "35.   Brief description of the braking system (line 1)", key: "braking_system_1", type: "text" },
       { label: "35.   Brief description of the braking system (line 2)", key: "braking_system_2", type: "text" },
-      
-      
     ]
-  },
-
-
-
-  {
+   },
+   {
     title: "Bodywork and Features",
     icon: Palette,
     color: "from-indigo-500 to-purple-500",
@@ -210,15 +187,16 @@ export const sections: SectionConfig[] = [
       { label: "43.1. EC approval mark of coupling device if fitted", key: "coupling_approval", type: "text" },
       { label: "44.   Maximum speed:(km/h)", key: "max_speed", type: "number" }
     ]
-  },
-  {
+   },
+   {
     title: "Emissions and Regulations",
     icon: Shield,
     color: "from-emerald-500 to-green-500",
     fields: [
       { label: "45.   Sound level - Stationary noise level (dB(A))", key: "noise_stationary", type: "text" },
       { label: "45.   Sound level - Drive-by noise level (dB(A))", key: "noise_drive_by", type: "text" },
-      { label: "46.1. Exhaust emission - Emissions standard", key: "emissions_standard", type: "text" },
+      { label: "46    Emissions standard", key: "emissions_standard", type: "text" },
+      { label: "46.1. Exhaust emission", key: "emissions_exhaust", type: "text" },
       { label: "CO (g/km)", key: "co_emissions", type: "number" },
       { label: "HC (g/km)", key: "hc_emissions", type: "number" },
       { label: "NOX (g/km)", key: "nox_emissions", type: "number" },
@@ -226,53 +204,43 @@ export const sections: SectionConfig[] = [
       { label: "Particulates (g/km)", key: "particulates", type: "number" },
       { label: "46.2  Smoke (corrected value of the absorption coefficient)", key: "smoke_absorption", type: "number" },
     ]
-  },
-  {
+   },
+   {
     title: "Consumption and Efficiency",
     icon: Fuel,
     color: "from-yellow-500 to-orange-500",
-    // We add the tableGroup here
     tableGroups: [consumoTableGroup, consumoTableGroup_2],
+    // The list of fields is now clean, with unique keys
     fields: [
-      // These fields are now defined in consumoTableGroup.fieldsInTable
-      // They must still be in the 'fields' list so that general logic like 'totalFields', etc., recognizes them
-      // and so 'generateMockData' can find their 'label' and 'type'.
-      // The rendering logic in the views will skip them if they are in a TableGroup's 'fieldsInTable'.
-      { label: "CO₂ urbannnn (g/km)", key: "co2_urban", type: "number" },
-      { label: "CO₂ extra-urban (g/km)", key: "co2_extra_urban", type: "number" },
-      { label: "CO₂ combined (g/km)", key: "co2_combined", type: "number" },
-      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban", type: "number" },
-      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban", type: "number" },
-      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined", type: "number" },
-      //Other table
+      // NEDC Fields (for table logic)
+      { label: "CO₂ urban (g/km)", key: "co2_urban_nedc", type: "number" },
+      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban_nedc", type: "number" },
+      { label: "CO₂ extra-urban (g/km)", key: "co2_extra_urban_nedc", type: "number" },
+      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban_nedc", type: "number" },
+      { label: "CO₂ combined (g/km)", key: "co2_combined_nedc", type: "number" },
+      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_nedc", type: "number" },
 
-      { label: "CO₂ low (g/km)", key: "co2_low", type: "number" },
-      { label: "Fuel consumption low (l/100km)", key: "fuel_low", type: "number" },
-      { label: "CO₂ medium (g/km)", key: "co2_medium", type: "number" },
-      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium", type: "number" },
-      { label: "CO₂ high (g/km)", key: "co2_high", type: "number" },
-      { label: "Fuel consumption high (l/100km)", key: "fuel_high", type: "number" },
-      { label: "CO₂ combined (g/km)", key: "co2_combined", type: "number" },
-      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined", type: "number" },
-      { label: "CO₂ weighted combined", key: "co2_weighted_combined", type: "number" },
-      { label: "Fuel consumption weighted combined (l/100km)", key: "fuel_weighted_combined", type: "number" },
-      { label: "CO₂ maximum value (g/km)", key: "co2_maximum_value", type: "number" },
-      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value", type: "number" },
-
-
-
-
-      // These fields are NOT in the table and will be rendered individually
+      // WLTP Fields (for table logic)
+      { label: "CO₂ low (g/km)", key: "co2_low_wltp", type: "number" },
+      { label: "Fuel consumption low (l/100km)", key: "fuel_low_wltp", type: "number" },
+      { label: "CO₂ medium (g/km)", key: "co2_medium_wltp", type: "number" },
+      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium_wltp", type: "number" },
+      { label: "CO₂ high (g/km)", key: "co2_high_wltp", type: "number" },
+      { label: "Fuel consumption high (l/100km)", key: "fuel_high_wltp", type: "number" },
+      { label: "CO₂ maximum value (g/km)", key: "co2_maximum_value_wltp", type: "number" },
+      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value_wltp", type: "number" },
+      { label: "CO₂ combined (g/km)", key: "co2_combined_wltp", type: "number" },
+      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_wltp", type: "number" },
+      
+      // Fields rendered individually (NOT in a table)
       { label: "Power consumption weighted/combined", key: "power_consumption", type: "number" },
       { label: "Electric range (km)", key: "electric_range", type: "number" },
       { label: "Electric range city (km)", key: "electric_range_city", type: "number" }
     ]
-  }
+   }
 ];
 
-// The demonstrationFields are still a subset or derived from 'sections'.
-// For now, to maintain the exact functionality, we define them explicitly.
-// In the future, you could generate them dynamically from 'sections' if needed.
+// This part remains unchanged as its keys were already correct.
 export const demonstrationFields: SectionConfig['fields'] = [
   { label: "Number of axles/wheels", key: "axles", type: "number" },
   { label: "Powered axles", key: "powered_axles", type: "number" },
