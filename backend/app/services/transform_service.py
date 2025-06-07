@@ -66,10 +66,17 @@ def merge_and_prioritize(
         s1 = row.get('Valor Sitio 1')
         s3 = row.get('Valor Sitio 3')
         
-        # Prioridad S2 > S1 > S3. Considera "-" como un valor no válido para la prioridad.
-        if s2 is not None and str(s2) != '-': return s2
-        if s1 is not None and str(s1) != '-': return s1
-        if s3 is not None and str(s3) != '-': return s3
+        # Prioridad S2 > S1 > S3.
+        # Ahora considera tanto "-" como "None" (string) como valores no válidos.
+        if s2 is not None and str(s2) not in ['-', 'None']:
+            return s2
+        if s1 is not None and str(s1) not in ['-', 'None']:
+            return s1
+        if s3 is not None and str(s3) not in ['-', 'None']:
+            return s3
+            
+        # Si todos son inválidos, puedes decidir qué devolver. 
+        # Devolver "-" es consistente con los valores por defecto.
         return "-"
 
     merged_df['Valor Final'] = merged_df.apply(get_final_value, axis=1)

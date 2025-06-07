@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Any, Dict
 import uuid
 from datetime import datetime
+from app.data_transformation.key_map import FINAL_KEY_MAP 
 
 # --- Modelos para Scraping/Procesamiento (Existentes) ---
 class ScrapingRequest(BaseModel):
@@ -12,7 +13,7 @@ class ScrapingRequest(BaseModel):
     transmission_option: Optional[str] = "Por defecto"
 
 class VehicleRow(BaseModel):
-    Key: str
+    key: str  # La clave final que recibirá el frontend (ej: "wheelbase")
     Valor_Sitio_1: Optional[Any] = Field(None, alias="Valor Sitio 1")
     Valor_Sitio_2: Optional[Any] = Field(None, alias="Valor Sitio 2")
     Valor_Sitio_3: Optional[Any] = Field(None, alias="Valor Sitio 3")

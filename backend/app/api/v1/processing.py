@@ -11,6 +11,8 @@ from .auth import get_current_user # <-- Importamos la dependencia
 # Importamos los servicios necesarios
 from ...services.scraping_service import process_all_urls
 from ...services.transform_service import apply_transformations, merge_and_prioritize
+from app.data_transformation.key_map import FINAL_KEY_MAP 
+
 
 
 logger = logging.getLogger(__name__)
@@ -63,13 +65,26 @@ async def process_vehicle_data(
         return []
 
 
+    # --- INICIO DE LA MODIFICACIÓN ---
+    # 4. Mapeo final de claves ANTES de enviar la respuesta
+    #    Aquí es donde aplicamos el FINAL_KEY_MAP que quitamos de los transformadores.
+    final_df['key'] = final_df['Key'].map(FINAL_KEY_MAP)
+    
+    # Nos aseguramos de que si alguna clave no se mapeó, no se envíe como Nula.
+    # También nos quedamos con la nueva columna 'key' y eliminamos la 'Key' original.
+    final_df = final_df.dropna(subset=['key'])
+    final_df = final_df.drop(columns=['Key'])
+    # --- FIN DE LA MODIFICACIÓN ---
+
+    # Convertimos el DataFrame a una lista de diccionarios.
+    # Pydantic usará los alias definidos en VehicleRow para encontrar las columnas correctas.
     results_raw = final_df.where(final_df.notna(), None).to_dict('records')
     
-    # Validamos que la salida cumple con List[VehicleRow]
     try:
+        # Pydantic valida los datos y crea los objetos de respuesta
         validated_results = [VehicleRow.model_validate(row) for row in results_raw]
     except Exception as e:
+        logger.error(f"Error al validar el modelo de respuesta: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error al formatear los datos de respuesta.")
-
 
     return validated_results

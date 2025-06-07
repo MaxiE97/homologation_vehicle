@@ -30,7 +30,7 @@ class VehicleDataTransformer_site3:
 
 
         df = self._add_missing_keys(df)
-        df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
+        #df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
         df = self._sort_and_clean(df)
         return df
 
