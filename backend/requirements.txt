@@ -1,4 +1,18 @@
+# --- Framework ---
 fastapi
 uvicorn[standard]
-supabase
 python-decouple
+
+# --- Supabase & DB ---
+supabase
+
+# --- Data Processing ---
+pandas
+
+# --- Scraping ---
+requests
+beautifulsoup4
+
+# --- Document Generation ---
+docxtpl
+python-docx
