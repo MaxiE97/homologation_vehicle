@@ -117,14 +117,14 @@ export const sections: SectionConfig[] = [
     icon: Car,
     color: "from-blue-500 to-cyan-500",
     fields: [
-      { label: "1.    Number of axles / wheels:", key: "axles", type: "number" },
-      { label: "2.    Powered axles:", key: "powered_axles", type: "number" },
-      { label: "3.    Wheelbase :(mm)", key: "wheelbase", type: "number" },
+      { label: "1.    Number of axles / wheels:", key: "axles", type: "text" },
+      { label: "2.    Powered axles:", key: "powered_axles", type: "text" },
+      { label: "3.    Wheelbase :(mm)", key: "wheelbase", type: "text" },
       { label: "5.    Axle(s) track – 1/ 2: (mm)", key: "axle_track", type: "text" },
-      { label: "6.1.  Length:(mm)", key: "length", type: "number" },
-      { label: "7.1.  Width:(mm)", key: "width", type: "number" },
-      { label: "8.    Height:(mm)", key: "height", type: "number" },
-      { label: "11.   Rear overhang:(mm)", key: "rear_overhang", type: "number" }
+      { label: "6.1.  Length:(mm)", key: "length", type: "text" },
+      { label: "7.1.  Width:(mm)", key: "width", type: "text" },
+      { label: "8.    Height:(mm)", key: "height", type: "text" },
+      { label: "11.   Rear overhang:(mm)", key: "rear_overhang", type: "text" }
     ]
    },
    {
@@ -132,14 +132,14 @@ export const sections: SectionConfig[] = [
     icon: Gauge,
     color: "from-purple-500 to-pink-500",
     fields: [
-      { label: "12.1. Mass of the vehicle with bodywork in running order:(kg)", key: "running_mass", type: "number" },
-      { label: "14.1. Technically permissable maximum laden mass:(kg)", key: "max_mass", type: "number" },
+      { label: "12.1. Mass of the vehicle with bodywork in running order:(kg)", key: "running_mass", type: "text" },
+      { label: "14.1. Technically permissable maximum laden mass:(kg)", key: "max_mass", type: "text" },
       { label: "14.2. Distribution of this mass among the axles – 1 / 2:(kg)", key: "mass_distribution", type: "text" },
       { label: "14.3. Technically perm. max mass on each axle – 1 / 2:(kg)", key: "max_axle_mass", type: "text" },
-      { label: "16.   Maximum permissible roof load:(kg)", key: "max_roof_load", type: "number" },
+      { label: "16.   Maximum permissible roof load:(kg)", key: "max_roof_load", type: "text" },
       { label: "17.   Maximum mass of trailer – braked / unbraked:(kg)", key: "max_trailer_mass", type: "text" },
-      { label: "18.   Maximum mass of combination:(kg)", key: "max_combination_mass", type: "number" },
-      { label: "19.1. Maximum vertical load at the coupling point for a trailer:(kg)", key: "max_coupling_load", type: "number" }
+      { label: "18.   Maximum mass of combination:(kg)", key: "max_combination_mass", type: "text" },
+      { label: "19.1. Maximum vertical load at the coupling point for a trailer:(kg)", key: "max_coupling_load", type: "text" }
     ]
    },
    {
@@ -154,7 +154,7 @@ export const sections: SectionConfig[] = [
       { label: "23.    Pure electric:", key: "pure_electric", type: "select", options: ["Yes", "No"] },
       { label: "23.1  Hybrid [electric] vehicle:", key: "hybrid", type: "select", options: ["Yes", "No"] },
       { label: "24.    Number and arrangement of cylinders:", key: "cylinders", type: "text" },
-      { label: "25.    Capacity:( cm3)", key: "capacity", type: "number" },
+      { label: "25.    Capacity:( cm3)", key: "capacity", type: "text" },
       { label: "26.    Fuel:", key: "fuel", type: "text" },
       { label: "27.    Maximum net power:( kW/min -1)", key: "max_power", type: "text" }
     ]
@@ -185,7 +185,7 @@ export const sections: SectionConfig[] = [
       { label: "41.   Number and configuration of doors", key: "doors_config", type: "text" },
       { label: "42.1. Number and position of seats", key: "seats_config", type: "text" },
       { label: "43.1. EC approval mark of coupling device if fitted", key: "coupling_approval", type: "text" },
-      { label: "44.   Maximum speed:(km/h)", key: "max_speed", type: "number" }
+      { label: "44.   Maximum speed:(km/h)", key: "max_speed", type: "text" }
     ]
    },
    {
@@ -197,12 +197,12 @@ export const sections: SectionConfig[] = [
       { label: "45.   Sound level - Drive-by noise level (dB(A))", key: "noise_drive_by", type: "text" },
       { label: "46    Emissions standard", key: "emissions_standard", type: "text" },
       { label: "46.1. Exhaust emission", key: "emissions_exhaust", type: "text" },
-      { label: "CO (g/km)", key: "co_emissions", type: "number" },
-      { label: "HC (g/km)", key: "hc_emissions", type: "number" },
-      { label: "NOX (g/km)", key: "nox_emissions", type: "number" },
-      { label: "HC+NOX (g/km)", key: "hc_nox_emissions", type: "number" },
-      { label: "Particulates (g/km)", key: "particulates", type: "number" },
-      { label: "46.2  Smoke (corrected value of the absorption coefficient)", key: "smoke_absorption", type: "number" },
+      { label: "CO (g/km)", key: "co_emissions", type: "text" },
+      { label: "HC (g/km)", key: "hc_emissions", type: "text" },
+      { label: "NOX (g/km)", key: "nox_emissions", type: "text" },
+      { label: "HC+NOX (g/km)", key: "hc_nox_emissions", type: "text" },
+      { label: "Particulates (g/km)", key: "particulates", type: "text" },
+      { label: "46.2  Smoke (corrected value of the absorption coefficient)", key: "smoke_absorption", type: "text" },
     ]
    },
    {
@@ -213,38 +213,38 @@ export const sections: SectionConfig[] = [
     // The list of fields is now clean, with unique keys
     fields: [
       // NEDC Fields (for table logic)
-      { label: "CO₂ urban (g/km)", key: "co2_urban_nedc", type: "number" },
-      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban_nedc", type: "number" },
-      { label: "CO₂ extra-urban (g/km)", key: "co2_extra_urban_nedc", type: "number" },
-      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban_nedc", type: "number" },
-      { label: "CO₂ combined (g/km)", key: "co2_combined_nedc", type: "number" },
-      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_nedc", type: "number" },
+      { label: "CO₂ urban (g/km)", key: "co2_urban_nedc", type: "text" },
+      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban_nedc", type: "text" },
+      { label: "CO₂ extra-urban (g/km)", key: "co2_extra_urban_nedc", type: "text" },
+      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban_nedc", type: "text" },
+      { label: "CO₂ combined (g/km)", key: "co2_combined_nedc", type: "text" },
+      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_nedc", type: "text" },
 
       // WLTP Fields (for table logic)
-      { label: "CO₂ low (g/km)", key: "co2_low_wltp", type: "number" },
-      { label: "Fuel consumption low (l/100km)", key: "fuel_low_wltp", type: "number" },
-      { label: "CO₂ medium (g/km)", key: "co2_medium_wltp", type: "number" },
-      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium_wltp", type: "number" },
-      { label: "CO₂ high (g/km)", key: "co2_high_wltp", type: "number" },
-      { label: "Fuel consumption high (l/100km)", key: "fuel_high_wltp", type: "number" },
-      { label: "CO₂ maximum value (g/km)", key: "co2_maximum_value_wltp", type: "number" },
-      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value_wltp", type: "number" },
-      { label: "CO₂ combined (g/km)", key: "co2_combined_wltp", type: "number" },
-      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_wltp", type: "number" },
+      { label: "CO₂ low (g/km)", key: "co2_low_wltp", type: "text" },
+      { label: "Fuel consumption low (l/100km)", key: "fuel_low_wltp", type: "text" },
+      { label: "CO₂ medium (g/km)", key: "co2_medium_wltp", type: "text" },
+      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium_wltp", type: "text" },
+      { label: "CO₂ high (g/km)", key: "co2_high_wltp", type: "text" },
+      { label: "Fuel consumption high (l/100km)", key: "fuel_high_wltp", type: "text" },
+      { label: "CO₂ maximum value (g/km)", key: "co2_maximum_value_wltp", type: "text" },
+      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value_wltp", type: "text" },
+      { label: "CO₂ combined (g/km)", key: "co2_combined_wltp", type: "text" },
+      { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_wltp", type: "text" },
       
       // Fields rendered individually (NOT in a table)
-      { label: "Power consumption weighted/combined", key: "power_consumption", type: "number" },
-      { label: "Electric range (km)", key: "electric_range", type: "number" },
-      { label: "Electric range city (km)", key: "electric_range_city", type: "number" }
+      { label: "Power consumption weighted/combined", key: "power_consumption", type: "text" },
+      { label: "Electric range (km)", key: "electric_range", type: "text" },
+      { label: "Electric range city (km)", key: "electric_range_city", type: "text" }
     ]
    }
 ];
 
 // This part remains unchanged as its keys were already correct.
-export const demonstrationFields: SectionConfig['fields'] = [
-  { label: "Number of axles/wheels", key: "axles", type: "number" },
-  { label: "Powered axles", key: "powered_axles", type: "number" },
-  { label: "Wheelbase (mm)", key: "wheelbase", type: "number" },
-  { label: "Axle track 1/2 (mm)", key: "axle_track", type: "text" },
-  { label: "Length (mm)", key: "length", type: "number" }
-];
+//export const demonstrationFields: SectionConfig['fields'] = [
+  //{ label: "Number of axles/wheels", key: "axles", type: "text" },
+  //{ label: "Powered axles", key: "powered_axles", type: "number" },
+  //{ label: "Wheelbase (mm)", key: "wheelbase", type: "number" },
+  //{ label: "Axle track 1/2 (mm)", key: "axle_track", type: "text" },
+  //{ label: "Length (mm)", key: "length", type: "number" }
+//];

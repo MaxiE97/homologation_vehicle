@@ -23,9 +23,9 @@ FINAL_KEY_MAP = {
     "manufacturer_address_line1": "manufacturer_address_line1",     # A8
     "manufacturer_address_line2": "manufacturer_address_line2",     # A9
     "manufacturer_address_line3": "manufacturer_address_line3",     # A10
-    "Homologation number": "vin",                                   # A11
+    "implication_number": "implication_number",                     # A11 
     "vin_location": "vin_location",                                 # A12
-    "implication_number": "implication_number",                     # A13
+    "Homologation number": "vin",                                   # A13 
     "type_described": "type_described",                             # A14
     "date": "date",                                                 # A15
     "remarks_6_1": "remarks_6_1",                                   # A16
@@ -49,7 +49,7 @@ FINAL_KEY_MAP = {
     # --- CLAVES DE MASAS ---
     "Mass of the vehicle with bodywork in running order": "running_mass",          # B9
     "Technically permissible maximum laden mass": "max_mass",                      # B10
-    "Distribution of this mass among the axles – 1 / 2": "mass_distribution",    # B11
+    "Distribution of this mass among the axles – 1 / 2": "mass_distribution",      # B11
     "Technically permissible max mass on each axle – 1 / 2": "max_axle_mass",      # B12
     "Maximum permissible roof load": "max_roof_load",                              # B13
     "Maximum mass of trailer – braked / unbraked": "max_trailer_mass",             # B14
@@ -58,7 +58,7 @@ FINAL_KEY_MAP = {
     
     # --- CLAVES DE MOTOR ---
     "Engine manufacturer": "engine_manufacturer",                                  # B17
-    "Engine code as marked on the engine": "engine_code",                          # B18
+    "Engine code as marked on the enginee": "engine_code",                         # B18 
     "Working principle": "working_principle",                                      # B19
     "Direct injection": "direct_injection",                                        # B20
     "Pure electric": "pure_electric",                                              # B21

@@ -2,8 +2,8 @@
 import logging
 import io
 from typing import Dict, Optional, List, Any
-from supabase import Client # Para interactuar con Supabase Storage
-from docxtpl import DocxTemplate # La librería para DOCX con Jinja2
+from supabase import Client
+from docxtpl import DocxTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -12,24 +12,21 @@ logger = logging.getLogger(__name__)
 try:
     from .marcadores_map import KEY_TO_JINJA_VARIABLE_MAP
 except ImportError:
-    logger.error("CRÍTICO: No se pudo importar KEY_TO_JINJA_VARIABLE_MAP desde .marcadores_map. Asegúrate de que el archivo exista y esté en el mismo directorio (services).")
-    # Usamos un dict vacío para evitar que la aplicación falle al iniciar,
-    # pero la generación de DOCX probablemente no funcionará como se espera.
+    logger.error("CRÍTICO: No se pudo importar KEY_TO_JINJA_VARIABLE_MAP desde .marcadores_map.")
     KEY_TO_JINJA_VARIABLE_MAP: Dict[str, str] = {}
 
 
 async def generate_vehicle_docx(
-    data_to_render: List[Dict[str, Any]], # Viene del payload del request (lista de KeyValuePair)
+    data_to_render: List[Dict[str, Any]], # Lista de {"Key": ..., "Valor Final": ...}
     language: str,
     supabase_admin_client: Client
 ) -> Optional[bytes]:
     """
     Genera un documento DOCX, descargando la plantilla desde Supabase Storage
-    y usando docxtpl con Jinja2 para el reemplazo.
-    Solo los marcadores definidos en el contexto (basado en data_to_render y KEY_TO_JINJA_VARIABLE_MAP)
-    serán reemplazados. El resto, Jinja2 los dejará vacíos por defecto.
+    y usando docxtpl con Jinja2 para el reemplazo. Incluye lógica especial
+    para formatear la sección 'Remarks'.
     """
-    BUCKET_NAME = "plantillas-docx" # Asegúrate que este sea el nombre correcto de tu bucket
+    BUCKET_NAME = "plantillas-docx"
 
     LANGUAGE_TO_FILENAME_MAP = {
         "ingles": "planillaIngles.docx",
@@ -39,7 +36,7 @@ async def generate_vehicle_docx(
     normalized_language = language.lower()
 
     if normalized_language not in LANGUAGE_TO_FILENAME_MAP:
-        logger.error(f"Idioma '{language}' (normalizado: '{normalized_language}') no tiene una plantilla DOCX mapeada.")
+        logger.error(f"Idioma '{language}' no tiene una plantilla DOCX mapeada.")
         return None
     
     template_file_name_in_bucket = LANGUAGE_TO_FILENAME_MAP[normalized_language]
@@ -50,46 +47,67 @@ async def generate_vehicle_docx(
         response_bytes = supabase_admin_client.storage.from_(BUCKET_NAME).download(template_file_name_in_bucket)
         if response_bytes:
             docx_template_bytes = response_bytes
-            logger.info(f"Plantilla DOCX '{template_file_name_in_bucket}' descargada ({len(docx_template_bytes)} bytes).")
+            logger.info(f"Plantilla DOCX '{template_file_name_in_bucket}' descargada.")
         else:
-            logger.error(f"La descarga de la plantilla DOCX '{template_file_name_in_bucket}' devolvió None o vacío.")
+            logger.error(f"La descarga de la plantilla DOCX devolvió None o vacío.")
             return None
     except Exception as e:
-        logger.error(f"Error descargando plantilla DOCX '{template_file_name_in_bucket}' de Supabase Storage: {e}", exc_info=True)
+        logger.error(f"Error descargando plantilla DOCX: {e}", exc_info=True)
         return None
 
-    # --- Preparar el contexto para Jinja2 (Versión Simplificada) ---
+    # --- Preparación del Contexto Jinja2 ---
     context = {}
-    if not KEY_TO_JINJA_VARIABLE_MAP:
-        logger.warning("El mapeo KEY_TO_JINJA_VARIABLE_MAP está vacío. El contexto estará vacío.")
     
-    processed_keys_count = 0
-    if data_to_render:
-        for item_data in data_to_render: # item_data es un dict {"Key": "...", "Valor Final": "..."}
-            data_key = item_data.get("Key")
-            final_value = str(item_data.get("Valor Final", "-")) # Usar cadena vacía como default si "Valor Final" falta
+    # 1. Procesar todos los datos de entrada para los marcadores estándar (Bxx, etc.)
+    final_values_map = {item.get("Key"): str(item.get("Valor Final", "")) for item in data_to_render}
+    
+    for data_key, jinja_var_name in KEY_TO_JINJA_VARIABLE_MAP.items():
+        # Si la key existe en los datos, usar su valor; si no, dejar que Jinja2 lo reemplace por vacío.
+        if data_key in final_values_map:
+            context[jinja_var_name] = final_values_map[data_key]
 
-            if data_key in KEY_TO_JINJA_VARIABLE_MAP:
-                jinja_variable_name = KEY_TO_JINJA_VARIABLE_MAP[data_key]
-                context[jinja_variable_name] = final_value 
-                processed_keys_count += 1
-                logger.debug(f"Contexto Jinja: Var '{jinja_variable_name}' (mapeada de Key: '{data_key}') establecida a = '{final_value}'")
-            # else:
-                # Si una "Key" de los datos no está en el mapa, simplemente se ignora.
-                # logger.debug(f"La Clave de datos '{data_key}' no está en KEY_TO_JINJA_VARIABLE_MAP, se ignora para el contexto.")
-    else:
-        logger.info("No se proporcionaron datos en 'data_to_render', el contexto estará vacío (o solo con defaults de Jinja si los tuviera).")
+    # --- INICIO: LÓGICA ESPECIAL PARA LA SECCIÓN 'REMARKS' ---
+    logger.info("Procesando lógica especial para la sección 'Remarks'.")
+    
+    # Define la estructura de las "Remarks": La "Key" de tus datos y la etiqueta
+    remarks_definitions = [
+        {"key": "remarks_6_1", "label": "Zu* 6.1.:"},
+        {"key": "remarks_7_1", "label": "Zu* 7.1.:"},
+        {"key": "remarks_8", "label": "Zu* 8.:"},
+        {"key": "remarks_11", "label": "Zu* 11.:"},
+    ]
+    # Nombres de las variables Jinja2 para las 4 líneas de remarks en la plantilla
+    remark_jinja_vars = ["A16", "A17", "A18", "A19"]
 
-    logger.info(f"Contexto Jinja2 final preparado. {processed_keys_count} variables establecidas desde datos de entrada. Total variables en contexto: {len(context)}")
-    # logger.debug(f"Contexto Jinja2 completo para renderizar: {context}")
+    # Filtra y formatea solo las "remarks" que tienen un dato válido
+    valid_formatted_remarks = []
+    for remark_def in remarks_definitions:
+        data_key = remark_def["key"]
+        value = final_values_map.get(data_key) # Busca el valor en los datos ya procesados
+        
+        # Un dato es válido si existe y no es una cadena vacía o un guion
+        if value and value.strip() and value.strip() != "-":
+            formatted_line = f"{remark_def['label']} {value}"
+            valid_formatted_remarks.append(formatted_line)
+            logger.debug(f"Remark válida encontrada y formateada: '{formatted_line}'")
+
+    # Asigna las líneas formateadas y los guiones de relleno a las variables Jinja A16-A19
+    for i, jinja_var in enumerate(remark_jinja_vars):
+        if i < len(valid_formatted_remarks):
+            context[jinja_var] = valid_formatted_remarks[i]
+        else:
+            context[jinja_var] = "-" # Relleno para las ranuras restantes
+        logger.debug(f"Contexto Jinja (Remarks): Var '{jinja_var}' = '{context[jinja_var]}'")
+    
+    # --- FIN DE LA LÓGICA ESPECIAL ---
+
+    logger.info(f"Contexto Jinja2 final preparado con {len(context)} variables.")
 
     try:
         template_stream = io.BytesIO(docx_template_bytes)
         doc = DocxTemplate(template_stream)
 
         logger.info("Renderizando plantilla DOCX con contexto...")
-        # Si una variable en la plantilla (ej: {{B7}}) no está en el 'context',
-        # Jinja2 la reemplazará por una cadena vacía por defecto.
         doc.render(context)
         logger.info("Plantilla DOCX renderizada.")
 
@@ -101,5 +119,5 @@ async def generate_vehicle_docx(
         return output_stream.getvalue()
 
     except Exception as e:
-        logger.error(f"Error crítico durante la generación del documento DOCX con docxtpl: {e}", exc_info=True)
+        logger.error(f"Error crítico durante la generación del documento DOCX: {e}", exc_info=True)
         return None

@@ -6,8 +6,8 @@ import { useAuth } from '../contexts/AuthContext'; // We import useAuth
 
 // MOCK credentials are now centralized in AuthContext,
 // but for the UI, we could keep track of what to use.
-const MOCK_USERNAME_HINT = "tecnico";
-const MOCK_PASSWORD_HINT = "password123";
+const MOCK_USERNAME_HINT = "coc_user";
+const MOCK_PASSWORD_HINT = "administrador";
 
 
 const LoginPage: React.FC = () => {
@@ -103,7 +103,7 @@ const LoginPage: React.FC = () => {
           </div>
         </form>
         <p className="mt-6 text-center text-xs text-gray-500">
-          Simulated version. Use {MOCK_USERNAME_HINT} / {MOCK_PASSWORD_HINT} to log in.
+          beta version. Use {MOCK_USERNAME_HINT} / {MOCK_PASSWORD_HINT} to log in.
         </p>
       </div>
     </div>

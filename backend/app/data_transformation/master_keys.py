@@ -67,7 +67,7 @@ MASTER_ORDERED_KEYS = [
         "Suspension", #B34 Brief description of the braking system (line 1)
         "Brakes", #35 Brief description of the braking system (line 2)"
         "Type of body", #B36
-        "Color veihcle", #B37
+        "Color vehicle", #B37
         "Number and configuration of doors", #B38
         "Number and position of seats", #B39
         "EC type approval mark of couplind device if fitted", #B40

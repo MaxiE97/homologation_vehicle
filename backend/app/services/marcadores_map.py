@@ -3,80 +3,103 @@
 from typing import Dict
 
 KEY_TO_JINJA_VARIABLE_MAP: Dict[str, str] = {
-    "Make": "A1",  
-    "Model": "A2",
-    "Variant": "A3",
 
-    "Remark_6": "A16", 
+    # --- CLAVES DE IDENTIFICACIÓN ---
+    # De A1 a A23
+    "CdS": "A23",
+    "make": "A1",
+    "type": "A2",
+    "variant": "A3",
+    "version": "A4",
+    "commercial_name": "A5",
+    "category": "A6",
+    "manufacturer_base_vehicle": "A7",
+    "manufacturer_address_line1": "A8",
+    "manufacturer_address_line2": "A9",
+    "manufacturer_address_line3": "A10",
+    "vin": "A11",
+    "vin_location": "A12",
+    "implication_number": "A13",
+    "type_described": "A14",
+    "date": "A15",
+    "remarks_6_1": "A16",
+    "remarks_7_1": "A17",
+    "remarks_8": "A18",
+    "remarks_11": "A19",
+    "alternative_type_1": "A20",
+    "alternative_type_2": "A21",
+    "alternative_type_3": "A22",
 
-    "Number of axles / wheels": "B1",  # [cite: 7]
-    "Powered axles": "B2",  # [cite: 7]
-    "Wheelbase": "B3",  # [cite: 7]
-    "Axle(s) track – 1 / 2": "B4",  # [cite: 7]
-    "Length": "B5",  # [cite: 7]
-    "Width": "B6",  # [cite: 7]
-    "Height": "B7",  # [cite: 7]
-    # "Rear overhang": "B8",  # [cite: 7]
-    # "Mass of the vehicle with bodywork in running order": "B9",  # [cite: 7]
-    # "Technically permissable maximum laden mass": "B10",  # [cite: 7]
-    # "Distribution of this mass among the axles – 1 / 2": "B11",  # [cite: 7]
-    # "Technically perm. max mass on each axle – 1 / 2": "B12",  # [cite: 7]
-    # "Maximum permissible roof load": "B13",  # [cite: 7]
-    # "Maximum mass of trailer – braked / unbraked": "B14",  # [cite: 7]
-    # "Maximum mass of combination": "B15",  # [cite: 7]
-    # "Maximum vertical load at the coupling point for a trailer": "B16",  # [cite: 7]
-    # "Engine manufacturer": "B17",  # [cite: 7]
-    # "Engine code as marked on the engine": "B18",  # [cite: 7]
-    # "Working principle": "B19",  # [cite: 7]
-    # "Direct injection": "B20",  # [cite: 7]
-    # "Pure electric": "B21",  # [cite: 7]
-    # "Hybrid [electric] vehicle": "B22",  # [cite: 7]
-    # "Number and arrangement of cylinders": "B23",  # [cite: 7]
-    # "Capacity": "B24",  # [cite: 7]
-    # "Fuel": "B25",  # [cite: 7]
-    # "Maximum net power": "B26",  # [cite: 7]
-    # "Clutch (type)": "B27",  # [cite: 7]
-    # "Gearbox (type)": "B28",  # [cite: 7]
-    # "Gear": "B29",  # [cite: 7]
-    # "Final drive ratio": "B30",  # [cite: 8]
-    # "Tyres on wheels 1": "B31",  # [cite: 8]
-    # "Tyres on wheels 2": "B32",  # [cite: 8]
-    # "Steering, method of assistance": "B33",  # [cite: 8]
-    # "Brief description of the braking system": "B34",  # [cite: 8]
-    # "Brief description of the braking system - Detail": "B35",  # [cite: 8] # As {{B35}} is a continuation without a distinct label in source.
-    # "Type of body": "B36",  # [cite: 8]
-    # "Colour of vehicle": "B37",  # [cite: 8]
-    # "Number and configuration of doors": "B38",  # [cite: 8]
-    # "Number and position of seats": "B39",  # [cite: 8]
-    # "EC type approval mark of coupling device, if fitted": "B40",  # [cite: 8] # Corrected "couplind" to "coupling"
-    # "Maximum speed": "B41",  # [cite: 8]
-    # "Sound level - Stationary (dB(A)) at engine speed (min-1)": "B42",  # [cite: 8]
-    # "Sound level - Drive-by (dB(A))": "B43",  # [cite: 8]
-    # "Emissions standard": "B44",  # [cite: 8]
-    # "Exhaust emission": "B45",  # [cite: 8]
-    # "CO (g/km)": "B46",  # [cite: 8]
-    # "HC (g/km)": "B47",  # [cite: 8]
-    # "NOX (g/km)": "B48",  # [cite: 8]
-    # "HC+NOX (g/km)": "B49",  # [cite: 8]
-    # "Particulates (g/km)": "B50",  # [cite: 8]
-    # "Smoke (corrected value of the absorption coefficient)": "B51",  # [cite: 9]
-    # "CO2 (g/km) - combined (NEDC)": "B52",  # [cite: 10]
-    # "CO2 (g/km) - extra-urban conditions (NEDC)": "B53",  # [cite: 10]
-    # "CO2 (g/km) - urban conditions (NEDC)": "B54",  # [cite: 10]
-    # "Fuel consumption (l/100km) - combined (NEDC)": "B55",  # [cite: 10]
-    # "Fuel consumption (l/100km) - extra-urban conditions (NEDC)": "B56",  # [cite: 10]
-    # "Fuel consumption (l/100km) - urban conditions (NEDC)": "B57",  # [cite: 10]
-    # "CO2 (g/km) - Combined (WLTP)": "B58",  # [cite: 12]
-    # "CO2 (g/km) - Maximum value (WLTP)": "B59",  # [cite: 12]
-    # "CO2 (g/km) - High (WLTP)": "B60",  # [cite: 12]
-    # "CO2 (g/km) - Medium (WLTP)": "B61",  # [cite: 12]
-    # "CO2 (g/km) - Low (WLTP)": "B62",  # [cite: 12]
-    # "Fuel consumption (l/100km) - Combined (WLTP)": "B63",  # [cite: 12]
-    # "Fuel consumption (l/100km) - Maximum value (WLTP)": "B64",  # [cite: 12]
-    # "Fuel consumption (l/100km) - High (WLTP)": "B65",  # [cite: 12]
-    # "Fuel consumption (l/100km) - Medium (WLTP)": "B66",  # [cite: 12]
-    # "Fuel consumption (l/100km) - Low (WLTP)": "B67",  # [cite: 12]
-    # "Power consumption weighted/combined (Pure electric/Hybrid)": "B68",  # [cite: 13]
-    # "Electrical range (Pure electric/Hybrid)": "B69",  # [cite: 13]
-    # "Electrical range in city (Pure electric/Hybrid)": "B70",  # [cite: 13]
+    # --- CLAVES DE DIMENSIONES, MASAS, MOTOR, ETC. ---
+    # De B1 a B70
+    "axles": "B1",
+    "powered_axles": "B2",
+    "wheelbase": "B3",
+    "axle_track": "B4",
+    "length": "B5",
+    "width": "B6",
+    "height": "B7",
+    "rear_overhang": "B8",
+    "running_mass": "B9",
+    "max_mass": "B10",
+    "mass_distribution": "B11",
+    "max_axle_mass": "B12",
+    "max_roof_load": "B13",
+    "max_trailer_mass": "B14",
+    "max_combination_mass": "B15",
+    "max_coupling_load": "B16",
+    "engine_manufacturer": "B17",
+    "engine_code": "B18",
+    "working_principle": "B19",
+    "direct_injection": "B20",
+    "pure_electric": "B21",
+    "hybrid": "B22",
+    "cylinders": "B23",
+    "capacity": "B24",
+    "fuel": "B25",
+    "max_power": "B26",
+    "clutch_type": "B27",
+    "gearbox_type": "B28",
+    "gear": "B29",
+    "final_drive_ratio": "B30",
+    "tyres_wheels_1": "B31",
+    "tyres_wheels_2": "B32",
+    "steering_assistance": "B33",
+    "braking_system_1": "B34",
+    "braking_system_2": "B35",
+    "body_type": "B36",
+    "vehicle_color": "B37",
+    "doors_config": "B38",
+    "seats_config": "B39",
+    "coupling_approval": "B40",
+    "max_speed": "B41",
+    "noise_stationary": "B42",
+    "noise_drive_by": "B43",
+    "emissions_standard": "B44",
+    "emissions_exhaust": "B45",
+    "co_emissions": "B46",
+    "hc_emissions": "B47",
+    "nox_emissions": "B48",
+    "hc_nox_emissions": "B49",
+    "particulates": "B50",
+    "smoke_absorption": "B51",
+    "co2_combined_nedc": "B52",
+    "co2_extra_urban_nedc": "B53",
+    "co2_urban_nedc": "B54",
+    "fuel_combined_nedc": "B55",
+    "fuel_extra_urban_nedc": "B56",
+    "fuel_urban_nedc": "B57",
+    "co2_combined_wltp": "B58",
+    "co2_maximum_value_wltp": "B59",
+    "co2_high_wltp": "B60",
+    "co2_medium_wltp": "B61",
+    "co2_low_wltp": "B62",
+    "fuel_combined_wltp": "B63",
+    "fuel_maximum_value_wltp": "B64",
+    "fuel_high_wltp": "B65",
+    "fuel_medium_wltp": "B66",
+    "fuel_low_wltp": "B67",
+    "power_consumption": "B68",
+    "electric_range": "B69",
+    "electric_range_city": "B70",
 }

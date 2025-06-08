@@ -543,14 +543,42 @@ class VehicleDataTransformer_site2:
 
 
     def _process_dimensions(self, df: pd.DataFrame) -> pd.DataFrame:
-      """Procesa las dimensiones y extrae el primer número en caso de rango."""
+        """Procesa las dimensiones y extrae el primer número en caso de rango.
+        El segundo número, si existe, se guarda como un 'remark' correspondiente.
+        Si no existe, se guarda 'None' en el remark.
+        """
 
-      keys_to_process = ["Length", "Width", "Height", "Rear overhang"]
+        key_remark_map = {
+            "Length": "remarks_6_1",
+            "Width": "remarks_7_1",
+            "Height": "remarks_8",
+            "Rear overhang": "remarks_11"
+        }
 
-      for key in keys_to_process:
-          df.loc[df["Key"] == key, "Value"] = df.loc[df["Key"] == key, "Value"].str.split(" - ").str[0].str.strip()
+        for key, remark_key in key_remark_map.items():
+            mask = df["Key"] == key
+            values = df.loc[mask, "Value"].astype(str)
 
-      return df
+            for idx, val in values.items():
+                parts = [p.strip() for p in val.split("-")]
+
+                # Tomar primer número
+                first_val = parts[0] if len(parts) > 0 else None
+                df.at[idx, "Value"] = first_val
+
+                # Tomar segundo número si existe, si no asignar None
+                second_val = parts[1] if len(parts) > 1 else None
+
+                # Agregar fila para remark
+                new_row = pd.DataFrame({
+                    "Key": [remark_key],
+                    "Value": [second_val if second_val else "None"]
+                })
+                df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
 
 
     def _sort_and_clean(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -6,31 +6,27 @@ import ExtractedDataView from '../components/vehicleForm/ExtractedDataView';
 import SectionsView from '../components/vehicleForm/SectionsView';
 import UnifiedView from '../components/vehicleForm/UnifiedView';
 import UrlInputSection from '../components/vehicleForm/UrlInputSection';
-// Se ha limpiado 'FieldConfig' de los imports ya que no se usa directamente aquí
 import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs';
 import { sections as allSections } from '../constants/vehicleFormSections';
 import { supportedLanguages, predefinedTranslations } from '../constants/localization';
 import api from '../services/api';
 
-// TIPO AÑADIDO: Aquí definimos el tipo 'ViewMode' que faltaba.
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
-// Interfaz que define los datos que llegan del backend
 interface VehicleRow {
-  Key: string;
+  key: string;
   "Valor Sitio 1": string | number | null;
   "Valor Sitio 2": string | number | null;
   "Valor Sitio 3": string | number | null;
   "Valor Final": string | number | null;
 }
 
-// Función que transforma la respuesta de la API al estado del frontend.
 const transformApiDataToState = (apiData: VehicleRow[]): { newExtractedData: ExtractedData; newFormData: FormData } => {
   const newExtractedData: ExtractedData = {};
   const newFormData: FormData = {};
 
   apiData.forEach(row => {
-    const fieldKey = row.Key;
+    const fieldKey = row.key;
     if (fieldKey) {
       newExtractedData[fieldKey] = {
         site1: row["Valor Sitio 1"],
@@ -59,6 +55,9 @@ const VehicleHomologationPage = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // --- AÑADIDO ---: Estado para controlar la carga del botón de envío.
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), []);
 
   const handleProcessUrls = async () => {
@@ -77,7 +76,8 @@ const VehicleHomologationPage = () => {
         url3: url3 || null,
         transmission_option: transmissionOption,
       };
-      const response = await api.post<VehicleRow[]>('/processing/process-vehicle', payload);
+      // --- MODIFICADO ---: La URL del endpoint se corrigió en el paso anterior.
+      const response = await api.post<VehicleRow[]>('/process-vehicle', payload);
       if (response.data) {
         const { newExtractedData, newFormData } = transformApiDataToState(response.data);
         setExtractedData(newExtractedData);
@@ -131,8 +131,57 @@ const VehicleHomologationPage = () => {
   const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]);
   const completedFields = useMemo(() => Object.keys(formData).filter(key => formData[key] && String(formData[key]).trim() !== '').length, [formData]);
   const completedPercentage = useMemo(() => totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0, [completedFields, totalFields]);
-  const handleSaveDraft = () => { /* sin cambios */ };
-  const handleSubmit = () => { /* sin cambios */ };
+  const handleSaveDraft = () => { /* Lógica para guardar borrador puede ir aquí */ };
+
+  // --- MODIFICADO ---: Se reemplaza la función vacía por la lógica de exportación.
+  const handleSubmit = async () => {
+    if (Object.keys(formData).length === 0) {
+      alert("No data to submit. Please process URLs first.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    const payload = {
+      language: selectedLanguage,
+      final_data: Object.entries(formData).map(([key, value]) => ({
+        Key: key,
+        "Valor Final": value,
+      })),
+    };
+
+    try {
+      const response = await api.post('/export-document', payload, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'homologacion.docx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Error submitting data for export:", err);
+      setError("Failed to generate the document. Check the console for details.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -171,9 +220,12 @@ const VehicleHomologationPage = () => {
             formData={formData} onFieldChange={updateField} allFields={allFieldsFlat}
           />
         )}
+        {/* --- MODIFICADO ---: Se pasan las props necesarias al componente de acciones */}
         <FormActions
           completedPercentage={completedPercentage}
-          onSaveDraft={handleSaveDraft} onSubmit={handleSubmit}
+          onSaveDraft={handleSaveDraft}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting} 
         />
       </div>
     </div>
