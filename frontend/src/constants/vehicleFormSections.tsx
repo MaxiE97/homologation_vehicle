@@ -150,7 +150,7 @@ export const sections: SectionConfig[] = [
       { label: "20.    Engine manufacturer:", key: "engine_manufacturer", type: "text" },
       { label: "21.    Engine code as marked on the engine:", key: "engine_code", type: "text" },
       { label: "22.    Working principle:", key: "working_principle", type: "text" },
-      { label: "22.1. Direct injection:", key: "direct_injection", type: "select", options: ["Yes", "No"] },
+      { label: "22.1.  Direct injection:", key: "direct_injection", type: "select", options: ["Yes", "No"] },
       { label: "23.    Pure electric:", key: "pure_electric", type: "select", options: ["Yes", "No"] },
       { label: "23.1  Hybrid [electric] vehicle:", key: "hybrid", type: "select", options: ["Yes", "No"] },
       { label: "24.    Number and arrangement of cylinders:", key: "cylinders", type: "text" },

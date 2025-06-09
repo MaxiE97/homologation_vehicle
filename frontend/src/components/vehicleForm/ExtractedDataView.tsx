@@ -46,7 +46,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S1</span>
                   </div>
-                  <span>Source 1</span>
+                  <span>Voertuig</span>
                 </div>
               </th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
@@ -54,7 +54,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S2</span>
                   </div>
-                  <span>Source 2</span>
+                  <span>Typenscheine</span>
                 </div>
               </th>
               <th className="px-4 py-4 text-center text-sm font-semibold text-gray-700 min-w-[150px]">
@@ -62,7 +62,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs font-bold">S3</span>
                   </div>
-                  <span>Source 3</span>
+                  <span>Auto-data 3</span>
                 </div>
               </th>
               <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700 min-w-[180px]">

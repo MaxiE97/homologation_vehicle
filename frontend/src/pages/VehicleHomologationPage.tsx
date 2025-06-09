@@ -191,7 +191,7 @@ const VehicleHomologationPage = () => {
         selectedLanguage={selectedLanguage} onLanguageChange={handleLanguageChange} 
         onTranslateRequest={handleTranslateFinalValues}
       />
-      <div className="max-w-5xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {viewMode === 'extracted' && ( 
           <UrlInputSection
             url1={url1} setUrl1={setUrl1} url2={url2} setUrl2={setUrl2} url3={url3} setUrl3={setUrl3}

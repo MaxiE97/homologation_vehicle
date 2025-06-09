@@ -29,9 +29,18 @@ async def generate_vehicle_docx(
     BUCKET_NAME = "plantillas-docx"
 
     LANGUAGE_TO_FILENAME_MAP = {
-        "ingles": "planillaIngles.docx",
         "en": "planillaIngles.docx",
-        "prueba": "planillaPrueba.docx",
+        "de": "planillaAleman.docx",
+        "pt": "planillaPortugues.docx",
+        "it": "planillaItaliano.docx",
+        "fr": "planillaFrances.docx",
+        "nl": "planillaHolandes.docx",
+        "sv": "planillaSueco.docx",
+        "ro": "planillaRumania.docx",
+        "pl": "planillaPolaco.docx",
+        "cs": "planillaCheco.docx",
+
+
     }
     normalized_language = language.lower()
 

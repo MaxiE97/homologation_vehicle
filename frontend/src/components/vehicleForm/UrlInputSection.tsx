@@ -28,15 +28,15 @@ const UrlInputSection: React.FC<UrlInputSectionProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="url1" className={labelClasses}>Source 1 URL (Optional)</label>
+            <label htmlFor="url1" className={labelClasses}>Voertuig URL (Optional)</label>
             <input type="url" id="url1" value={url1} onChange={(e) => setUrl1(e.target.value)} placeholder="https://example.site1.com/vehicleA" className={inputClasses} />
           </div>
           <div>
-            <label htmlFor="url2" className={labelClasses}>Source 2 URL (Optional)</label>
+            <label htmlFor="url2" className={labelClasses}>Typenscheine URL</label>
             <input type="url" id="url2" value={url2} onChange={(e) => setUrl2(e.target.value)} placeholder="https://example.site2.com/vehicleB" className={inputClasses} />
           </div>
           <div>
-            <label htmlFor="url3" className={labelClasses}>Source 3 URL (Optional)</label>
+            <label htmlFor="url3" className={labelClasses}>Auto-data URL</label>
             <input type="url" id="url3" value={url3} onChange={(e) => setUrl3(e.target.value)} placeholder="https://example.site3.com/vehicleC" className={inputClasses} />
           </div>
         </div>
