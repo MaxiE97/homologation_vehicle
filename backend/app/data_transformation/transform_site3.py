@@ -24,6 +24,7 @@ class VehicleDataTransformer_site3:
         df = self._rename_columns(df)
         df = self._create_suspension(df)
         df = self._create_brakes(df)
+        df = self._add_fuel(df)
 
 
 
@@ -93,6 +94,24 @@ class VehicleDataTransformer_site3:
 
                 return df
 
+    def _add_fuel(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'Fuel' con el valor correspondiente."""
+        if "Fuel" in df["Key"].values:
+            raw_value = df[df["Key"] == "Fuel"]["Value"].values[0].strip()
+            # Buscar las siglas HEV, FHEV, PHEV o MHEV
+            match = re.search(r'\b(FHEV|PHEV|MHEV|HEV)\b', raw_value)
+            if match:
+                new_value = match.group(1)
+                df.loc[df["Key"] == "Fuel", "Value"] = new_value
+            else:
+                 df.loc[df["Key"] == "Fuel", "Value"] = "-"    
+        return df
+
+
+
+            
+                      
+
 
 
     def _add_missing_keys(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -140,6 +159,7 @@ DEFAULT_CONFIG_3 = VehicleDataConfig(
         "Steering, method of assistance": "Steering, method of assistance",
         "Number and configuration of doors": "Number and configuration of doors",
         "Number and position of seats": "Number and position of seats",
+        "Powertrain architecture" : "Fuel",
         
 
     },

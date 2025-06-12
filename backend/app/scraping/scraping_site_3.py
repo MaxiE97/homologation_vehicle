@@ -34,6 +34,7 @@ class Site3Scraper(BaseScraper):
             "Front brakes": "Front brakes",
             "Rear brakes": "Rear brakes",
             "Assisting systems": "Assisting systems",
+            "Powertrain Architecture" : "Powertrain architecture",
         }
 
         extracted_data = []

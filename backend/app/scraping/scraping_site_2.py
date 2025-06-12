@@ -32,7 +32,7 @@ class Site2Scraper(BaseScraper):
             {
                 'container_class': 'col-sm-2 cocInfo',
                 'value_class': 'col-sm-2',
-                'identifiers': ['Wet Weigh Kg'],
+                'identifiers': ['Wet Weigh Kg','Fuel code'],
                 'next_sibling': True,
                 'element_type': 'label'
             }

@@ -54,20 +54,43 @@ def merge_and_prioritize(
             df_renamed = df[['Key', 'Value']].rename(columns={'Value': col_name})
             merged_df = pd.merge(merged_df, df_renamed, on='Key', how='left')
         else:
-            # Si el DataFrame no existe, crea la columna con valores por defecto
             merged_df[col_name] = "-"
             
-    # Rellena cualquier valor nulo con el default "-"
     merged_df = merged_df.fillna("-")
 
-    # Define la función de prioridad (S2 > S1 > S3)
+    # Define la función de prioridad con tu lógica especial
     def get_final_value(row):
-        s2 = row.get('Valor Sitio 2')
+        # Primero, obtén los valores de las columnas para usarlos fácilmente
         s1 = row.get('Valor Sitio 1')
+        s2 = row.get('Valor Sitio 2')
         s3 = row.get('Valor Sitio 3')
         
-        # Prioridad S2 > S1 > S3.
-        # Ahora considera tanto "-" como "None" (string) como valores no válidos.
+        # --- INICIO DE LA MODIFICACIÓN: LÓGICA ESPECIAL ---
+
+        # Comprueba si estamos en la fila de 'Fuel'
+        if row['Key'] == 'Fuel':
+            # Convierte a string para evitar errores si el valor es None
+            s2_value = str(s2)
+            
+            # Condición 1: Si S2 es híbrido, combina con S3
+            if "Diesel / Electric" in s2_value: 
+                main_fuel = s2_value.split(' / ')[0]
+                return f"{main_fuel}/{s3} "
+
+            if "Gasoline / Electric" in s2_value:
+                return f"Petrol/{s3} "
+            
+            # Condición 2: Si S2 es solo Diesel o Gasoline, úsalo directamente
+            if "Diesel" in s2_value:
+                return s2_value
+
+            if "Gasoline" in s2_value:
+                return "Petrol" 
+
+        # --- FIN DE LA MODIFICACIÓN ---
+
+        # Lógica de prioridad por defecto (S2 > S1 > S3)
+        # Si la lógica especial de arriba no se aplicó, se ejecuta esto.
         if s2 is not None and str(s2) not in ['-', 'None']:
             return s2
         if s1 is not None and str(s1) not in ['-', 'None']:
@@ -75,13 +98,10 @@ def merge_and_prioritize(
         if s3 is not None and str(s3) not in ['-', 'None']:
             return s3
             
-        # Si todos son inválidos, puedes decidir qué devolver. 
-        # Devolver "-" es consistente con los valores por defecto.
         return "-"
 
     merged_df['Valor Final'] = merged_df.apply(get_final_value, axis=1)
 
-    # El orden ya está definido por el DataFrame base inicial, pero re-categorizamos para asegurar.
     merged_df['Key'] = pd.Categorical(merged_df['Key'], categories=MASTER_ORDERED_KEYS, ordered=True)
     merged_df = merged_df.sort_values("Key").reset_index(drop=True)
 

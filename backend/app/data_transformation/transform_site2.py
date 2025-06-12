@@ -36,7 +36,10 @@ class VehicleDataTransformer_site2:
         df = self._process_emissions(df)
         df = self._transform_emissions_values(df)
         df = self._process_dimensions(df)
-        df = self._process_engine_details(df)
+        df = self._add_number_and_arrangement_of_cylinders(df)
+        df = self._add_direct_injection(df)
+        df = self._add_working_principle(df)
+        
 
         df = self._add_missing_keys(df)
         #df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
@@ -183,79 +186,114 @@ class VehicleDataTransformer_site2:
         return df
     
 
-    def _process_engine_details(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Procesa una cadena de origen para extraer detalles del motor.
-        Modifica la clave 'Working principle' existente y AÑADE NUEVAS FILAS
-        para 'Fuel', 'Direct injection', y 'Number and arrangement of cylinders'.
-        """
-        # --- Configuración de Claves ---
-        # Clave que contiene la cadena original (e.g., "D / 4-Takt / 4 / Reihe-T-DI")
-        # ¡¡IMPORTANTE!! Ajusta esto al nombre correcto en tu DataFrame ANTES de esta función.
-        source_key_name = "Working principle"
+    
 
-        #target_key_wp = "Working principle"
-        target_key_fuel = "Fuel"
-        target_key_di = "Direct injection"
-        target_key_cyl = "Number and arrangement of cylinders"
 
-        new_rows_list = [] # Lista para almacenar las nuevas filas a añadir
 
-        # Verificar si la clave de origen existe
-        if source_key_name in df["Key"].values:
-            source_row_index = df[df["Key"] == source_key_name].index
-            # Asegurarse de que la clave de origen es única antes de proceder
-            if len(source_row_index) == 1:
-                source_value = df.loc[source_row_index[0], "Value"]
+    def _add_working_principle(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'Working principle' con el valor correspondiente."""
+        if "Fuel" in df["Key"].values:
+            fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
 
-                if isinstance(source_value, str) and "/" in source_value:
-                    parts = [part.strip() for part in source_value.split('/')]
+            if fuel_value == "Diesel / Electric" or fuel_value == "Diesel":
+                new_row = pd.DataFrame({
+                    "Key": ["Working principle"],
+                    "Value": ["Common Rail"]
+                })
+            elif fuel_value == "Gasoline / Electric" or fuel_value == "Gasoline":
+                new_row = pd.DataFrame({
+                    "Key": ["Working principle"],
+                    "Value": ["Spark Ignition, 4-stroke"]
+                })
+            elif fuel_value == "Electric":
+                new_row = pd.DataFrame({
+                    "Key": ["Working principle"],
+                    "Value": ["BEV"]
+                })
+            else:
+                new_row = pd.DataFrame()  # En caso de que no coincida con nada
 
-                    if len(parts) >= 4:
-                        part1 = parts[0] # 'D' o 'B'
-                        part3 = parts[2] # Número de cilindros, e.g., '4'
-                        part4 = parts[3] # Tipo de inyección/motor, e.g., 'Reihe-T-DI'
-
-                        # 1. Procesar Working Principle (MODIFICAR existente) y Fuel (AÑADIR nuevo)
-                        if part1 == 'D':
-                            df.loc[source_row_index[0], "Value"] = "Common rail" # Modificar WP
-                            new_rows_list.append({"Key": target_key_fuel, "Value": "Diesel"}) # Añadir Fuel
-                        elif part1 == 'B':
-                            df.loc[source_row_index[0], "Value"] = "Spark ignition, 4-stroke" # Modificar WP
-                            new_rows_list.append({"Key": target_key_fuel, "Value": "Petrol"}) # Añadir Fuel
-
-                        # 2. Procesar Direct Injection (AÑADIR nuevo)
-                        if part4 == "Reihe-Inj-T":
-                            new_rows_list.append({"Key": target_key_di, "Value": "Yes"})
-                        else:
-                            # Opcional: ajustar si "DI" en part4 también significa "Yes"
-                            new_rows_list.append({"Key": target_key_di, "Value": "No"})
-
-                        # 3. Procesar Number and arrangement of cylinders (AÑADIR nuevo)
-                        cyl_value = part3 # Valor por defecto si no es un número válido
-                        if part3.isdigit():
-                            num_cyl = int(part3)
-                            if num_cyl in [3, 4, 6]:
-                                cyl_value = f"{num_cyl}, in line"
-                            else:
-                                cyl_value = str(num_cyl)
-                        new_rows_list.append({"Key": target_key_cyl, "Value": cyl_value})
-
-                        # Opcional: Limpiar el valor de la clave fuente si ya no se necesita explícitamente
-                        # Podrías querer borrarlo o dejarlo, ahora que se ha procesado
-                        # df.loc[source_row_index[0], "Value"] = "" # Por ejemplo, para borrarlo
-
-                # else: El valor no tiene el formato esperado
-            # else: La clave de origen no es única (o no se encontró), no hacer nada
-        # else: La clave de origen no se encontró
-
-        # Añadir todas las nuevas filas al DataFrame de una vez si se generaron
-        if new_rows_list:
-            new_rows_df = pd.DataFrame(new_rows_list)
-            df = pd.concat([df, new_rows_df], ignore_index=True)
+            if not new_row.empty:
+                df = pd.concat([df, new_row], ignore_index=True)
 
         return df
 
+
+                
+
+
+    def _add_number_and_arrangement_of_cylinders(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'Number and arrangement of cylinders' con el valor correspondiente."""
+        if "Design type" in df["Key"].values:
+            parts = [part.strip() for part in df[df["Key"] == "Design type"]["Value"].values[0].split("/")]
+            cyl_value = parts[2] 
+
+            if "Reihe" in parts[3]:
+                new_value = f"{cyl_value}, in line"
+            if "V" in parts[3]:
+                new_value = f"{cyl_value}, in V"
+            if "W" in parts[3]:
+                new_value = f"{cyl_value}, in W"
+
+            new_row = pd.DataFrame({
+                "Key": ["Number and arrangement of cylinders"],
+                "Value": [new_value]
+            })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df            
+    
+
+
+    def _add_direct_injection(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'Direct injection' con el valor correspondiente."""
+        if "Design type" in df["Key"].values:
+            parts = [part.strip() for part in df[df["Key"] == "Design type"]["Value"].values[0].split("/")]
+
+            if "Reihe-Inj-T" in parts[3]:
+                new_value = "Yes"
+            else:
+                new_value = "No"
+
+            new_row = pd.DataFrame({
+                "Key": ["Direct injection"],
+                "Value": [new_value]
+            })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
+    def _add_hybrid_electric_vecicle(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Nos dice si es hibrido o no"""
+
+        if "Fuel" in df["Key"].values:
+            fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
+
+            if "Diesel / Electric" in fuel_value or "Gasoline / Electric" in fuel_value:
+                new_row = pd.DataFrame({
+                    "Key": ["Hybrid [electric] vehicle"],
+                    "Value": ["Yes"]
+                })
+            else:
+                new_row = pd.DataFrame({
+                    "Key": ["Hybrid [electric] vehicle"],
+                    "Value": ["No"]
+                })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
+
+
+                
+
+
+                    
 
 
 
@@ -628,11 +666,12 @@ DEFAULT_CONFIG_2 = VehicleDataConfig(
         "58 unbraked": "Unbraked trailer",
         "67 Support load": "Support load",
         "25 Brand / Type": "Brand / Type",
+        "26 Design type": "Design type",
         "27 Capacity:": "Capacity",
         "28 Power / n": "Maximum net power",
         "18 Transmission/IA": "Transmission/IA",
         "Tow hitch": "EC type approval mark of couplind device if fitted",
-        "26 Design type": "Working principle",
+        "Fuel code": "Fuel",
 
     },
     ordered_keys = MASTER_ORDERED_KEYS 
