@@ -37,12 +37,12 @@ class VehicleDataTransformer_site1:
         df = self.wltp_co_values(df)
         df = self.wltp_fuel_consumption_values(df)
         df = self.stationary_engine_speed(df)
+        df = self._clean_remarks_electric(df)
         df = self._add_missing_keys(df)
 
 
 
 
-        #df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
         df = self._sort_and_clean(df)
         return df
 
@@ -50,6 +50,21 @@ class VehicleDataTransformer_site1:
         """Renombra las columnas según el mapeo configurado."""
         df["Key"] = df["Key"].map(lambda x: self.config.column_mapping.get(x, x))
         return df
+
+
+    def _clean_remarks_electric(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Limpia los datos de los remarks electric sacando el (num pk) y reemplazando coma decimal por punto"""
+        for key in ["remark_electric_1", "remark_electric_2", "remark_electric_3"]:
+            if key in df["Key"].values:
+                df.loc[df["Key"] == key, "Value"] = (
+                    df.loc[df["Key"] == key, "Value"]
+                    .str.replace(r"\(.*?\)", "", regex=True)  # elimina (xxx pk)
+                    .str.replace(",", ".", regex=False)       # reemplaza coma por punto decimal
+                    .str.strip()                              # elimina espacios adicionales
+                )
+        return df
+
+    
 
     def _process_axle_wheel(self, df: pd.DataFrame) -> pd.DataFrame:
         """Procesa y combina la información de los ejes y ruedas."""
@@ -452,6 +467,9 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Algemeen - Uitvoering": "Version",
         "Algemeen - Model": "Commercial name",
         "Algemeen - Typegoedkeuringsnummer":"Homologation number",
+        "Brandstof #1 - Nominaal continu elektrisch vermogen": "remark_electric_1",
+        "Brandstof #1 - Netto maximaal elektrisch vermogen": "remark_electric_2",
+        "Brandstof #1 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
 
 
 

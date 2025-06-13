@@ -103,10 +103,18 @@ export const sections: SectionConfig[] = [
     icon: TextSearch,
     color: "from-blue-500 to-cyan-500",
     fields: [
+      {label: "Remark 1 hybrid/electric vehicle", key: "remark_electric_1", type: "text" },
+      {label: "Remark 2 hybrid/electric vehicle", key: "remark_electric_2", type: "text" },
+      {label: "Remark 3 hybrid/electric vehicle", key: "remark_electric_3", type: "text" },
+
+
+
       { label: "Remarks 6.1 - Length:(mm)", key: "remarks_6_1", type: "text" },
       { label: "Remarks 7.1 - Width:(mm)", key: "remarks_7_1", type: "text" },
       { label: "Remarks 8 - Height:(mm)", key: "remarks_8", type: "text" },
       { label: "Remarks 11 - Rear overhang:(mm)", key: "remarks_11", type: "text" },
+      { label: "Remarks 12.1 - Mass of the vehicle with bodywork in running order:(kg)", key: "remarks_12", type: "text" },
+
       { label: "Alternative type 1", key: "alternative_type_1", type: "text" },
       { label: "Alternative type 2", key: "alternative_type_2", type: "text" },
       { label: "Alternative type 3", key: "alternative_type_3", type: "text" },

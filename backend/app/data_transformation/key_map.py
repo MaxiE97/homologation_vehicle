@@ -13,6 +13,11 @@ FINAL_KEY_MAP = {
 
     # --- CLAVES DE IDENTIFICACIÓN ---
     "CdS": "CdS",                                                   # A23
+    "remark_electric_1": "remark_electric_1",                       # A24
+    "remark_electric_2": "remark_electric_2",                       # A25
+    "remark_electric_3": "remark_electric_3",                       # A26
+    "remarks_12": "remarks_12",                                     # A27
+
     "Make": "make",                                                 # A1
     "Type": "type",                                                 # A2
     "Variant": "variant",                                           # A3

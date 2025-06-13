@@ -590,7 +590,8 @@ class VehicleDataTransformer_site2:
             "Length": "remarks_6_1",
             "Width": "remarks_7_1",
             "Height": "remarks_8",
-            "Rear overhang": "remarks_11"
+            "Rear overhang": "remarks_11",
+            "Mass of the vehicle with bodywork in running order": "remarks_12"
         }
 
         for key, remark_key in key_remark_map.items():

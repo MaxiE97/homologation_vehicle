@@ -5,6 +5,9 @@ MASTER_ORDERED_KEYS = [
 
     # Del A1 al A23
         "CdS",     #23 
+        "remark_electric_1", #24
+        "remark_electric_2", #25
+        "remark_electric_3", #26
         "Make",    #A1
         "Type",    #A2
         "Variant", #A3
@@ -24,6 +27,7 @@ MASTER_ORDERED_KEYS = [
         "remarks_7_1", #A17
         "remarks_8", #A18
         "remarks_11", #A19
+        "remarks_12",  #27
         "alternative_type_1",  #A20
         "alternative_type_2",  #A21
         "alternative_type_3", #A22 
