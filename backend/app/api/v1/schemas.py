@@ -1,5 +1,6 @@
 # backend/app/api/v1/schemas.py
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List, Any, Dict
 import uuid
 from datetime import datetime
@@ -47,9 +48,7 @@ class AuthenticatedUser(BaseModel):
     email: Optional[str] = None # El email original con el que se creó en Supabase
     user_metadata: Dict[str, Any] = Field(default_factory=dict) # Para el username y otros datos
     created_at: datetime
-    # app_metadata: Dict[str, Any] = Field(default_factory=dict) # Por si necesitas esto también
-    # updated_at: Optional[datetime] = None # Si está disponible
-
+    
     class Config:
         populate_by_name = True
 
@@ -64,3 +63,16 @@ class KeyValuePair(BaseModel):
 class ExportDataRequest(BaseModel): # Renombrado de ExportRequest para claridad del payload
     language: str
     final_data: List[KeyValuePair]
+
+# --- AÑADIDO: Esquemas para el Perfil de Usuario y el Historial de Descargas ---
+
+class DownloadHistoryItem(BaseModel):
+    """Define la estructura de un único item en el historial de descargas."""
+    cds_identifier: Optional[str] = "N/A"
+    downloaded_at: datetime
+
+class UserProfileResponse(BaseModel):
+    """Define la estructura completa del perfil de usuario que se enviará al frontend."""
+    email: Optional[EmailStr]
+    username: Optional[str]
+    downloads: List[DownloadHistoryItem]

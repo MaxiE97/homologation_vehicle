@@ -51,3 +51,14 @@ export interface ExtractedData {
 export interface CollapsedSections {
   [sectionIndex: number]: boolean;
 }
+
+export interface DownloadHistoryItem {
+  cds_identifier: string;
+  downloaded_at: string; // La recibimos como string, la podemos formatear después
+}
+
+export interface UserProfile {
+  email: string | null;
+  username: string | null;
+  downloads: DownloadHistoryItem[];
+}

@@ -1,52 +1,39 @@
 # backend/app/api/v1/export.py
+
 import logging
 import io
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from typing import List, Dict, Any
 from datetime import datetime
-#from pydantic import BaseModel
 from supabase import Client
 from postgrest.exceptions import APIError as PostgrestAPIError 
 
-
-# Importamos los modelos Pydantic y la dependencia de autenticación
-from .schemas import AuthenticatedUser, ExportDataRequest # Quitamos VehicleRow de aquí si no se usa más
+from .schemas import AuthenticatedUser, ExportDataRequest
 from .auth import get_current_user
-
-
-# CAMBIAMOS LA IMPORTACIÓN AL NUEVO SERVICIO DOCX
-from ...services import docx_service # EN LUGAR DE odt_service
+from ...services import docx_service
 from ...db.supabase_client import get_supabase_admin_client
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
-
-# Podríamos renombrar el path a /export-docx, pero por ahora mantenemos /export-odt
-# y solo cambiamos el tipo de contenido y nombre de archivo.
-# O mejor, hagamos uno nuevo para claridad si quieres mantener el de ODT para pruebas.
-# Por ahora, modificaré el existente.
 @router.post("/export-document", tags=["Export"], response_class=StreamingResponse)
 async def export_document_to_docx(
-    payload: ExportDataRequest, # <-- CAMBIADO al nuevo modelo
+    payload: ExportDataRequest,
     current_user: AuthenticatedUser = Depends(get_current_user),
     db_admin: Client = Depends(get_supabase_admin_client)
 ):
     logger.info(f"Solicitud de exportación DOCX para idioma '{payload.language}' por usuario ID: {current_user.id}")
 
-    if not payload.final_data: # <-- CAMBIADO para chequear final_data
+    if not payload.final_data:
         logger.warning(f"Intento de exportación DOCX sin datos en 'final_data' por usuario ID: {current_user.id}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No 'final_data' provided for export.")
 
-    # Convertimos List[KeyValuePair] (modelos Pydantic) a List[Dict[str, Any]]
-    # que es lo que espera el docx_service.
-    data_for_service = [item.model_dump(by_alias=True) for item in payload.final_data] # <-- CAMBIADO
+    data_for_service = [item.model_dump(by_alias=True) for item in payload.final_data]
 
     try:
         docx_bytes = await docx_service.generate_vehicle_docx(
-            data_to_render=data_for_service, # <-- CAMBIADO
+            data_to_render=data_for_service,
             language=payload.language,
             supabase_admin_client=db_admin
         )
@@ -58,14 +45,24 @@ async def export_document_to_docx(
                 detail="Failed to generate DOCX document."
             )
 
-        # Persistir información de la descarga
-        # exported_data_snapshot ahora es directamente la data_for_service (o payload.final_data en dict)
+        # --- INICIO DE MODIFICACIÓN ---
+
+        # 1. Convertimos la lista de datos a un diccionario para buscar fácilmente el 'CdS'
+        flat_data_dict = {item["Key"]: item["Valor Final"] for item in data_for_service}
+        
+        # 2. Obtenemos el valor del identificador 'CdS'
+        cds_identifier_value = flat_data_dict.get("CdS", "N/A")
+
+        # 3. Persistir información de la descarga, incluyendo el nuevo campo
         download_log_entry = {
             "user_id": str(current_user.id),
             "template_language": payload.language,
-            "exported_data_snapshot": data_for_service, # <-- CAMBIADO para guardar los datos simplificados
-            # "document_type": "docx" # Si tienes esta columna
+            "exported_data_snapshot": data_for_service,
+            "cds_identifier": cds_identifier_value # <-- AÑADIDO
         }
+        
+        # --- FIN DE MODIFICACIÓN ---
+
         try:
             logger.debug(f"Intentando insertar en tabla 'downloads': {download_log_entry}")
             insert_response = db_admin.table("downloads").insert(download_log_entry).execute()
@@ -82,8 +79,10 @@ async def export_document_to_docx(
             logger.error(f"Error genérico guardando descarga (DOCX): {e_db_generic}", exc_info=True)
 
         file_stream = io.BytesIO(docx_bytes)
-        current_time_str = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        file_name = f"homologacion_{payload.language.lower()}_{current_time_str}.docx"
+        
+        # --- MODIFICACIÓN: Nombre de archivo mejorado ---
+        file_name = f"homologacion_{cds_identifier_value.replace(' ', '_')}.docx"
+        
         headers = {'Content-Disposition': f'attachment; filename="{file_name}"'}
         
         logger.info(f"Enviando archivo DOCX '{file_name}' ({len(docx_bytes)} bytes) al usuario ID: {current_user.id}")

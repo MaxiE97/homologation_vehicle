@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 # Importamos los routers
-from .api.v1 import processing, auth, export
+from .api.v1 import processing, auth, export, profile
 
 app = FastAPI(
     title="Homologation Vehicle API",
@@ -41,6 +41,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(processing.router, prefix="/api/v1", tags=["Processing"])
 app.include_router(export.router, prefix="/api/v1", tags=["Export"]) 
+app.include_router(profile.router, prefix="/api/v1/profile", tags=["Profile"]) # <--- AÑADE ESTA LÍNEA
+
 
 @app.get("/")
 def home():
