@@ -67,7 +67,7 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
   'clutch_type': {
     'Single plate dry': { 'de': 'Einzelne Platte trocknen', 'pt': 'Disco seco único', 'it': 'Piatto singolo asciutto', 'fr': 'Assiette simple sèche', 'nl': 'Enkele plaat droog', 'sv': 'Enkel torr koppling', 'ro': 'Plăcuță simplă uscată', 'pl': 'Płyta pojedyncza na sucho', 'cs': 'Jednoduchá suchá spojka' },
     'Dual clutch': { 'de': 'Doppelkupplung', 'pt': 'Dupla embraiagem', 'it': 'Dual clutch', 'fr': 'Double embrayage', 'nl': 'Dubbele koppeling', 'sv': 'Dubbelkoppling', 'ro': 'Ambreiaj dublu', 'pl': 'Podwójne sprzęgło', 'cs': 'Dvojspojka' },
-    'Continuously variable': { 'de': 'Stufenlos einstellbar', 'pt': 'Continuamente variável', 'it': 'Continuamente variabile', 'fr': 'Variable en continu', 'nl': 'Continu variabel', 'sv': 'Kontinuerligt Variabel', 'ro': 'Variabil continuu', 'pl': 'Zmienna ciągła', 'cs': 'Plynule variabilní' },
+    'Continuously Variable': { 'de': 'Stufenlos einstellbar', 'pt': 'Continuamente variável', 'it': 'Continuamente variabile', 'fr': 'Variable en continu', 'nl': 'Continu variabel', 'sv': 'Kontinuerligt Variabel', 'ro': 'Variabil continuu', 'pl': 'Zmienna ciągła', 'cs': 'Plynule variabilní' },
   },
 
   'gearbox_type': {
@@ -86,7 +86,7 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
   },
 
   'braking_system_2': {
-    'Ventilated disc': { 'de': 'Belüftete Scheiben', 'pt': 'Discos ventilados', 'it': 'Dischi ventilati', 'fr': 'Disques ventilés', 'nl': 'Geventileerde schijf', 'sv': 'Ventilerade skivor', 'ro': 'Discuri ventilate', 'pl': 'Tarczowe wentylowane', 'cs': 'Větrané kotouče' },
+    'Ventilated discs': { 'de': 'Belüftete Scheiben', 'pt': 'Discos ventilados', 'it': 'Dischi ventilati', 'fr': 'Disques ventilés', 'nl': 'Geventileerde schijf', 'sv': 'Ventilerade skivor', 'ro': 'Discuri ventilate', 'pl': 'Tarczowe wentylowane', 'cs': 'Větrané kotouče' },
     'Disc': { 'de': 'Scheiben', 'pt': 'Discos', 'it': 'Disco', 'fr': 'Disques', 'nl': 'Schijven', 'sv': 'Skivor', 'ro': 'Discuri', 'pl': 'Tarcza', 'cs': 'Kotouč' },
   },
 

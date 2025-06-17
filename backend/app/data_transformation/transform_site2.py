@@ -299,12 +299,12 @@ class VehicleDataTransformer_site2:
 
                 if fuel_value == "Electric":
                     new_row = pd.DataFrame({
-                        "Key": ["Electric vehicle"],
+                        "Key": ["Pure electric"],
                         "Value": ["Yes"]
                     })
                 else:
                     new_row = pd.DataFrame({
-                        "Key": ["Electric vehicle"],
+                        "Key": ["Pure electric"],
                         "Value": ["No"]
                     })
 

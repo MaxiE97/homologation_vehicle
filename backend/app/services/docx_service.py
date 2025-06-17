@@ -23,16 +23,40 @@ REMARK_LABELS = {
     "label_electric_1": {
         "en": "Nominal continuous electrical power:",
         "de": "Elektrische Nennleistung:",
+        "pt": "Potência elétrica nominal contínua:",
+        "it": "Potenza elettrica nominale continua:",
+        "fr": "Puissance électrique continue nominale :",
+        "nl": "Nominale continue elektrische vermogen:",
+        "sv": "Nominell kontinuerlig elektrisk effekt:",
+        "ro": "Putere electrică nominală continuă:",
+        "pl": "Nominalna ciągła moc elektryczna:",
+        "cs": "Jmenovitý trvalý elektrický výkon:",
         "default": "Nominal continuous electrical power:"
     },
     "label_electric_2": {
         "en": "Net maximum electrical power:",
         "de": "Maximale Nettoleistung:",
+        "pt": "Potência elétrica máxima líquida:",
+        "it": "Potenza elettrica massima netta:",
+        "fr": "Puissance électrique maximale nette :",
+        "nl": "Netto maximale elektrische vermogen:",
+        "sv": "Nettomaximal elektrisk effekt:",
+        "ro": "Putere electrică maximă netă:",
+        "pl": "Maksymalna netto moc elektryczna:",
+        "cs": "Čistý maximální elektrický výkon:",
         "default": "Net maximum electrical power:"
     },
     "label_electric_3": {
         "en": "Electrical power over 60 minutes:",
         "de": "Elektrische Leistung über 60 Minuten:",
+        "pt": "Potência elétrica durante 60 minutos:",
+        "it": "Potenza elettrica su 60 minuti:",
+        "fr": "Puissance électrique sur 60 minutes :",
+        "nl": "Elektrisch vermogen over 60 minuten:",
+        "sv": "Elektrisk effekt över 60 minuter:",
+        "ro": "Putere electrică pe o durată de 60 de minute:",
+        "pl": "Moc elektryczna przez 60 minut:",
+        "cs": "Elektrický výkon po dobu 60 minut:",
         "default": "Electrical power over 60 minutes:"
     },
 }

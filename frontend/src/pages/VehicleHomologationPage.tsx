@@ -1,4 +1,5 @@
 // frontend/src/pages/VehicleHomologationPage.tsx
+
 import { useState, useMemo, useCallback } from 'react';
 import FormHeader from '../components/layout/FormHeader';
 import FormActions from '../components/layout/FormActions';
@@ -54,8 +55,6 @@ const VehicleHomologationPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  // --- AÑADIDO ---: Estado para controlar la carga del botón de envío.
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), []);
@@ -76,7 +75,6 @@ const VehicleHomologationPage = () => {
         url3: url3 || null,
         transmission_option: transmissionOption,
       };
-      // --- MODIFICADO ---: La URL del endpoint se corrigió en el paso anterior.
       const response = await api.post<VehicleRow[]>('/process-vehicle', payload);
       if (response.data) {
         const { newExtractedData, newFormData } = transformApiDataToState(response.data);
@@ -103,37 +101,59 @@ const VehicleHomologationPage = () => {
     }
   };
   
+  // --- CÓDIGO ACTUALIZADO ---
   const handleTranslateFinalValues = useCallback(() => {
     if (selectedLanguage === 'en') {
       setFormData(originalFormData);
       alert('Values restored to the original English.');
       return;
     }
-    const newTranslatedFormData: FormData = { ...originalFormData }; 
+
+    const newTranslatedFormData: FormData = { ...originalFormData };
     let changesMade = false;
-    for (const fieldKey in originalFormData) { 
+
+    for (const fieldKey in originalFormData) {
       const originalValue = String(originalFormData[fieldKey]);
-      if (predefinedTranslations[fieldKey] && predefinedTranslations[fieldKey][originalValue]) {
-        const translationForCurrentLang = predefinedTranslations[fieldKey][originalValue][selectedLanguage];
-        if (translationForCurrentLang) {
-          newTranslatedFormData[fieldKey] = translationForCurrentLang;
-          changesMade = true;
+      const translationsForField = predefinedTranslations[fieldKey];
+
+      if (translationsForField) {
+        // Comprobar si es un valor compuesto (contiene '/')
+        if (originalValue.includes('/')) {
+          const parts = originalValue.split('/');
+          const translatedParts = parts.map(part => {
+            const trimmedPart = part.trim();
+            // Comprobar si existe una traducción para esta parte específica
+            if (translationsForField[trimmedPart] && translationsForField[trimmedPart][selectedLanguage]) {
+              changesMade = true;
+              return translationsForField[trimmedPart][selectedLanguage];
+            }
+            // Si no hay traducción para la parte, devolver la parte misma (ej: 'CODIGO')
+            return trimmedPart;
+          });
+          newTranslatedFormData[fieldKey] = translatedParts.join('/');
+        } else {
+          // Lógica original para valores no compuestos
+          if (translationsForField[originalValue] && translationsForField[originalValue][selectedLanguage]) {
+            newTranslatedFormData[fieldKey] = translationsForField[originalValue][selectedLanguage];
+            changesMade = true;
+          }
         }
       }
     }
-    setFormData(newTranslatedFormData); 
-    alert(changesMade 
-      ? `Values translated to ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}.`
-      : `No applicable predefined translations were found for ${supportedLanguages.find(l=>l.code === selectedLanguage)?.name}.`
+
+    setFormData(newTranslatedFormData);
+
+    alert(changesMade
+      ? `Values translated to ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`
+      : `No applicable predefined translations were found for ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`
     );
   }, [originalFormData, selectedLanguage]);
 
   const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]);
   const completedFields = useMemo(() => Object.keys(formData).filter(key => formData[key] && String(formData[key]).trim() !== '').length, [formData]);
   const completedPercentage = useMemo(() => totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0, [completedFields, totalFields]);
-  const handleSaveDraft = () => { /* Lógica para guardar borrador puede ir aquí */ };
+  const handleSaveDraft = () => { /* Logic to save draft can go here */ };
 
-  // --- MODIFICADO ---: Se reemplaza la función vacía por la lógica de exportación.
   const handleSubmit = async () => {
     if (Object.keys(formData).length === 0) {
       alert("No data to submit. Please process URLs first.");
@@ -220,7 +240,6 @@ const VehicleHomologationPage = () => {
             formData={formData} onFieldChange={updateField} allFields={allFieldsFlat}
           />
         )}
-        {/* --- MODIFICADO ---: Se pasan las props necesarias al componente de acciones */}
         <FormActions
           completedPercentage={completedPercentage}
           onSaveDraft={handleSaveDraft}
