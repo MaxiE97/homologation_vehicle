@@ -129,9 +129,44 @@ class VehicleDataTransformer_site1:
 
 
     def _emissions_standard(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Agrega la palabra EURO a la emisión estándar"""
-        df.loc[df["Key"] == "Emissions standard", "Value"] = df["Value"].apply(lambda x: f"EURO {x}")
+        """Agrega la palabra EURO a la emisión estándar, priorizando valores numéricos."""
+
+        emissions_op1 = None
+        emissions_op2 = None
+
+        if "Emissions_standard_op1" in df["Key"].values:
+            emissions_op1 = df[df["Key"] == "Emissions_standard_op1"]["Value"].values[0].strip()
+        if "Emissions_standard_op2" in df["Key"].values:
+            emissions_op2 = df[df["Key"] == "Emissions_standard_op2"]["Value"].values[0].strip()
+
+        # Lógica de prioridad
+        emissions_value = None
+        if emissions_op1 and emissions_op1 != "Z" and emissions_op1.isdigit():
+            emissions_value = f"EURO {emissions_op1}"
+        elif emissions_op2 and emissions_op2 != "Z" and emissions_op2.isdigit():
+            emissions_value = f"EURO {emissions_op2}"
+        elif emissions_op1 == "Z" and emissions_op2 == "Z":
+            emissions_value = "EURO Z"
+        elif emissions_op1 and emissions_op1 != "Z":
+            emissions_value = f"EURO {emissions_op1}"
+        elif emissions_op2 and emissions_op2 != "Z":
+            emissions_value = f"EURO {emissions_op2}"
+        else:
+            emissions_value = "EURO Z"  # Valor por defecto si todo falla
+
+        # Agregar la fila al dataframe
+        new_row = pd.DataFrame({
+            "Key": ["Emissions standard"],
+            "Value": [emissions_value]
+        })
+        df = pd.concat([df, new_row], ignore_index=True)
+
         return df
+
+            
+
+
+
 
 
 
@@ -451,7 +486,8 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Geluidsniveau stationair": "Stationary",
         "Brandstof #1 - Geluidsniveau toerental": "Engine speed",
         "Brandstof #1 - Geluidsniveau rijdend": "Drive by",
-        "Brandstof #1 - Emissieklasse": "Emissions standard",
+        "Brandstof #1 - Emissieklasse": "Emissions_standard_op1",
+        "Brandstof #2 - Emissieklasse": "Emissions_standard_op2",
         "Brandstof #1 - Milieuklasse licht": "Brandstof #1 - Milieuklasse licht",
         "Brandstof #1 - Uitstoot deeltjes WLTP": "Emissions particulates",
         "Brandstof #1 - Roetuitstoot NEDC": "Smoke",
@@ -470,14 +506,16 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Nominaal continu elektrisch vermogen": "remark_electric_1",
         "Brandstof #1 - Netto maximaal elektrisch vermogen": "remark_electric_2",
         "Brandstof #1 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
+        "Brandstof #1 - Hybrideverbruik WLTP": "Power consumption weighted/combined",
+        "Brandstof #1 - Hybride actieradius WLTP": "Electric range",
+        "Brandstof #1 - Hybride actieradius in stad WLTP": "Electric range in city",
 
-
-
-#29  Brandstof #1 - Brandstofverbruik gecombWLTPineerd   7,9 liter/100 km (12,7 km/liter)
-
-
+        
     },
+
     ordered_keys= MASTER_ORDERED_KEYS
 )
 
 
+
+   

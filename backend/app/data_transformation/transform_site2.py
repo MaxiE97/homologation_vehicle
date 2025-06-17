@@ -39,6 +39,8 @@ class VehicleDataTransformer_site2:
         df = self._add_number_and_arrangement_of_cylinders(df)
         df = self._add_direct_injection(df)
         df = self._add_working_principle(df)
+        df = self._add_hybrid_electric_vecicle(df)
+        df = self._add_electric_vehicle(df)
         
 
         df = self._add_missing_keys(df)
@@ -286,14 +288,31 @@ class VehicleDataTransformer_site2:
             df = pd.concat([df, new_row], ignore_index=True)
 
         return df
+    
 
 
+    
+    def _add_electric_vehicle(self, df: pd.DataFrame) -> pd.DataFrame:
+            """Añade la clave 'Electric vehicle' con el valor correspondiente."""
+            if "Fuel" in df["Key"].values:
+                fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
 
+                if fuel_value == "Electric":
+                    new_row = pd.DataFrame({
+                        "Key": ["Electric vehicle"],
+                        "Value": ["Yes"]
+                    })
+                else:
+                    new_row = pd.DataFrame({
+                        "Key": ["Electric vehicle"],
+                        "Value": ["No"]
+                    })
 
-                
+                df = pd.concat([df, new_row], ignore_index=True)
 
+            return df        
 
-                    
+          
 
 
 
@@ -402,6 +421,9 @@ class VehicleDataTransformer_site2:
             elif re.match(r'^m(\d+)$', transmission_spec):
                 clutch_type = "Single plate dry"
                 gearbox = "Manual"
+                match = re.match(r'^m(\d+)$', transmission_spec)
+                if match:
+                    gear = int(match.group(1))
             # Caso 4: 's'
             elif transmission_spec == "s":
                 clutch_type = "Continuously Variable"

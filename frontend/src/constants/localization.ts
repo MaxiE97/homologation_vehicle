@@ -25,9 +25,9 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
     'Common rail': { 
       'de': 'Common rail', 'pt': 'Common rail', 'it': 'Common rail', 'fr': 'Common rail', 'nl': 'Common rail', 'sv': 'Common rail', 'ro': 'Common rail', 'pl': 'Common rail', 'cs': 'Common rail'
     },
-    'Spark ignition, 4-stroke': { 
+    'Spark Ignition, 4-stroke': { 
       'de': 'Fremdzündung, 4-Takt', 'pt': 'Ignição por centelha, 4 tempos', 'it': 'Accensione a scintilla, 4 tempi', 'fr': 'Allumage par étincelle, 4 temps', 'nl': 'Vonkontsteking, 4-takt', 'sv': 'Tändning med gnista, 4-takt', 'ro': 'Aprindere prin scânteie, 4 timpi', 'pl': 'Iskra zapłonowa, 4-suwowy', 'cs': 'Zapalování jiskrou, 4-taktní'
-    },
+    }, 
   },
 
   'direct_injection': {
@@ -45,16 +45,18 @@ export const predefinedTranslations: Record<string, Record<string, Record<string
     'No': { 'de': 'Nein', 'pt': 'Não', 'it': 'No', 'fr': 'Non', 'nl': 'Nee', 'sv': 'Nej', 'ro': 'Nu', 'pl': 'Nie', 'cs': 'Ne' },
   },
 
+
   'cylinders': {
-    '3 in line': { 'de': '3 in Reihe', 'pt': '3 em linha', 'it': '3 in linea', 'fr': '3 en ligne', 'nl': '3 in lijn', 'sv': '3 i rad', 'ro': '3 în linie', 'pl': '3 w rzędzie', 'cs': '3 v řadě' },
-    '4 in line': { 'de': '4 in Reihe', 'pt': '4 em linha', 'it': '4 in linea', 'fr': '4 en ligne', 'nl': '4 in lijn', 'sv': '4 i rad', 'ro': '4 în linie', 'pl': '4 w rzędzie', 'cs': '4 v řadě' },
-    '5 in line': { 'de': '5 in Reihe', 'pt': '5 em linha', 'it': '5 in linea', 'fr': '5 en ligne', 'nl': '5 in lijn', 'sv': '5 i rad', 'ro': '5 în linie', 'pl': '5 w rzędzie', 'cs': '5 v řadě' },
-    '6 in line': { 'de': '6 in Reihe', 'pt': '6 em linha', 'it': '6 in linea', 'fr': '6 en ligne', 'nl': '6 in lijn', 'sv': '6 i rad', 'ro': '6 în linie', 'pl': '6 w rzędzie', 'cs': '6 v řadě' },
-    '6 in V': { 'de': '6 in V', 'pt': '6 em V', 'it': '6 a V', 'fr': '6 en V', 'nl': '6 in V', 'sv': '6 i V', 'ro': '6 în V', 'pl': '6 w układzie V', 'cs': '6 ve V' },
-    '8 in V': { 'de': '8 in V', 'pt': '8 em V', 'it': '8 a V', 'fr': '8 en V', 'nl': '8 in V', 'sv': '8 i V', 'ro': '8 în V', 'pl': '8 w układzie V', 'cs': '8 ve V' },
-    '12 in W': { 'de': '12 in W', 'pt': '12 em W', 'it': '12 a W', 'fr': '12 en W', 'nl': '12 in W', 'sv': '12 i W', 'ro': '12 în W', 'pl': '12 w układzie W', 'cs': '12 ve W' },
-    '16 in W': { 'de': '16 in W', 'pt': '16 em W', 'it': '16 a W', 'fr': '16 en W', 'nl': '16 in W', 'sv': '16 i W', 'ro': '16 în W', 'pl': '16 w układzie W', 'cs': '16 ve W' },
+    '3, in line': { 'de': '3, in Reihe', 'pt': '3, em linha', 'it': '3, in linea', 'fr': '3, en ligne', 'nl': '3, in lijn', 'sv': '3, i rad', 'ro': '3, în linie', 'pl': '3, w rzędzie', 'cs': '3, v řadě' },
+    '4, in line': { 'de': '4, in Reihe', 'pt': '4, em linha', 'it': '4, in linea', 'fr': '4, en ligne', 'nl': '4, in lijn', 'sv': '4, i rad', 'ro': '4, în linie', 'pl': '4, w rzędzie', 'cs': '4, v řadě' },
+    '5, in line': { 'de': '5, in Reihe', 'pt': '5, em linha', 'it': '5, in linea', 'fr': '5, en ligne', 'nl': '5, in lijn', 'sv': '5, i rad', 'ro': '5, în linie', 'pl': '5, w rzędzie', 'cs': '5, v řadě' },
+    '6, in line': { 'de': '6, in Reihe', 'pt': '6, em linha', 'it': '6, in linea', 'fr': '6, en ligne', 'nl': '6, in lijn', 'sv': '6, i rad', 'ro': '6, în linie', 'pl': '6, w rzędzie', 'cs': '6, v řadě' },
+    '6, in V': { 'de': '6, in V', 'pt': '6, em V', 'it': '6, a V', 'fr': '6, en V', 'nl': '6, in V', 'sv': '6, i V', 'ro': '6, în V', 'pl': '6, w układzie V', 'cs': '6, ve V' },
+    '8, in V': { 'de': '8, in V', 'pt': '8, em V', 'it': '8, a V', 'fr': '8, en V', 'nl': '8, in V', 'sv': '8, i V', 'ro': '8, în V', 'pl': '8, w układzie V', 'cs': '8, ve V' },
+    '12, in W': { 'de': '12, in W', 'pt': '12, em W', 'it': '12, a W', 'fr': '12, en W', 'nl': '12, in W', 'sv': '12, i W', 'ro': '12, în W', 'pl': '12, w układzie W', 'cs': '12, ve W' },
+    '16, in W': { 'de': '16, in W', 'pt': '16, em W', 'it': '16, a W', 'fr': '16, en W', 'nl': '16, in W', 'sv': '16, i W', 'ro': '16, în W', 'pl': '16, w układzie W', 'cs': '16, ve W' },
   },
+
 
   'fuel': {
     'Diesel': { 'de': 'Diesel', 'pt': 'Diesel', 'it': 'Diesel', 'fr': 'Diesel', 'nl': 'Diesel', 'sv': 'Diesel', 'ro': 'Diesel', 'pl': 'Diesel', 'cs': 'Diesel' },
