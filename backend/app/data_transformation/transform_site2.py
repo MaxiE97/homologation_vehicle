@@ -3,7 +3,6 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 import re
 from .master_keys import MASTER_ORDERED_KEYS
-from .key_map import FINAL_KEY_MAP
 
 
 @dataclass
@@ -22,29 +21,30 @@ class VehicleDataTransformer_site2:
         """Método principal que orquesta la transformación de datos."""
         df = df_input.copy()
         df = self._rename_columns(df)
-        df = self._process_axle_tracks(df)
+
         df = self._add_powered_axles(df)
-        df = self._process_trailer_masses(df)
-        df = self._process_mass_distribution(df)
-        df = self._process_maximum_vertical_load(df)
-        df = self._process_engine_manufacturer(df)
-        df = self._process_max_power(df)
-        df = self._process_transmission(df)
-        df = self._process_drive_ratio(df)
-        df = self._process_Rear_overhang(df)
-        df = self._process_maximum_speed(df)
-        df = self._process_emissions(df)
-        df = self._transform_emissions_values(df)
         df = self._process_dimensions(df)
-        df = self._add_number_and_arrangement_of_cylinders(df)
-        df = self._add_direct_injection(df)
+        df = self._add_axle_track(df)
+        df = self._add_rear_overhang(df)
+        df = self._process_axles_distribution_maxmass(df)
+        df = self._add_max_trailer_mass(df)
+        df = self._add_max_coupling_load(df)
+        df = self._process_engines(df)
         df = self._add_working_principle(df)
-        df = self._add_hybrid_electric_vecicle(df)
+        df = self._add_direct_injection(df)
         df = self._add_electric_vehicle(df)
-        
+        df = self._add_hybrid_electric_vehicle(df)
+        df = self._add_cylinders(df)
+        df = self._add_max_power(df)
+        df = self._process_transmission(df)
+        df = self._add_final_drive_ratio(df)
+        df = self._add_max_speed(df)
+        df = self._aux_emissions(df)
+        df = self._process_emissions_values(df)
+
+
 
         df = self._add_missing_keys(df)
-        #df["Key"] = df["Key"].map(lambda key_interna: FINAL_KEY_MAP.get(key_interna, key_interna))
         df = self._sort_and_clean(df)
         return df
 
@@ -66,35 +66,6 @@ class VehicleDataTransformer_site2:
 
         return df
 
-    def _process_axle_tracks(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa y combina la información de los ejes."""
-        if "Axle(s) track – 1" in df["Key"].values and "Axle(s) track – 2" in df["Key"].values:
-            track1 = df[df["Key"] == "Axle(s) track – 1"]["Value"].values[0]
-            track2 = df[df["Key"] == "Axle(s) track – 2"]["Value"].values[0]
-
-            max_track1 = self._get_max_value(track1)
-            max_track2 = self._get_max_value(track2)
-
-            df = df[df["Key"] != "Axle(s) track – 2"]
-            mask = df["Key"] == "Axle(s) track – 1"
-            df.loc[mask, "Value"] = f"{max_track1}/{max_track2}"
-            df.loc[mask, "Key"] = "Axle(s) track – 1 / 2"
-
-        return df
-
-    def _add_powered_axles(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Añade información sobre ejes motorizados."""
-        if "Powered axles" in df["Key"].values:
-          actual_value = df[df["Key"] == "Powered axles"]["Value"].values[0]
-
-          if actual_value == "All-wheel drive":
-            df.loc[df["Key"] == "Powered axles", "Value"] = "2"
-          else:
-            df.loc[df["Key"] == "Powered axles", "Value"] = "1"
-
-        return df
-
-
 
     def _add_missing_keys(self, df: pd.DataFrame) -> pd.DataFrame:
         """Añade información sobre claves faltantes, asegurando que se incluyan todas las ordered_keys."""
@@ -107,7 +78,151 @@ class VehicleDataTransformer_site2:
         return df
 
 
-    def _process_trailer_masses(self, df: pd.DataFrame) -> pd.DataFrame:
+
+ #-------------------------------------------------------Funciones           
+
+#   "Powered axles": "powered_axles",                               # B2
+
+    def _add_powered_axles(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade información sobre ejes motorizados."""
+        if "powered_axles" in df["Key"].values:
+          actual_value = df[df["Key"] == "powered_axles"]["Value"].values[0]
+
+          if actual_value == "All-wheel drive":
+            df.loc[df["Key"] == "powered_axles", "Value"] = "2"
+          else:
+            df.loc[df["Key"] == "powered_axles", "Value"] = "1"
+
+        return df
+
+
+ #   "Length": "length",                                             # B5
+ #   "Width": "width",                                               # B6
+ #   "Height": "height",                                             # B7
+ #   "Rear overhang": "rear_overhang",                               # B8
+ #   "Mass of the vehicle with bodywork in running order": "running_mass",          # B9
+ #   "remarks_6_1": "remarks_6_1",                                   # A16
+ #   "remarks_7_1": "remarks_7_1",                                   # A17
+ #   "remarks_8": "remarks_8",                                       # A18
+ #   "remarks_11": "remarks_11",                                     # A19
+ #   "remarks_12": "remarks_12",                                     # A27
+
+    def _process_dimensions(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa las dimensiones y extrae el primer número en caso de rango.
+        El segundo número, si existe, se guarda como un 'remark' correspondiente.
+        Si no existe, se guarda 'None' en el remark.
+        """
+
+        key_remark_map = {
+            "length": "remarks_6_1",
+            "width": "remarks_7_1",
+            "height": "remarks_8",
+            "rear_overhang": "remarks_11",
+            "running_mass": "remarks_12"
+        }
+
+        for key, remark_key in key_remark_map.items():
+            mask = df["Key"] == key
+            values = df.loc[mask, "Value"].astype(str)
+
+            for idx, val in values.items():
+                parts = [p.strip() for p in val.split("-")]
+
+                # Tomar primer número
+                first_val = parts[0] if len(parts) > 0 else None
+                df.at[idx, "Value"] = first_val
+
+                # Tomar segundo número si existe, si no asignar None
+                second_val = parts[1] if len(parts) > 1 else None
+
+                # Agregar fila para remark
+                new_row = pd.DataFrame({
+                    "Key": [remark_key],
+                    "Value": [second_val if second_val else "None"]
+                })
+                df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
+
+#    "Axle(s) track – 1 / 2": "axle_track",                          # B4
+
+    def _add_axle_track(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa y combina la información de los ejes."""
+        if "Axle(s) track – 1" in df["Key"].values and "Axle(s) track – 2" in df["Key"].values:
+            track1 = df[df["Key"] == "Axle(s) track – 1"]["Value"].values[0]
+            track2 = df[df["Key"] == "Axle(s) track – 2"]["Value"].values[0]
+
+            max_track1 = self._get_max_value(track1)
+            max_track2 = self._get_max_value(track2)
+
+            df = df[df["Key"] != "Axle(s) track – 2"]
+            mask = df["Key"] == "Axle(s) track – 1"
+            df.loc[mask, "Value"] = f"{max_track1}/{max_track2}"
+            df.loc[mask, "Key"] = "axle_track"
+
+        return df
+
+
+
+
+
+
+
+#    "Rear overhang": "rear_overhang",                               # B8
+
+    def _add_rear_overhang(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa y combina la información de Rear overhang"""
+        if "rear_overhang" in df["Key"].values:
+            rear = df[df["Key"] == "rear_overhang"]["Value"].values[0]
+
+            # elimina el primer "/" de "/ 869 - 869"
+            rear = rear.split("/")[1]
+
+            # guarda el nuevo valor
+            df.loc[df["Key"] == "rear_overhang", "Value"] = rear
+
+
+        return df
+
+
+#    "Distribution of this mass among the axles – 1 / 2": "mass_distribution",      # B11
+#    "Technically permissible max mass on each axle – 1 / 2": "max_axle_mass",      # B12
+
+    def _process_axles_distribution_maxmass(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa y combina la información de distribución de masas."""
+        key1 = "Distribution of this mass among the axles - 1"
+        key2 = "Distribution of this mass among the axles - 2"
+
+        if key1 in df["Key"].values and key2 in df["Key"].values:
+            mass1_pair = df[df["Key"] == key1]["Value"].values[0]
+            mass2_pair = df[df["Key"] == key2]["Value"].values[0]
+
+            mass1 = self._get_max_from_pair(mass1_pair, '-')
+            mass2 = self._get_max_from_pair(mass2_pair, '-')
+
+            df = df[~df["Key"].isin([key1, key2])]
+
+            new_row_1 = pd.DataFrame({
+                "Key": ["mass_distribution"],
+                "Value": [f"{mass1}/{mass2}"]
+            })
+            df = pd.concat([df, new_row_1], ignore_index=True)
+
+            new_row_2 = pd.DataFrame({
+                "Key": ["max_axle_mass"],
+                "Value": [f"{mass1}/{mass2}"]
+            })
+            df = pd.concat([df, new_row_2], ignore_index=True)
+
+        return df
+
+
+
+#   "Maximum mass of trailer – braked / unbraked": "max_trailer_mass",             # B14
+
+    def _add_max_trailer_mass(self, df: pd.DataFrame) -> pd.DataFrame:
         """Procesa y combina la información de masas del remolque, tomando el máximo valor de cada par."""
         if "Braked trailer" in df["Key"].values and "Unbraked trailer" in df["Key"].values:
             # Obtiene los valores originales
@@ -123,7 +238,7 @@ class VehicleDataTransformer_site2:
 
             # Crea una nueva fila con los máximos
             new_row = pd.DataFrame({
-                "Key": ["Maximum mass of trailer – braked / unbraked"],
+                "Key": ["max_trailer_mass"],
                 "Value": [f"{braked_max}/{unbraked_max}"]  # Resultado: "1000 / 1222"
             })
 
@@ -131,22 +246,11 @@ class VehicleDataTransformer_site2:
 
         return df
 
-    def _process_Rear_overhang(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa y combina la información de Rear overhang"""
-        if "Rear overhang" in df["Key"].values:
-            rear = df[df["Key"] == "Rear overhang"]["Value"].values[0]
 
-            # elimina el primer "/" de "/ 869 - 869"
-            rear = rear.split("/")[1]
-
-            # guarda el nuevo valor
-            df.loc[df["Key"] == "Rear overhang", "Value"] = rear
+#    "Maximum vertical load at the coupling point for a trailer": "max_coupling_load", # B16
 
 
-        return df
-
-    #def Maximum vertical load at the coupling point for a trailer
-    def _process_maximum_vertical_load(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _add_max_coupling_load(self, df: pd.DataFrame) -> pd.DataFrame:
         """Procesa y transforma Maximum vertical load at the coupling point for a trailer"""
         if "Support load" in df["Key"].values:
             # Obtiene los valores originales
@@ -160,7 +264,7 @@ class VehicleDataTransformer_site2:
 
             # Crea una nueva fila con los máximos
             new_row = pd.DataFrame({
-                "Key": ["Maximum vertical load at the coupling point for a trailer"],
+                "Key": ["max_coupling_load"],
                 "Value": [f"{vertical_value_max}"]  # Resultado: "1000 / 1222"
             })
 
@@ -168,10 +272,196 @@ class VehicleDataTransformer_site2:
 
         return df
 
-    def _process_max_power(self, df: pd.DataFrame) -> pd.DataFrame:
+
+#    "Engine manufacturer": "engine_manufacturer",                                  # B17
+#    "Engine code as marked on the enginee": "engine_code",                         # B18 
+
+
+    def _process_engines(self, df: pd.DataFrame) -> pd.DataFrame:
+      """Obtiene la marca del motor"""
+      if "Brand / Type" in df["Key"].values:
+        brandType = df[df["Key"] == "Brand / Type"]["Value"].values[0]
+
+        brand = self._get_value_slash(brandType, 0)
+
+        parts = [part.strip() for part in brandType.split("/")]
+        type_Name = " / ".join(parts[1:])
+
+        new_row = pd.DataFrame({
+            "Key": ["engine_manufacturer"],
+            "Value": [f"{brand}"]
+        })
+        df = pd.concat([df, new_row], ignore_index=True)
+
+        new_row2 = pd.DataFrame({
+              "Key": ["engine_code"],
+              "Value": [f"{type_Name}"]
+          })
+        df = pd.concat([df, new_row2], ignore_index=True)
+
+        df = df[~df["Key"].isin(["Brand / Type"])]
+      return df
+
+
+#    "Working principle": "working_principle",                                      # B19
+
+    def _add_working_principle(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'Working principle' con el valor correspondiente."""
+        if "fuel" in df["Key"].values:
+            fuel_value = df[df["Key"] == "fuel"]["Value"].values[0]
+
+            if fuel_value == "Diesel / Electric" or fuel_value == "Diesel":
+                new_row = pd.DataFrame({
+                    "Key": ["working_principle"],
+                    "Value": ["Common Rail"]
+                })
+            elif fuel_value == "Gasoline / Electric" or fuel_value == "Gasoline":
+                new_row = pd.DataFrame({
+                    "Key": ["working_principle"],
+                    "Value": ["Spark Ignition, 4-stroke"]
+                })
+            elif fuel_value == "Electric":
+                new_row = pd.DataFrame({
+                    "Key": ["working_principle"],
+                    "Value": ["BEV"]
+                })
+            else:
+                new_row = pd.DataFrame()  # En caso de que no coincida con nada
+
+            if not new_row.empty:
+                df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+# B20: "Direct injection": "direct_injection",
+
+    def _add_direct_injection(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'direct_injection' con el valor correspondiente,
+        manejando posibles variaciones en el formato de 'Design type'."""
+
+        if "Design type" in df["Key"].values:
+            mask = df["Key"] == "Design type"
+            design_type_value = df.loc[mask, "Value"].iloc[0] # Usar .loc y .iloc[0] para mayor seguridad
+
+            if pd.isna(design_type_value): # Manejar NaN
+                return df
+
+            parts = [part.strip() for part in str(design_type_value).split("/")]
+
+            new_value = "No" # Inicializar con un valor por defecto
+
+            # Verificar si hay suficientes partes antes de acceder a parts[3]
+            if len(parts) > 3 and "Reihe-Inj-T" in parts[3]:
+                new_value = "Yes"
+            # else: new_value ya es "No" por defecto
+
+            new_row = pd.DataFrame({
+                "Key": ["direct_injection"],
+                "Value": [new_value]
+            })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
+#    "Pure electric": "pure_electric",                                              # B21    
+    def _add_electric_vehicle(self, df: pd.DataFrame) -> pd.DataFrame:
+            """Añade la clave 'Electric vehicle' con el valor correspondiente."""
+            if "fuel" in df["Key"].values:
+                fuel_value = df[df["Key"] == "fuel"]["Value"].values[0]
+
+                if fuel_value == "Electric":
+                    new_row = pd.DataFrame({
+                        "Key": ["pure_electric"],
+                        "Value": ["Yes"]
+                    })
+                else:
+                    new_row = pd.DataFrame({
+                        "Key": ["pure_electric"],
+                        "Value": ["No"]
+                    })
+
+                df = pd.concat([df, new_row], ignore_index=True)
+
+            return df        
+    
+
+#    "Hybrid [electric] vehicle": "hybrid",                                         # B22
+
+    def _add_hybrid_electric_vehicle(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Nos dice si es hibrido o no"""
+
+        if "fuel" in df["Key"].values:
+            fuel_value = df[df["Key"] == "fuel"]["Value"].values[0]
+
+            if "Diesel / Electric" in fuel_value or "Gasoline / Electric" in fuel_value:
+                new_row = pd.DataFrame({
+                    "Key": ["hybrid"],
+                    "Value": ["Yes"]
+                })
+            else:
+                new_row = pd.DataFrame({
+                    "Key": ["hybrid"],
+                    "Value": ["No"]
+                })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+# B23: "Number and arrangement of cylinders": "cylinders",
+
+    def _add_cylinders(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'cylinders' con el valor correspondiente,
+        manejando posibles variaciones en el formato de 'Design type'."""
+
+        if "Design type" in df["Key"].values:
+            mask = df["Key"] == "Design type"
+            design_type_value = df.loc[mask, "Value"].iloc[0]
+
+            if pd.isna(design_type_value):
+                return df
+
+            parts = [part.strip() for part in str(design_type_value).split("/")]
+
+            cyl_value = "N/A" # Valor por defecto para los cilindros
+            new_value = "Unknown" # Valor por defecto para la descripción completa
+
+            # Verificar si hay suficientes partes antes de acceder a parts[2] y parts[3]
+            if len(parts) > 2: # Necesitamos al menos 3 partes para parts[2]
+                cyl_value = parts[2]
+
+                if len(parts) > 3: # Necesitamos al menos 4 partes para parts[3]
+                    if "Reihe" in parts[3]:
+                        new_value = f"{cyl_value}, in line"
+                    elif "V" in parts[3]:
+                        new_value = f"{cyl_value}, in V"
+                    elif "W" in parts[3]:
+                        new_value = f"{cyl_value}, in W"
+                    # Si ninguna coincide, new_value sigue siendo "Unknown"
+                else:
+                    # Si no hay parts[3], solo podemos usar el valor de cilindros
+                    new_value = str(cyl_value) # Convertir a str por si cyl_value es un número
+
+            # Si 'cyl_value' no pudo ser extraído (len(parts) <= 2), 'new_value' permanece "Unknown"
+
+            new_row = pd.DataFrame({
+                "Key": ["cylinders"],
+                "Value": [new_value]
+            })
+
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df  
+    
+
+#   "Maximum net power": "max_power",                                              # B26
+
+    def _add_max_power(self, df: pd.DataFrame) -> pd.DataFrame:
         """Procesa y combina la información la capacidad maxima."""
-        if "Maximum net power" in df["Key"].values:
-            power = df[df["Key"] == "Maximum net power"]["Value"].values[0]
+        if "max_power" in df["Key"].values:
+            power = df[df["Key"] == "max_power"]["Value"].values[0]
 
             num1 = float(self._get_value_slash(power, 0))
             num2 = float(self._get_value_slash(power, 1))
@@ -183,192 +473,16 @@ class VehicleDataTransformer_site2:
             new_value = f"{num1}/{num2}"
 
 
-            df.loc[df["Key"] == "Maximum net power", "Value"] = new_value
+            df.loc[df["Key"] == "max_power", "Value"] = new_value
 
         return df
     
 
     
 
-
-
-    def _add_working_principle(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Añade la clave 'Working principle' con el valor correspondiente."""
-        if "Fuel" in df["Key"].values:
-            fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
-
-            if fuel_value == "Diesel / Electric" or fuel_value == "Diesel":
-                new_row = pd.DataFrame({
-                    "Key": ["Working principle"],
-                    "Value": ["Common Rail"]
-                })
-            elif fuel_value == "Gasoline / Electric" or fuel_value == "Gasoline":
-                new_row = pd.DataFrame({
-                    "Key": ["Working principle"],
-                    "Value": ["Spark Ignition, 4-stroke"]
-                })
-            elif fuel_value == "Electric":
-                new_row = pd.DataFrame({
-                    "Key": ["Working principle"],
-                    "Value": ["BEV"]
-                })
-            else:
-                new_row = pd.DataFrame()  # En caso de que no coincida con nada
-
-            if not new_row.empty:
-                df = pd.concat([df, new_row], ignore_index=True)
-
-        return df
-
-
-                
-
-
-    def _add_number_and_arrangement_of_cylinders(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Añade la clave 'Number and arrangement of cylinders' con el valor correspondiente."""
-        if "Design type" in df["Key"].values:
-            parts = [part.strip() for part in df[df["Key"] == "Design type"]["Value"].values[0].split("/")]
-            cyl_value = parts[2] 
-
-            if "Reihe" in parts[3]:
-                new_value = f"{cyl_value}, in line"
-            if "V" in parts[3]:
-                new_value = f"{cyl_value}, in V"
-            if "W" in parts[3]:
-                new_value = f"{cyl_value}, in W"
-
-            new_row = pd.DataFrame({
-                "Key": ["Number and arrangement of cylinders"],
-                "Value": [new_value]
-            })
-
-            df = pd.concat([df, new_row], ignore_index=True)
-
-        return df            
-    
-
-
-    def _add_direct_injection(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Añade la clave 'Direct injection' con el valor correspondiente."""
-        if "Design type" in df["Key"].values:
-            parts = [part.strip() for part in df[df["Key"] == "Design type"]["Value"].values[0].split("/")]
-
-            if "Reihe-Inj-T" in parts[3]:
-                new_value = "Yes"
-            else:
-                new_value = "No"
-
-            new_row = pd.DataFrame({
-                "Key": ["Direct injection"],
-                "Value": [new_value]
-            })
-
-            df = pd.concat([df, new_row], ignore_index=True)
-
-        return df
-
-
-    def _add_hybrid_electric_vecicle(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Nos dice si es hibrido o no"""
-
-        if "Fuel" in df["Key"].values:
-            fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
-
-            if "Diesel / Electric" in fuel_value or "Gasoline / Electric" in fuel_value:
-                new_row = pd.DataFrame({
-                    "Key": ["Hybrid [electric] vehicle"],
-                    "Value": ["Yes"]
-                })
-            else:
-                new_row = pd.DataFrame({
-                    "Key": ["Hybrid [electric] vehicle"],
-                    "Value": ["No"]
-                })
-
-            df = pd.concat([df, new_row], ignore_index=True)
-
-        return df
-    
-
-
-    
-    def _add_electric_vehicle(self, df: pd.DataFrame) -> pd.DataFrame:
-            """Añade la clave 'Electric vehicle' con el valor correspondiente."""
-            if "Fuel" in df["Key"].values:
-                fuel_value = df[df["Key"] == "Fuel"]["Value"].values[0]
-
-                if fuel_value == "Electric":
-                    new_row = pd.DataFrame({
-                        "Key": ["Pure electric"],
-                        "Value": ["Yes"]
-                    })
-                else:
-                    new_row = pd.DataFrame({
-                        "Key": ["Pure electric"],
-                        "Value": ["No"]
-                    })
-
-                df = pd.concat([df, new_row], ignore_index=True)
-
-            return df        
-
-          
-
-
-
-    def _process_mass_distribution(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa y combina la información de distribución de masas."""
-        key1 = "Distribution of this mass among the axles - 1"
-        key2 = "Distribution of this mass among the axles - 2"
-
-        if key1 in df["Key"].values and key2 in df["Key"].values:
-            mass1_pair = df[df["Key"] == key1]["Value"].values[0]
-            mass2_pair = df[df["Key"] == key2]["Value"].values[0]
-
-            mass1 = self._get_max_from_pair(mass1_pair, '-')
-            mass2 = self._get_max_from_pair(mass2_pair, '-')
-
-            df = df[~df["Key"].isin([key1, key2])]
-
-            new_row_1 = pd.DataFrame({
-                "Key": ["Distribution of this mass among the axles – 1 / 2"],
-                "Value": [f"{mass1}/{mass2}"]
-            })
-            df = pd.concat([df, new_row_1], ignore_index=True)
-
-            new_row_2 = pd.DataFrame({
-                "Key": ["Technically permissible max mass on each axle – 1 / 2"],
-                "Value": [f"{mass1}/{mass2}"]
-            })
-            df = pd.concat([df, new_row_2], ignore_index=True)
-
-        return df
-
-    def _process_engine_manufacturer(self, df: pd.DataFrame) -> pd.DataFrame:
-      """Obtiene la marca del motor"""
-      if "Brand / Type" in df["Key"].values:
-        brandType = df[df["Key"] == "Brand / Type"]["Value"].values[0]
-
-        brand = self._get_value_slash(brandType, 0)
-
-        parts = [part.strip() for part in brandType.split("/")]
-        type_Name = " / ".join(parts[1:])
-
-        new_row = pd.DataFrame({
-            "Key": ["Engine manufacturer"],
-            "Value": [f"{brand}"]
-        })
-        df = pd.concat([df, new_row], ignore_index=True)
-
-        new_row2 = pd.DataFrame({
-              "Key": ["Engine code as marked on the enginee"],
-              "Value": [f"{type_Name}"]
-          })
-        df = pd.concat([df, new_row2], ignore_index=True)
-
-        df = df[~df["Key"].isin(["Brand / Type"])]
-      return df
-
+#    "Clutch": "clutch_type",                                                       # B27
+#    "Gearbox": "gearbox_type",                                                     # B28
+#    "Gear": "gear",                                                                # B29
 
     def _process_transmission(self, df: pd.DataFrame) -> pd.DataFrame:
         """Procesa la información de transmission y agrega nuevos registros según el formato especificado.
@@ -432,14 +546,14 @@ class VehicleDataTransformer_site2:
 
             # Agregar registro para "28. Clutch /type"
             new_row_clutch = pd.DataFrame({
-                "Key": ["Clutch"],
+                "Key": ["clutch_type"],
                 "Value": [clutch_type]
             })
             df = pd.concat([df, new_row_clutch], ignore_index=True)
 
             # Agregar registro para "29. Gearbox (type)"
             new_row_gearbox = pd.DataFrame({
-                "Key": ["Gearbox"],
+                "Key": ["gearbox_type"],
                 "Value": [gearbox]
             })
             df = pd.concat([df, new_row_gearbox], ignore_index=True)
@@ -447,7 +561,7 @@ class VehicleDataTransformer_site2:
             # Agregar registro para "29.1 Gear:" solo si se pudo extraer un número
             if gear is not None:
                 new_row_gear = pd.DataFrame({
-                    "Key": ["Gear"],
+                    "Key": ["gear"],
                     "Value": [str(gear)]
                 })
                 df = pd.concat([df, new_row_gear], ignore_index=True)
@@ -455,10 +569,36 @@ class VehicleDataTransformer_site2:
         return df
 
 
+#    "Final drive ratio": "final_drive_ratio",                                      # B30
+
+    def _add_final_drive_ratio(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa la drive ratio"""
+        if "Transmission/IA" in df["Key"].values:
+            drive = df[df["Key"] == "Transmission/IA"]["Value"].values[0]
+
+            drive_value = self._get_value_slash(drive, 1)
+
+            # Si el valor extraído contiene un "+", tomar solo el primer número antes del "+"
+            drive_value = drive_value.split("+")[0].strip()
+
+            # Reemplazar coma por punto
+            drive_value = drive_value.replace(",", ".")
+
+            new_row = pd.DataFrame({
+                "Key": ["final_drive_ratio"],
+                "Value": [f"{drive_value}"]
+            })
+            df = pd.concat([df, new_row], ignore_index=True)
+            df = df[~df["Key"].isin(["Transmission/IA"])]
+
+        return df
 
 
 
-    def _process_maximum_speed(self, df: pd.DataFrame) -> pd.DataFrame:
+#    "Maximum speed": "max_speed",                                                  # B41
+
+
+    def _add_max_speed(self, df: pd.DataFrame) -> pd.DataFrame:
       """
       Procesa la velocidad máxima según el tipo de transmisión.
 
@@ -466,8 +606,8 @@ class VehicleDataTransformer_site2:
       - Si es "Automatic", extrae el valor que sigue a "autom" en "19 Vehicle VMax".
       - Finalmente, crea un nuevo registro con Key "Maximum speed" y el valor obtenido.
       """
-      if "Gearbox" in df["Key"].values and "19 Vehicle VMax" in df["Key"].values:
-          gearbox_val = df[df["Key"] == "Gearbox"]["Value"].values[0].strip().lower()
+      if "gearbox_type" in df["Key"].values and "19 Vehicle VMax" in df["Key"].values:
+          gearbox_val = df[df["Key"] == "gearbox_type"]["Value"].values[0].strip().lower()
           vmax_val = df[df["Key"] == "19 Vehicle VMax"]["Value"].values[0]
 
           # Buscar los números asociados a 'mech' y 'autom'
@@ -481,18 +621,21 @@ class VehicleDataTransformer_site2:
               maximum_speed = match_autom.group(1)
           else:
               # En caso de no encontrarse el valor, se puede optar por asignar alguno o dejarlo en None.
-              maximum_speed = "Desconocido"
+              maximum_speed = "-"
 
           # Agregar el registro de "Maximum speed"
           new_row = pd.DataFrame({
-              "Key": ["Maximum speed"],
+              "Key": ["max_speed"],
               "Value": [maximum_speed]
           })
           df = pd.concat([df, new_row], ignore_index=True)
 
       return df
 
-    def _process_emissions(self, df: pd.DataFrame) -> pd.DataFrame:
+
+
+
+    def _aux_emissions(self, df: pd.DataFrame) -> pd.DataFrame:
       """
       Procesa los registros de emisiones.
 
@@ -526,7 +669,7 @@ class VehicleDataTransformer_site2:
                   new_rows.append({"Key": new_key, "Value": row["Value"]})
       elif count_transmissions == 2:
           # Se consultará el valor del Gearbox para decidir qué grupo usar
-          gearbox_row = df[df["Key"] == "Gearbox"]
+          gearbox_row = df[df["Key"] == "gearbox_type"]
           if not gearbox_row.empty:
               gearbox_val = gearbox_row["Value"].values[0].strip().lower()
               # Seleccionar el sufijo según el tipo de caja
@@ -548,18 +691,47 @@ class VehicleDataTransformer_site2:
       return df
 
 
-    def _transform_emissions_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Transforma los valores de los registros limpios de emisiones:
 
-        - Para cada fila cuyo Key comience con "Emissions", se toma el Value.
+# B46: "Emissions CO": "co_emissions",
+# B47: "Emissions HC": "hc_emissions",
+# B48: "Emissions NOx": "nox_emissions",
+# B49: "Emissions HC NOx": "hc_nox_emissions",
+# B50: "Emissions particulates": "particulates",
+
+    def _process_emissions_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transforma y renombra los valores de los registros de emisiones.
+
+        - Renombra las claves de emisiones según un mapeo interno.
+        - Para cada fila de emisión renombrada, se toma el Value.
         - Si el valor numérico es 0.00, se reemplaza por "----".
         - En caso contrario, se divide el valor por 1000 y se formatea con 4 decimales.
         """
-        # Filtrar filas cuyos registros comiencen con "Emissions"
-        emissions_mask = df["Key"].str.startswith("Emissions")
+        # Mapeo interno para las claves de emisión
+        emissions_key_mapping = {
+            "Emissions CO": "co_emissions",
+            "Emissions HC": "hc_emissions",
+            "Emissions NOx": "nox_emissions",
+            "Emissions HC NOx": "hc_nox_emissions",
+            "Emissions particulates": "particulates",
+        }
 
-        for idx in df[emissions_mask].index:
+        # Aplicar el mapeo de claves antes de procesar los valores
+        # Esto asegura que operamos en las claves finales
+        for old_key, new_key in emissions_key_mapping.items():
+            if old_key in df["Key"].values:
+                # Encuentra la máscara para la clave antigua
+                mask_old = df["Key"] == old_key
+                # Asigna la nueva clave
+                df.loc[mask_old, "Key"] = new_key
+
+        # Ahora, procesar los valores para las claves ya renombradas
+        # Filtrar filas cuyas claves renombradas comiencen con "co_", "hc_", "nox_", "particulates"
+        # o directamente las nuevas claves si no quieres depender del prefijo
+        # Aquí es importante ser específico si "Emissions" ya no está en la clave
+        emissions_processed_mask = df["Key"].isin(emissions_key_mapping.values())
+
+        for idx in df[emissions_processed_mask].index:
             valor = df.loc[idx, "Value"]
             try:
                 # Convertir el valor a float
@@ -570,74 +742,12 @@ class VehicleDataTransformer_site2:
                     # Dividir el valor por 1000 y formatear a 4 decimales
                     nuevo_valor = num / 1000
                     df.loc[idx, "Value"] = f"{nuevo_valor:.4f}"
-            except ValueError:
+            except (ValueError, TypeError): # Añadido TypeError para manejar mejor NaN o non-numeric
                 # Si no se puede convertir a número, se deja el valor original
                 continue
         return df
+    
 
-
-
-
-
-    def _process_drive_ratio(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa la drive ratio"""
-        if "Transmission/IA" in df["Key"].values:
-            drive = df[df["Key"] == "Transmission/IA"]["Value"].values[0]
-
-            drive_value = self._get_value_slash(drive, 1)
-
-            # Si el valor extraído contiene un "+", tomar solo el primer número antes del "+"
-            drive_value = drive_value.split("+")[0].strip()
-
-            # Reemplazar coma por punto
-            drive_value = drive_value.replace(",", ".")
-
-            new_row = pd.DataFrame({
-                "Key": ["Final drive ratio"],
-                "Value": [f"{drive_value}"]
-            })
-            df = pd.concat([df, new_row], ignore_index=True)
-            df = df[~df["Key"].isin(["Transmission/IA"])]
-
-        return df
-
-
-    def _process_dimensions(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa las dimensiones y extrae el primer número en caso de rango.
-        El segundo número, si existe, se guarda como un 'remark' correspondiente.
-        Si no existe, se guarda 'None' en el remark.
-        """
-
-        key_remark_map = {
-            "Length": "remarks_6_1",
-            "Width": "remarks_7_1",
-            "Height": "remarks_8",
-            "Rear overhang": "remarks_11",
-            "Mass of the vehicle with bodywork in running order": "remarks_12"
-        }
-
-        for key, remark_key in key_remark_map.items():
-            mask = df["Key"] == key
-            values = df.loc[mask, "Value"].astype(str)
-
-            for idx, val in values.items():
-                parts = [p.strip() for p in val.split("-")]
-
-                # Tomar primer número
-                first_val = parts[0] if len(parts) > 0 else None
-                df.at[idx, "Value"] = first_val
-
-                # Tomar segundo número si existe, si no asignar None
-                second_val = parts[1] if len(parts) > 1 else None
-
-                # Agregar fila para remark
-                new_row = pd.DataFrame({
-                    "Key": [remark_key],
-                    "Value": [second_val if second_val else "None"]
-                })
-                df = pd.concat([df, new_row], ignore_index=True)
-
-        return df
 
 
 
@@ -671,30 +781,35 @@ class VehicleDataTransformer_site2:
 # Configuración predeterminada
 DEFAULT_CONFIG_2 = VehicleDataConfig(
     column_mapping={
-        "14 Axles/Wheels": "Number of axles / wheels",
-        "16 Final drive": "Powered axles",
-        "44 Distance axis 1-2": "Wheelbase",
+    #Bxx    
+        "14 Axles/Wheels": "axles",
+        "16 Final drive": "powered_axles",
+        "27 Capacity:": "capacity",
+        "40 Length": "length",
+        "41 Width": "width",
+        "42 Height": "height",
+        "43 Überhange f/b": "rear_overhang",
+        "44 Distance axis 1-2": "wheelbase",
+        "52 Netweight": "running_mass",
+        "Wet Weigh Kg": "max_mass",
+        "55 Roof load": "max_roof_load",
+        "28 Power / n": "max_power",
+        "Fuel code": "fuel",
+        "Tow hitch": "coupling_approval",
+
+
+
+    #Intermedio
         "47 Track Axis 1": "Axle(s) track – 1",
         "48 Track Axis 2": "Axle(s) track – 2",
-        "40 Length": "Length",
-        "41 Width": "Width",
-        "42 Height": "Height",
-        "43 Überhange f/b": "Rear overhang",
-        "52 Netweight": "Mass of the vehicle with bodywork in running order",
-        "Wet Weigh Kg": "Technically permissible maximum laden mass",
         "54 Axle guarantees v.": "Distribution of this mass among the axles - 1",
         "54 Axle guarantees b.": "Distribution of this mass among the axles - 2",
-        "55 Roof load": "Maximum permissible roof load",
         "57 braked": "Braked trailer",
         "58 unbraked": "Unbraked trailer",
         "67 Support load": "Support load",
         "25 Brand / Type": "Brand / Type",
         "26 Design type": "Design type",
-        "27 Capacity:": "Capacity",
-        "28 Power / n": "Maximum net power",
         "18 Transmission/IA": "Transmission/IA",
-        "Tow hitch": "EC type approval mark of couplind device if fitted",
-        "Fuel code": "Fuel",
 
     },
     ordered_keys = MASTER_ORDERED_KEYS 

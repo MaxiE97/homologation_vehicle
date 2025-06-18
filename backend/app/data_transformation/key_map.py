@@ -16,7 +16,6 @@ FINAL_KEY_MAP = {
     "remark_electric_1": "remark_electric_1",                       # A24
     "remark_electric_2": "remark_electric_2",                       # A25
     "remark_electric_3": "remark_electric_3",                       # A26
-    "remarks_12": "remarks_12",                                     # A27
 
     "Make": "make",                                                 # A1
     "Type": "type",                                                 # A2
@@ -37,6 +36,8 @@ FINAL_KEY_MAP = {
     "remarks_7_1": "remarks_7_1",                                   # A17
     "remarks_8": "remarks_8",                                       # A18
     "remarks_11": "remarks_11",                                     # A19
+    "remarks_12": "remarks_12",                                     # A27
+
     "alternative_type_1": "alternative_type_1",                     # A20
     "alternative_type_2": "alternative_type_2",                     # A21
     "alternative_type_3": "alternative_type_3",                     # A22

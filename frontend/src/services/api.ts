@@ -32,7 +32,7 @@ apiClient.interceptors.request.use(
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
     // Usamos apiClient y la ruta relativa al baseURL ('/api/v1')
-    const response = await apiClient.get<UserProfile>('/profile'); 
+    const response = await apiClient.get<UserProfile>('/profile/'); 
     return response.data;
   } catch (error) {
     console.error("Error fetching user profile:", error);

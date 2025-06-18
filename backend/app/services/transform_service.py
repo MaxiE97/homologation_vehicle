@@ -66,7 +66,7 @@ def merge_and_prioritize(
         s3 = row.get('Valor Sitio 3')
         
         # --- INICIO: LÓGICA ESPECIAL PARA 'Fuel' (REINTEGRADA) ---
-        if row['Key'] == 'Fuel':
+        if row['Key'] == 'fuel':
             s2_value = str(s2)
             if "Diesel / Electric" in s2_value: 
                 main_fuel = s2_value.split(' / ')[0]
@@ -80,10 +80,10 @@ def merge_and_prioritize(
                 return "Petrol"
         # --- FIN: LÓGICA ESPECIAL PARA 'Fuel' ---
 
-        # Para Particulates, la prioridad es Columna 1
-        if row['Key'] == 'Particulates for CI':
-            if s1 is not None and str(s1) not in ['-', 'None']:
-                return s1
+        # Para Particulates, la prioridad es Columna 1 ----> revisar si es necesario
+        #if row['Key'] == 'Particulates for CI':
+        #    if s1 is not None and str(s1) not in ['-', 'None']:
+        #        return s1
         
         # Lógica de prioridad por defecto (S2 > S1 > S3) para todo lo demás
         if s2 is not None and str(s2) not in ['-', 'None']:
@@ -101,15 +101,15 @@ def merge_and_prioritize(
     # --- INICIO: BLOQUE DE LÓGICA ESPECIAL PARA OTRAS EMISIONES (POST-PROCESAMIENTO) ---
     try:
         logger.info("Aplicando lógica especial para emisiones.")
-        fuel_row = merged_df[merged_df['Key'] == 'Fuel']
-        emissions_row = merged_df[merged_df['Key'] == 'Emissions standard']
+        fuel_row = merged_df[merged_df['Key'] == 'fuel']
+        emissions_row = merged_df[merged_df['Key'] == 'emissions_standard']
 
         if not fuel_row.empty and not emissions_row.empty:
             fuel_value = fuel_row['Valor Sitio 2'].iloc[0] # Se usa el 'Valor Final' ya calculado para Fuel
             emissions_value = emissions_row['Valor Sitio 1'].iloc[0]
 
-            emission_fields_group_a = ['Emissions CO', 'Emissions HC', 'Emissions NOx', 'Emissions HC NOx']
-            particulates_field_group_b = 'Emissions particulates'
+            emission_fields_group_a = ['co_emissions', 'hc_emissions', 'nox_emissions', 'hc_nox_emissions']
+            particulates_field_group_b = 'particulates'
             euro_standards = ["EURO 1", "EURO 2", "EURO 3", "EURO 4"]
 
             # Aplicar Grupo de Reglas 1
@@ -135,7 +135,7 @@ def merge_and_prioritize(
                 except (ValueError, TypeError):
                     pass
         else:
-            logger.warning("No se encontraron las filas 'Fuel' o 'Emissions standard' para aplicar la lógica especial.")
+            logger.warning("No se encontraron las filas 'fuel' o 'emissions_standard' para aplicar la lógica especial.")
     except Exception as e:
         logger.error(f"Error crítico aplicando la lógica especial de emisiones: {e}", exc_info=True)
     # --- FIN: BLOQUE DE LÓGICA ESPECIAL ---

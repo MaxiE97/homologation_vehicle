@@ -64,16 +64,19 @@ async def process_vehicle_data(
         # raise HTTPException(status_code=500, detail="No se pudieron procesar los datos después de la fusión.")
         return []
 
+    if 'Key' in final_df.columns:
+        final_df = final_df.rename(columns={'Key': 'key'})    
+
 
     # --- INICIO DE LA MODIFICACIÓN ---
     # 4. Mapeo final de claves ANTES de enviar la respuesta
     #    Aquí es donde aplicamos el FINAL_KEY_MAP que quitamos de los transformadores.
-    final_df['key'] = final_df['Key'].map(FINAL_KEY_MAP)
+    #final_df['key'] = final_df['Key'].map(FINAL_KEY_MAP)
     
     # Nos aseguramos de que si alguna clave no se mapeó, no se envíe como Nula.
     # También nos quedamos con la nueva columna 'key' y eliminamos la 'Key' original.
-    final_df = final_df.dropna(subset=['key'])
-    final_df = final_df.drop(columns=['Key'])
+    #final_df = final_df.dropna(subset=['key'])
+    #final_df = final_df.drop(columns=['Key'])
     # --- FIN DE LA MODIFICACIÓN ---
 
     # Convertimos el DataFrame a una lista de diccionarios.
