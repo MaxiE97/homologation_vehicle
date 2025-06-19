@@ -3,6 +3,7 @@ import pandas as pd
 from typing import List, Dict, Tuple
 from bs4 import BeautifulSoup
 import re
+import html 
 
 
 class Site2Scraper(BaseScraper):
@@ -77,26 +78,32 @@ class Site2Scraper(BaseScraper):
         return data
 
     def extract_tow_hitch_info(self, soup: BeautifulSoup) -> List[Tuple[str, str]]:
-      """Extrae la información del enganche de remolque (56) de la sección de Remarks."""
-      data = []
+        """Extrae el código del enganche de remolque (línea 56) empezando en 'e' + dígito."""
+        data = []
 
-      # Buscar la sección de Remarks
-      remarks_header = soup.find('div', string='Remarks')
+        # 1. Encontrar el header "Remarks"
+        remarks_header = soup.find('div', string='Remarks')
+        if not remarks_header:
+            return data
 
-      if remarks_header:
-          # Buscar el elemento pre que contiene las observaciones
-          pre_element = remarks_header.find_next('pre')
+        # 2. Obtener el <pre> siguiente y convertir entidades HTML
+        pre_element = remarks_header.find_next('pre')
+        if not pre_element:
+            return data
+        text = html.unescape(pre_element.get_text(separator="\n"))
 
-          if pre_element:
-              pre_html = str(pre_element)
-              # Buscar el texto que comienza con "56)" hasta el primer <br>
-              match = re.search(r'tszeichen:(.*?)(?:<br\s*\/?>|$)', pre_html, re.DOTALL)
+        # 3. Buscar la línea que empieza con "56)"
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("56)"):
+                # 4. Extraer desde la 'e' hasta el final de la línea
+                match = re.search(r'(e\d[^\s].*)', line)
+                if match:
+                    code = match.group(1).strip()
+                    data.append(("Tow hitch", code))
+                break
 
-              if match:
-                hitch_info = match.group(1).strip()
-                data.append(("Tow hitch", hitch_info))
-
-      return data
+        return data
 
     def extract_vmax_info(self, soup: BeautifulSoup) -> List[Tuple[str, str]]:
       """Extrae información de VMax mecánica y automática y las combina en un solo valor."""

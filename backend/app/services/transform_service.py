@@ -146,3 +146,13 @@ def merge_and_prioritize(
 
     final_columns = ['Key', 'Valor Sitio 1', 'Valor Sitio 2', 'Valor Sitio 3', 'Valor Final']
     return merged_df[final_columns]
+
+
+
+#B14 que tome como prioridad pag amarillida 
+#17. Maximumm mass ... que aparezca en la columna de typens los dos datos (modificar site transform 2) 
+# Ej https://typenscheine.ch/en/Info/1PA375-PEUGEOT20614
+# mirar 56 y 57 ... sería 1100/510 y 1110/525
+
+
+#En la tablas 47 y 47.1 que los numero no sean redondos que sean con un decimal tipo 5.0 puta

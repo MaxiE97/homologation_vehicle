@@ -516,6 +516,8 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Hybrideverbruik WLTP": "power_consumption",
         "Brandstof #1 - Hybride actieradius WLTP": "electric_range",
         "Brandstof #1 - Hybride actieradius in stad WLTP": "electric_range_city",
+        "Brandstof #1 - Geluidsniveau rijdend": "noise_drive_by",
+
 
 
     # INTERMEDIO 
@@ -528,7 +530,6 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Trekkracht - Maximaal trekgewicht ongeremd":"Unbraked",
         "Brandstof #1 - Geluidsniveau stationair": "Stationary",
         "Brandstof #1 - Geluidsniveau toerental": "Engine speed",
-        "Brandstof #1 - Geluidsniveau rijdend": "Drive by",
         "Brandstof #1 - Emissieklasse": "Emissions_standard_op1",
         "Brandstof #2 - Emissieklasse": "Emissions_standard_op2",
 
