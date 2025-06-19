@@ -17,7 +17,7 @@ MASTER_ORDERED_KEYS = [
     "manufacturer_address_line1",
     "manufacturer_address_line2",
     "manufacturer_address_line3",
-    "vin", 
+    "vin",                         #13 sale en el lugar del 11, el vin es el 11
     "vin_location",
     "implication_number", 
     "type_described",

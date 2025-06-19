@@ -91,3 +91,7 @@ async def process_vehicle_data(
         raise HTTPException(status_code=500, detail="Error al formatear los datos de respuesta.")
 
     return validated_results
+
+
+
+    

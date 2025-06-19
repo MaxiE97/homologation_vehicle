@@ -487,7 +487,7 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Algemeen - Variant": "variant",
         "Algemeen - Uitvoering": "version",
         "Algemeen - Model": "commercial_name",
-        "Algemeen - Typegoedkeuringsnummer":"vin",
+        "Algemeen - Typegoedkeuringsnummer":"implication_number",
         "Brandstof #1 - Nominaal continu elektrisch vermogen": "remark_electric_1",
         "Brandstof #1 - Netto maximaal elektrisch vermogen": "remark_electric_2",
         "Brandstof #1 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
