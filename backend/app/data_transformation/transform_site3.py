@@ -61,8 +61,8 @@ class VehicleDataTransformer_site3:
     def _add_braking_system_1(self, df: pd.DataFrame) -> pd.DataFrame:
         
             if "Front suspension" in df["Key"].values and "Rear suspension" in df["Key"].values:
-                front_val = df[df["Key"] == "Front suspension"]["Value"].values[0].split("-")[0].strip()
-                rear_val = df[df["Key"] == "Rear suspension"]["Value"].values[0].split("-")[0].strip()
+                front_val = df[df["Key"] == "Front suspension"]["Value"].values[0]
+                rear_val = df[df["Key"] == "Rear suspension"]["Value"].values[0]
 
                 
                 new_row = pd.DataFrame({

@@ -39,7 +39,7 @@ async def process_vehicle_data(
     transmission_manual = None
     if request_data.transmission_option == "Manual":
         transmission_manual = True
-    elif request_data.transmission_option == "Automático":
+    elif request_data.transmission_option == "Automatic":
         transmission_manual = False
 
     # 1. Scraping

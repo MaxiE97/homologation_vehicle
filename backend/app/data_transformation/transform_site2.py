@@ -223,28 +223,40 @@ class VehicleDataTransformer_site2:
 #   "Maximum mass of trailer – braked / unbraked": "max_trailer_mass",             # B14
 
     def _add_max_trailer_mass(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Procesa y combina la información de masas del remolque, tomando el máximo valor de cada par."""
+        """
+        Procesa y combina la información de masas del remolque,
+        manteniendo los pares de valores originales separados por un guion,
+        salvo que ambos pares sean 0 / 0.
+        """
         if "Braked trailer" in df["Key"].values and "Unbraked trailer" in df["Key"].values:
-            # Obtiene los valores originales
-            braked = df[df["Key"] == "Braked trailer"]["Value"].values[0]      # ej: "600 / 1000"
-            unbraked = df[df["Key"] == "Unbraked trailer"]["Value"].values[0]  # ej: "450 / 1222"
+            # Obtiene los valores originales (ej: "1100 / 1200")
+            braked = df.loc[df["Key"] == "Braked trailer", "Value"].values[0]
+            unbraked = df.loc[df["Key"] == "Unbraked trailer", "Value"].values[0]
 
-            # Obtiene el máximo de cada par
-            braked_max = self._get_max_from_pair(braked, '/')     # resultado: 1000
-            unbraked_max = self._get_max_from_pair(unbraked, '/') # resultado: 1222
+            # Separa los pares en enteros
+            braked_vals = [int(x.strip()) for x in braked.split("/")]
+            unbraked_vals = [int(x.strip()) for x in unbraked.split("/")]
+
+            # Verifica si ambos pares son 0 / 0
+            if braked_vals == [0, 0] and unbraked_vals == [0, 0]:
+                return df  # No se agrega nada nuevo
+
+            # Construye el nuevo valor combinado
+            combined_value = f"{braked_vals[0]}/{unbraked_vals[0]} - {braked_vals[1]}/{unbraked_vals[1]}"
 
             # Elimina las filas originales
             df = df[~df["Key"].isin(["Braked trailer", "Unbraked trailer"])]
 
-            # Crea una nueva fila con los máximos
+            # Agrega la nueva fila
             new_row = pd.DataFrame({
                 "Key": ["max_trailer_mass"],
-                "Value": [f"{braked_max}/{unbraked_max}"]  # Resultado: "1000 / 1222"
+                "Value": [combined_value]
             })
 
             df = pd.concat([df, new_row], ignore_index=True)
 
         return df
+
 
 
 #    "Maximum vertical load at the coupling point for a trailer": "max_coupling_load", # B16

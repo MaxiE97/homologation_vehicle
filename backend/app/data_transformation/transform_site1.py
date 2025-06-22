@@ -3,6 +3,8 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 import re
 from .master_keys import MASTER_ORDERED_KEYS
+from decimal import Decimal
+
 
 
 
@@ -225,19 +227,62 @@ class VehicleDataTransformer_site1:
         """Limpia el valor de 'Emissions particulates', eliminando 'g/km' y dividiendo por 1000.
         Si no existe el registro, lo crea con un valor de "0.00001" (como string).
         """
-        mask = df["Key"] == "particulates"
+        mask_particulates = df["Key"] == "particulates"
+        
+        # Obtenemos el valor real de 'emissions_standard' del DataFrame.
+        # Asumimos que '_add_emissions_standard' ya se ejecutó y agregó esta clave.
+        emissions_standard_value = None
+        emissions_standard_mask = df["Key"] == "emissions_standard"
+        if emissions_standard_mask.any():
+            emissions_standard_value = df.loc[emissions_standard_mask, "Value"].iloc[0]
 
-        if mask.any():
-            # Si existe, limpiamos el valor, lo redondeamos a 6 decimales y lo convertimos en string
-            df.loc[mask, "Value"] = (df.loc[mask, "Value"]
-                                    .str.replace(" g/km", "", regex=False)
-                                    .astype(float) / 1000).round(6).astype(str)
+        if mask_particulates.any():
+            # Si 'particulates' existe, limpiamos el valor, lo redondeamos y lo convertimos a string
+            if emissions_standard_value in ["EURO 1", "EURO 2", "EURO 3", "EURO 4"]:
+                # Si el estándar de emisiones es EURO 1, 2, 3 o 4, solo eliminamos la unidad
+                df.loc[mask_particulates, "Value"] = df.loc[mask_particulates, "Value"].str.replace(" g/km", "", regex=False)
+            
+            elif emissions_standard_value in ["EURO 5", "EURO 6"]: 
+                df.loc[mask_particulates, "Value"] = df.loc[mask_particulates, "Value"].apply(self.ajustar_a_cinco_decimales)
+
+            elif emissions_standard_value in ["EURO Z"]:
+                df.loc[mask_particulates, "Value"] = "- - - -"
+
+                                                 
         else:
-            # Si no existe, lo creamos con el valor predeterminado como string
+            # Si 'particulates' no existe, lo creamos con el valor predeterminado como string
             new_row = pd.DataFrame({"Key": ["particulates"], "Value": ["0.00001"]})
             df = pd.concat([df, new_row], ignore_index=True)
 
         return df
+
+    @staticmethod
+    def ajustar_a_cinco_decimales(valor):
+        try:
+            val = str(valor).replace(" g/km", "").strip()
+            num = Decimal(val)
+
+            # Convertimos a string y contamos la cantidad de decimales reales
+            _, _, decimales = format(num, 'f').partition('.')
+            cant_decimales = len(decimales)
+
+            # Aplica la regla según la cantidad de decimales
+            if cant_decimales == 1:
+                num /= 10000
+            elif cant_decimales == 2:
+                num /= 1000
+            elif cant_decimales == 3:
+                num /= 100
+            elif cant_decimales == 4:
+                num /= 10
+            # Si tiene 5 o más, lo dejamos igual
+
+            # Formateamos como string con exactamente 5 decimales
+            return f"{num:.5f}"
+        except Exception:
+            return valor  # Si algo falla, se devuelve el valor original
+
+
 
 #    "Smoke": "smoke_absorption",                                                   # B51
 
@@ -305,7 +350,8 @@ class VehicleDataTransformer_site1:
 #    "NEDC Fuel consumption urban conditions": "fuel_urban_nedc",                   # B57
 
     def _process_nedc_values_fuel(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Limpia el valor de los registros de consumo NEDC.
+        """
+        Limpia el valor de los registros de consumo NEDC, asegurando formato string con un decimal.
 
         Para cada registro con key:
             - 'fuel_combined_nedc'
@@ -313,15 +359,13 @@ class VehicleDataTransformer_site1:
             - 'fuel_extra_urban_nedc'
 
         Si en el valor se encuentra la palabra "liter", extrae el número anterior,
-        reemplaza la coma decimal por punto y lo convierte a número.
-        En caso de que el valor ya sea numérico (como en '7.4'), lo deja tal cual.
+        reemplaza la coma decimal por punto y lo convierte a número con un decimal como string.
+        En caso de que el valor ya sea numérico (como en '7.4'), lo deja como string formateado.
         """
-
-
         nedc_keys = {
-        "fuel_combined_nedc",
-        "fuel_urban_nedc",
-        "fuel_extra_urban_nedc"
+            "fuel_combined_nedc",
+            "fuel_urban_nedc",
+            "fuel_extra_urban_nedc"
         }
 
         keys_presentes = nedc_keys.intersection(set(df["Key"].unique()))
@@ -331,19 +375,21 @@ class VehicleDataTransformer_site1:
         mask = df["Key"].isin(keys_presentes)
 
         def extract_value(text):
-            if isinstance(text, str) and "liter" in text:
-                # Busca el número antes de "liter", considerando que puede usar coma como separador decimal
-                match = re.search(r'([\d,]+)\s*liter', text)
-                if match:
-                    return float(match.group(1).replace(",", "."))
             try:
-                # Si no hay "liter", intenta convertir directamente el valor a float
-                return float(text)
+                if isinstance(text, str) and "liter" in text:
+                    match = re.search(r'([\d,]+)\s*liter', text)
+                    if match:
+                        val = float(match.group(1).replace(",", "."))
+                        return f"{val:.1f}"
+                else:
+                    val = float(text)
+                    return f"{val:.1f}"
             except Exception:
-                return text
+                return text  # Devuelve el valor original si no se puede convertir
 
         df.loc[mask, "Value"] = df.loc[mask, "Value"].apply(extract_value)
         return df
+
 
 
  #   "WLTP CO2 combined": "co2_combined_wltp",                                       # B58
@@ -378,51 +424,57 @@ class VehicleDataTransformer_site1:
 #    "WLTP Fuel consumption High": "fuel_high_wltp",                                # B65
 #    "WLTP Fuel consumption Medium": "fuel_medium_wltp",                            # B66
 #    "WLTP Fuel consumption Low": "fuel_low_wltp",                                  # B67
-
     def _process_wltp_fuel_consumption_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Limpia el valor de 'WLTP Fuel consumption combined', extrayendo el número antes de 'liter'
-        y reemplazando la coma decimal por punto. Luego, crea nuevos registros
+        """
+        Limpia el valor de 'WLTP Fuel consumption combined', extrayendo el número antes de 'liter',
+        reemplazando la coma decimal por punto y convirtiéndolo a string con un decimal fijo.
+        Luego, crea nuevos registros derivados también como string.
         """
         mask = df["Key"] == "fuel_combined_wltp"
 
         def extract_value(text):
-            if isinstance(text, str) and "liter" in text:
-                # Busca el número antes de "liter" y reemplaza la coma por punto
-                match = re.search(r'([\d,]+)\s*liter', text)
-                if match:
-                    return float(match.group(1).replace(",", "."))
             try:
-                return float(text)
+                if isinstance(text, str) and "liter" in text:
+                    match = re.search(r'([\d,]+)\s*liter', text)
+                    if match:
+                        val = float(match.group(1).replace(",", "."))
+                        return f"{val:.1f}"
+                val = float(text)
+                return f"{val:.1f}"
             except Exception:
                 return text
 
-        # Limpia el valor para que quede como 7.9
+        # Limpia el valor original
         df.loc[mask, "Value"] = df.loc[mask, "Value"].apply(extract_value)
 
-        # Obtiene el/los valor(es) originales para generar los nuevos registros
+        # Genera nuevos registros derivados
         original_values = df.loc[mask, "Value"].tolist()
         new_rows = []
-        for valor in original_values:
-            new_rows.append({
-                "Key": "fuel_low_wltp",
-                "Value": round(valor + 0.6, 1)
-            })
-            new_rows.append({
-                "Key": "fuel_medium_wltp",
-                "Value": round(valor - 0.3, 1)
-            })
-            new_rows.append({
-                "Key": "fuel_high_wltp",
-                "Value": round(valor - 0.6, 1)
-            })
-            new_rows.append({
-                "Key": "fuel_maximum_value_wltp",
-                "Value": round(valor + 0.3, 1)
-            })
+        for valor_str in original_values:
+            try:
+                valor = float(valor_str)
+                new_rows.append({
+                    "Key": "fuel_low_wltp",
+                    "Value": f"{round(valor + 0.6, 1):.1f}"
+                })
+                new_rows.append({
+                    "Key": "fuel_medium_wltp",
+                    "Value": f"{round(valor - 0.3, 1):.1f}"
+                })
+                new_rows.append({
+                    "Key": "fuel_high_wltp",
+                    "Value": f"{round(valor - 0.6, 1):.1f}"
+                })
+                new_rows.append({
+                    "Key": "fuel_maximum_value_wltp",
+                    "Value": f"{round(valor + 0.3, 1):.1f}"
+                })
+            except Exception:
+                continue  # En caso de error, no agregar nada
 
-        # Agrega los nuevos registros al DataFrame original
         df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
         return df
+
 
 
 
@@ -506,6 +558,7 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Vermogen": "max_power",
         "Brandstof #1 - Milieuklasse licht": "emissions_exhaust",
         "Brandstof #1 - Uitstoot deeltjes WLTP": "particulates",
+        "Brandstof #1 - Uitstoot deeltjes licht NEDC": "particulates",
         "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",
         "Brandstof #1 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",
         "Brandstof #1 - Brandstofverbruik gecombineerd NEDC": "fuel_combined_nedc",           # B55

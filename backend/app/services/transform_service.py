@@ -81,9 +81,9 @@ def merge_and_prioritize(
         # --- FIN: LÓGICA ESPECIAL PARA 'Fuel' ---
 
         # Para Particulates, la prioridad es Columna 1 ----> revisar si es necesario
-        #if row['Key'] == 'Particulates for CI':
-        #    if s1 is not None and str(s1) not in ['-', 'None']:
-        #        return s1
+        if row['Key'] == 'max_trailer_mass':
+            if s1 is not None and str(s1) not in ['-', 'None']:
+                return s1
         
         # Lógica de prioridad por defecto (S2 > S1 > S3) para todo lo demás
         if s2 is not None and str(s2) not in ['-', 'None']:
@@ -124,7 +124,7 @@ def merge_and_prioritize(
                         pass
 
             # Aplicar Grupo de Reglas 2
-            original_particulates_str = str(merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Sitio 1'].iloc[0])
+            original_particulates_str = str(merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Sitio 2'].iloc[0])
             if "Gasoline" in str(fuel_value) or "Petrol" in str(fuel_value):
                 merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Final'] = "- - - -"
             elif "Diesel" in str(fuel_value):
@@ -154,5 +154,3 @@ def merge_and_prioritize(
 # Ej https://typenscheine.ch/en/Info/1PA375-PEUGEOT20614
 # mirar 56 y 57 ... sería 1100/510 y 1110/525
 
-
-#En la tablas 47 y 47.1 que los numero no sean redondos que sean con un decimal tipo 5.0 puta

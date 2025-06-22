@@ -71,3 +71,17 @@ async def process_all_urls(
         processed_data["site3"] = results[task_index]
 
     return processed_data
+
+
+
+
+
+
+
+
+
+
+
+ # ver porque en autodata no carga completo .35 BBrief description {{35}}
+ # https://www.auto-data.net/en/mercedes-benz-glc-suv-x253-facelift-2019-glc-300de-306hp-plug-in-hybrid-4matic-9g-tronic-41513
+
