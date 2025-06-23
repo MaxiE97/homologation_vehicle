@@ -10,6 +10,7 @@ import UrlInputSection from '../components/vehicleForm/UrlInputSection';
 import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs';
 import { sections as allSections } from '../constants/vehicleFormSections';
 import { supportedLanguages, predefinedTranslations } from '../constants/localization';
+import { toast } from 'react-toastify'; // Importa toast
 import api from '../services/api';
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
@@ -61,7 +62,7 @@ const VehicleHomologationPage = () => {
 
   const handleProcessUrls = async () => {
     if (!url1 && !url2 && !url3) {
-      alert("Please enter at least one URL.");
+      toast.error("Please enter at least one URL.");
       return;
     }
     setIsProcessing(true);
@@ -105,7 +106,7 @@ const VehicleHomologationPage = () => {
   const handleTranslateFinalValues = useCallback(() => {
     if (selectedLanguage === 'en') {
       setFormData(originalFormData);
-      alert('Values restored to the original English.');
+      toast.success('Values restored to the original English.');
       return;
     }
 
@@ -143,10 +144,11 @@ const VehicleHomologationPage = () => {
 
     setFormData(newTranslatedFormData);
 
-    alert(changesMade
-      ? `Values translated to ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`
-      : `No applicable predefined translations were found for ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`
-    );
+    if (changesMade) {
+      toast.success(`Values translated to ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`);
+    } else {
+      toast.info(`No applicable predefined translations were found for ${supportedLanguages.find(l => l.code === selectedLanguage)?.name}.`);
+    }
   }, [originalFormData, selectedLanguage]);
 
   const totalFields = useMemo(() => allFieldsFlat.length, [allFieldsFlat]);
@@ -156,7 +158,7 @@ const VehicleHomologationPage = () => {
 
   const handleSubmit = async () => {
     if (Object.keys(formData).length === 0) {
-      alert("No data to submit. Please process URLs first.");
+      toast.error("No data to submit. Please process URLs first.");
       return;
     }
 
