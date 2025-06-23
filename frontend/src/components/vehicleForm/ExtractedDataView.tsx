@@ -58,7 +58,7 @@ const ExtractedDataView: React.FC<ExtractedDataViewProps> = ({
                   <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
                     <img src={site3Icon} alt="Site 3 Logo" className="w-5 h-5 object-contain" />
                   </div>
-                  <span>Auto-data 3</span>
+                  <span>Auto-data</span>
                 </div>
               </th>
 

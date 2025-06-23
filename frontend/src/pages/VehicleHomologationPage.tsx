@@ -218,6 +218,7 @@ const VehicleHomologationPage = () => {
             transmissionOption={transmissionOption} setTransmissionOption={setTransmissionOption}
             onProcessUrls={handleProcessUrls}
             isProcessing={isProcessing}
+            processingError={error}
           /> 
         )}
         
