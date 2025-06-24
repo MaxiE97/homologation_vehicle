@@ -1,22 +1,28 @@
-// frontend/src/components/auth/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // Importamos useAuth
-
-// Quitamos la prop porque no se usa y Outlet no la necesita explícitamente
-// interface ProtectedRouteProps {} 
+import { useAuth } from '../../contexts/AuthContext';
 
 const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated } = useAuth(); // Usamos el contexto
-  const location = useLocation(); // Para posible redirección post-login
+  const { isAuthenticated, isLoading } = useAuth(); // 1. Obtenemos isLoading
+  const location = useLocation();
 
+  // 2. Si estamos en proceso de verificar la autenticación, mostramos un loader.
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        {/* Aquí puedes poner un spinner o cualquier componente de carga más elaborado */}
+        <p className="text-xl">Loading...</p> 
+      </div>
+    );
+  }
+
+  // 3. Si ya no estamos cargando y el usuario NO está autenticado, redirigimos.
   if (!isAuthenticated) {
-    // Si no está autenticado, redirige a la página de login
-    // Pasamos la ubicación actual para que se pueda redirigir de vuelta después del login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <Outlet />; // Si está autenticado, renderiza el contenido de la ruta hija
+  // 4. Si ya no estamos cargando y el usuario SÍ está autenticado, mostramos la página.
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

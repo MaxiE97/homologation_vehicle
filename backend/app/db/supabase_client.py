@@ -21,7 +21,3 @@ def get_supabase_admin_client() -> Client:
     """
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-# Opcional: puedes crear instancias para importar directamente si alguna vez las necesitas
-# aunque para los endpoints de FastAPI es mejor usar Depends(get_supabase_client)
-# supabase = get_supabase_client()
-# supabase_admin = get_supabase_admin_client()
