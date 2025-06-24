@@ -97,11 +97,9 @@ const VehicleHomologationPage = () => {
   const toggleSection = (sectionIndex: number) => setCollapsedSections(prev => ({ ...prev, [sectionIndex]: !prev[sectionIndex] }));
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
-    if (languageCode === 'en') {
-      setFormData(originalFormData);
-    }
   };
-  
+
+
   // --- CÓDIGO ACTUALIZADO ---
   const handleTranslateFinalValues = useCallback(() => {
     if (selectedLanguage === 'en') {
