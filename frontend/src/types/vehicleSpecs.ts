@@ -53,8 +53,10 @@ export interface CollapsedSections {
 }
 
 export interface DownloadHistoryItem {
+  id: string; // <-- AÑADIDO: El UUID único de la descarga
   cds_identifier: string;
   downloaded_at: string; // La recibimos como string, la podemos formatear después
+  status: 'Ok' | 'Under review'; // <-- AÑADIDO: El estado de la descarga
 }
 
 export interface UserProfile {

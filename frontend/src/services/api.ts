@@ -41,5 +41,28 @@ export const getUserProfile = async (): Promise<UserProfile> => {
 };
 // -----------------------------------------
 
+// --- INICIO DE LA NUEVA FUNCIÓN ---
+/**
+ * Updates the status of a specific download record.
+ * @param {string} downloadId - The UUID of the download to update.
+ * @param {'Ok' | 'En revisión'} status - The new status to set.
+ * @returns {Promise<void>} A promise that resolves when the update is successful.
+ */
+export const updateDownloadStatus = async (
+  downloadId: string, 
+  status: 'Ok' | 'Under review'
+): Promise<void> => {
+  try {
+    // Usamos el endpoint PATCH que creamos en el backend
+    await apiClient.patch(`/downloads/${downloadId}/status`, { status });
+  } catch (error) {
+    console.error(`Error updating status for download ${downloadId}:`, error);
+    // Opcional: podrías mostrar una notificación al usuario aquí
+    throw error;
+  }
+};
+// --- FIN DE LA NUEVA FUNCIÓN ---
+
+
 // 3. EXPORTAMOS LA INSTANCIA CONFIGURADA
 export default apiClient;

@@ -4,6 +4,8 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 from postgrest.exceptions import APIError as PostgrestAPIError
+from datetime import datetime 
+from zoneinfo import ZoneInfo 
 
 # Importamos los modelos y dependencias necesarios
 from .schemas import AuthenticatedUser, UserProfileResponse, DownloadHistoryItem
@@ -30,27 +32,39 @@ async def get_user_profile(
     logger.info(f"Fetching profile for user ID: {current_user.id}")
 
     try:
-        # Consultar el historial de descargas para el usuario actual
+        # 1. Consultar el historial de descargas pidiendo TODOS los campos que necesitamos
         downloads_response = db_admin.table("downloads").select(
-            "cds_identifier, downloaded_at"
+            "id, cds_identifier, downloaded_at, status"
         ).eq(
             "user_id", str(current_user.id)
         ).order(
             "downloaded_at", desc=True
         ).execute()
 
-        if not downloads_response.data:
-            logger.info(f"No download history found for user ID: {current_user.id}")
-            download_history = []
+        # 2. FIX: Inicializar la lista ANTES del bloque if/else
+        download_history = []
+        
+        if downloads_response.data:
+            cet = ZoneInfo("Europe/Madrid") # Define la zona horaria europea
+            
+            # 3. Procesar los datos si existen
+            for item in downloads_response.data:
+                downloaded_at_utc_str = item.get('downloaded_at')
+                if downloaded_at_utc_str:
+                    dt_utc = datetime.fromisoformat(downloaded_at_utc_str.replace('Z', '+00:00'))
+                    dt_cet = dt_utc.astimezone(cet)
+
+                    download_history.append(
+                        DownloadHistoryItem(
+                            id=item.get('id'),
+                            cds_identifier=item.get('cds_identifier', 'N/A'),
+                            downloaded_at=dt_cet,
+                            status=item.get('status', 'Ok') # Usamos 'Ok' como fallback
+                        )
+                    )
         else:
-            # Mapear los resultados al modelo Pydantic DownloadHistoryItem
-            download_history = [
-                DownloadHistoryItem(
-                    cds_identifier=item.get('cds_identifier', 'N/A'),
-                    downloaded_at=item.get('downloaded_at')
-                )
-                for item in downloads_response.data
-            ]
+            logger.info(f"No download history found for user ID: {current_user.id}")
+            # Si no hay datos, la lista simplemente se quedará vacía, lo cual es correcto.
 
         # Construir la respuesta final del perfil
         user_profile = UserProfileResponse(

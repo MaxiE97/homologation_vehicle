@@ -64,15 +64,19 @@ class ExportDataRequest(BaseModel): # Renombrado de ExportRequest para claridad 
     language: str
     final_data: List[KeyValuePair]
 
-# --- AÑADIDO: Esquemas para el Perfil de Usuario y el Historial de Descargas ---
-
 class DownloadHistoryItem(BaseModel):
     """Define la estructura de un único item en el historial de descargas."""
-    cds_identifier: Optional[str] = "N/A"
+    id: uuid.UUID  
+    cds_identifier: Optional[str] 
     downloaded_at: datetime
+    status: str     
 
 class UserProfileResponse(BaseModel):
     """Define la estructura completa del perfil de usuario que se enviará al frontend."""
     email: Optional[EmailStr]
     username: Optional[str]
     downloads: List[DownloadHistoryItem]
+
+class StatusUpdateRequest(BaseModel):
+    """Define el cuerpo esperado para la solicitud de cambio de estado."""
+    status: str = Field(..., pattern="^(Ok|Under review)$") # Valida que solo se acepten estos dos valores

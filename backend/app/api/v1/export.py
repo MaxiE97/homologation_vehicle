@@ -58,7 +58,8 @@ async def export_document_to_docx(
             "user_id": str(current_user.id),
             "template_language": payload.language,
             "exported_data_snapshot": data_for_service,
-            "cds_identifier": cds_identifier_value # <-- AÑADIDO
+            "cds_identifier": cds_identifier_value,
+            "status": "Ok"
         }
         
         # --- FIN DE MODIFICACIÓN ---
