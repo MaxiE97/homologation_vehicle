@@ -77,8 +77,8 @@ class Site2Scraper(BaseScraper):
 
         return data
 
-    def extract_tow_hitch_info(self, soup: BeautifulSoup) -> List[Tuple[str, str]]:
-        """Extrae el código del enganche de remolque (línea 56) empezando en 'e' + dígito."""
+    def extract_tow_remarks(self, soup: BeautifulSoup) -> List[Tuple[str, str]]:
+        """Extrae todo el texto que contiene Remarks y lo separa por secciones numeradas."""
         data = []
 
         # 1. Encontrar el header "Remarks"
@@ -86,22 +86,24 @@ class Site2Scraper(BaseScraper):
         if not remarks_header:
             return data
 
-        # 2. Obtener el <pre> siguiente y convertir entidades HTML
-        pre_element = remarks_header.find_next('pre')
-        if not pre_element:
+        # 2. Navegar al <pre> que contiene el texto, preservando saltos de línea
+        remarks_row = remarks_header.find_parent('div', class_='cocRow')
+        if not remarks_row:
             return data
-        text = html.unescape(pre_element.get_text(separator="\n"))
 
-        # 3. Buscar la línea que empieza con "56)"
-        for line in text.splitlines():
-            line = line.strip()
-            if line.startswith("56)"):
-                # 4. Extraer desde la 'e' hasta el final de la línea
-                match = re.search(r'(e\d[^\s].*)', line)
-                if match:
-                    code = match.group(1).strip()
-                    data.append(("Tow hitch", code))
-                break
+        pre_tag = remarks_row.find('pre')
+        if not pre_tag:
+            return data
+
+        # Extraemos con saltos de línea para que <br/> no concatene todo
+        raw = pre_tag.get_text(separator="\n").strip()
+
+        # 3. Separar en secciones: busca "NN) contenido hasta la próxima NN)"
+        matches = re.finditer(r'(\d{2})\)\s*(.*?)(?=\n\d{2}\)|$)', raw, re.DOTALL)
+        for m in matches:
+            numero = m.group(1)
+            contenido = m.group(2).strip().replace("\n", " ")
+            data.append((f"Remark {numero}", contenido))
 
         return data
 
@@ -226,7 +228,7 @@ class Site2Scraper(BaseScraper):
           all_data.extend(self.extract_data_by_config(soup, config))
 
       all_data.extend(self.extract_axle_guarantees(soup))
-      all_data.extend(self.extract_tow_hitch_info(soup))
+      all_data.extend(self.extract_tow_remarks(soup))
       all_data.extend(self.extract_vmax_info(soup))
       all_data.extend(self.extract_emissions_data(soup))
 

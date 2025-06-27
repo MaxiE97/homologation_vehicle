@@ -25,6 +25,7 @@ class VehicleDataTransformer_site1:
         df = df_input.copy()
         df = self._rename_columns(df)
         df = self.clean_values(df)
+        df = self.process_make_commercial_name(df)
         df = self._add_axles(df)
         df = self._add_axle_track(df)
         df = self._process_axles_distribution_maxmass(df)
@@ -39,6 +40,8 @@ class VehicleDataTransformer_site1:
         df = self._process_wltp_co_values(df)
         df = self._process_wltp_fuel_consumption_values(df)
         df = self._process_remarks_electric(df)
+        df = self._add_power_consumption(df)
+        df = self._process_electric_range(df)
 
         df = self._add_missing_keys(df)
 
@@ -54,7 +57,20 @@ class VehicleDataTransformer_site1:
         return df
 
 
+#    "make",                                                   # A1
+#    "commercial_name",                                        # A5
 
+    def process_make_commercial_name(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Procesa y renombra las columnas 'make' y 'commercial_name'."""
+        if "make" in df["Key"].values:
+            #transformar valor en mayúsculas
+            df.loc[df["Key"] == "make", "Value"] = df.loc[df["Key"] == "make", "Value"].str.upper()
+
+        if "commercial_name" in df["Key"].values:
+            #transformar valor en mayúsculas
+            df.loc[df["Key"] == "commercial_name", "Value"] = df.loc[df["Key"] == "commercial_name", "Value"].str.upper()
+
+        return df
 
     
 #    "Number of axles / wheels": "axles",                            # B1
@@ -250,8 +266,11 @@ class VehicleDataTransformer_site1:
 
                                                  
         else:
-            # Si 'particulates' no existe, lo creamos con el valor predeterminado como string
-            new_row = pd.DataFrame({"Key": ["particulates"], "Value": ["0.00001"]})
+            if emissions_standard_value in ["EURO Z"]:
+                new_row = pd.DataFrame({"Key": ["particulates"], "Value": ["- - - -"]})
+            else:    
+                new_row = pd.DataFrame({"Key": ["particulates"], "Value": ["0.00001"]})
+
             df = pd.concat([df, new_row], ignore_index=True)
 
         return df
@@ -288,8 +307,9 @@ class VehicleDataTransformer_site1:
 
     def _add_smoke_absorption(self, df: pd.DataFrame) -> pd.DataFrame:
         """Limpia el valor de 'Smoke', eliminando 'g/km' y formateándolo a 2 decimales."""
-        mask = df["Key"] == "smoke_absorption"
-        df.loc[mask, "Value"] = df.loc[mask, "Value"].str.replace(" g/km", "", regex=False).astype(float).map("{:.2f}".format)
+        if "smoke_absorption" in df["Key"].values:
+            mask = df["Key"] == "smoke_absorption"
+            df.loc[mask, "Value"] = df.loc[mask, "Value"].str.replace(" g/km", "", regex=False).astype(float).map("{:.2f}".format)
         return df
 
 
@@ -434,12 +454,14 @@ class VehicleDataTransformer_site1:
 
         def extract_value(text):
             try:
-                if isinstance(text, str) and "liter" in text:
-                    match = re.search(r'([\d,]+)\s*liter', text)
+                if isinstance(text, str):
+                    # Busca un número (con , o . decimal) seguido de 'liter' o 'g/km'
+                    match = re.search(r'([\d.,]+)\s*(liter|g/km)', text)
                     if match:
                         val = float(match.group(1).replace(",", "."))
                         return f"{val:.1f}"
-                val = float(text)
+                # Si no contiene unidades conocidas, intenta convertir directamente
+                val = float(str(text).replace(",", "."))
                 return f"{val:.1f}"
             except Exception:
                 return text
@@ -475,9 +497,35 @@ class VehicleDataTransformer_site1:
         df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
         return df
 
+ 
+#    "Power consumption weighted/combined": "power_consumption",                     # B68
 
+    def _add_power_consumption(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Reemplaza la coma decimal por punto en los valores de 'power_consumption', si aplica."""
+        if "power_consumption" in df["Key"].values:
+            mask = df["Key"] == "power_consumption"
+            def safe_replace(val):
+                try:
+                    return val.replace(",", ".")
+                except AttributeError:
+                    return val  # Si no es una cadena, devuelve el valor original
+            df.loc[mask, "Value"] = df.loc[mask, "Value"].apply(safe_replace)
+        return df
 
+#    "Electric range": "electric_range",                                            # B69
+#    "Electric range in city": "electric_range_city",                               # B70
 
+    def _process_electric_range(self, df: pd.DataFrame) -> pd.DataFrame:
+        """saca el km de los valores"""
+        if "electric_range" in df["Key"].values:
+            mask = df["Key"] == "electric_range"
+            df.loc[mask, "Value"] = df.loc[mask, "Value"].str.replace(" km", "", regex=False)
+
+        if "electric_range_city" in df["Key"].values:
+            mask = df["Key"] == "electric_range_city"
+            df.loc[mask, "Value"] = df.loc[mask, "Value"].str.replace(" km", "", regex=False)
+
+        return df
 
     def clean_values(self, df: pd.DataFrame) -> pd.DataFrame:
         def process_value(value):
@@ -486,13 +534,13 @@ class VehicleDataTransformer_site1:
 
 
             # Eliminar puntos en unidades específicas (como "kg" o "cm³")
-            for unit in ['kg', 'cm³', 'dB(A)']:
+            for unit in ['kg', 'cm³', 'dB(A)','Wh/km']:
                 if unit in value:
                     value = value.replace('.', '')
                     break
 
             # Eliminar espacios y otras unidades específicas
-            for unit in ['kg', 'cm³', 'dB(A)']:
+            for unit in ['kg', 'cm³', 'dB(A)','Wh/km']:
                 if unit in value:
                     value = value.replace(unit, '').strip()
 
@@ -544,6 +592,10 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Netto maximaal elektrisch vermogen": "remark_electric_2",
         "Brandstof #1 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
 
+        "Brandstof #2 - Nominaal continu elektrisch vermogen": "remark_electric_1",
+        "Brandstof #2 - Netto maximaal elektrisch vermogen": "remark_electric_2",
+        "Brandstof #2 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
+
     #DATOS DE Bxx
         "Afmetingen - Wielbasis": "wheelbase",
         "Afmetingen - Lengte": "length",
@@ -551,25 +603,53 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Massa - Rijklaar gewicht": "running_mass",
         "Massa - Technisch limiet massa": "max_mass",
         "Massa - Maximum massa samenstelling": "max_combination_mass",
-        "Algemeen - Merk":"engine_manufacturer",
         "Motor - Aantal cilinders": "cylinders",
         "Motor - Cilinderinhoud": "capacity",
         "Brandstof #1 - Brandstof	": "fuel",
         "Brandstof #1 - Vermogen": "max_power",
         "Brandstof #1 - Milieuklasse licht": "emissions_exhaust",
-        "Brandstof #1 - Uitstoot deeltjes WLTP": "particulates",
-        "Brandstof #1 - Uitstoot deeltjes licht NEDC": "particulates",
         "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",
-        "Brandstof #1 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",
+
+        #Emisiones
+        "Brandstof #1 - Uitstoot deeltjes licht NEDC": "particulates",                       # B50
+        "Brandstof #1 - Uitstoot deeltjes WLTP": "particulates",                             # B50
+
+
+        "Brandstof #1 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",                 # B52 
+        "Brandstof #1 - CO2-uitstoot gewogen NEDC": "co2_combined_nedc",                      # B52 
+
+
         "Brandstof #1 - Brandstofverbruik gecombineerd NEDC": "fuel_combined_nedc",           # B55
-        "Brandstof #1 - Brandstofverbruik in stad NEDC": "fuel_urban_nedc",                   # B57
         "Brandstof #1 - Brandstofverbruik op snelweg NEDC": "fuel_extra_urban_nedc",          # B56
-        "Brandstof #1 - CO2-uitstoot gecombineerd WLTP": "co2_combined_wltp",
-        "Brandstof #1 - Brandstofverbruik gecombineerd WLTP": "fuel_combined_wltp",
+        "Brandstof #1 - Brandstofverbruik in stad NEDC": "fuel_urban_nedc",                   # B57
+
+        "Brandstof #1 - CO2-uitstoot gecombineerd WLTP": "co2_combined_wltp",                 # B58
+        "Brandstof #1 - CO2-uitstoot gewogen WLTP": "co2_combined_wltp",                      # B58
+
+
+        
+        "Brandstof #1 - Brandstofverbruik gecombineerd WLTP": "fuel_combined_wltp",           # B63
+        "Brandstof #1 - Brandstofverbruik gewogen WLTP": "fuel_combined_wltp",                # B63
+        
+
+        "Brandstof #1 - Geluidsniveau rijdend": "noise_drive_by",
+
+        #68 69 70 Hibridos 
         "Brandstof #1 - Hybrideverbruik WLTP": "power_consumption",
         "Brandstof #1 - Hybride actieradius WLTP": "electric_range",
         "Brandstof #1 - Hybride actieradius in stad WLTP": "electric_range_city",
-        "Brandstof #1 - Geluidsniveau rijdend": "noise_drive_by",
+        "Brandstof #2 - Hybrideverbruik WLTP": "power_consumption",
+        "Brandstof #2 - Hybride actieradius WLTP": "electric_range",
+        "Brandstof #2 - Hybride actieradius in stad WLTP": "electric_range_city",
+
+        #68 69 70 Electricos
+        "Brandstof #1 - Elektriciteitsverbruik WLTP": "power_consumption",
+        "Brandstof #1 - Elektrische actieradius WLTP": "electric_range",
+        "Brandstof #1 - Elektrische actieradius in stad WLTP": "electric_range_city",
+        "Brandstof #2 - Elektriciteitsverbruik WLTP": "power_consumption",
+        "Brandstof #2 - Elektrische actieradius WLTP": "electric_range",
+        "Brandstof #2 - Elektrische actieradius in stad WLTP": "electric_range_city",
+
 
 
 

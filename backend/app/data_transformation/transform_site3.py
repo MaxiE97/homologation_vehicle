@@ -43,17 +43,23 @@ class VehicleDataTransformer_site3:
 
 #    "Fuel": "fuel",                                                                # B25
     def _add_fuel(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Añade la clave 'Fuel' con el valor correspondiente."""
-        if "Fuel" in df["Key"].values:
-            raw_value = df[df["Key"] == "Fuel"]["Value"].values[0].strip()
-            # Buscar las siglas HEV, FHEV, PHEV o MHEV
-            match = re.search(r'\b(FHEV|PHEV|MHEV|HEV)\b', raw_value)
-            if match:
-                new_value = match.group(1)
-                df.loc[df["Key"] == "fuel", "Value"] = new_value
-            else:
-                 df.loc[df["Key"] == "fuel", "Value"] = "-"    
+        """Añade la clave 'fuel' con el valor correspondiente."""
+        if "fuel" in df["Key"].values:
+            raw_value = df[df["Key"] == "fuel"]["Value"].values[0].strip()
+            # Lista de siglas conocidas
+            fuel_types = ["FHEV", "PHEV", "MHEV", "HEV"]
+            
+            # Buscar si alguna sigla está en el texto
+            new_value = "-"
+            for fuel in fuel_types:
+                if fuel in raw_value:
+                    new_value = fuel
+                    break
+            
+            df.loc[df["Key"] == "fuel", "Value"] = new_value
+        
         return df
+
 
 
 #    "Suspension": "braking_system_1",                                              # B34

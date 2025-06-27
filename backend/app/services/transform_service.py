@@ -81,6 +81,11 @@ def merge_and_prioritize(
         # --- FIN: LÓGICA ESPECIAL PARA 'Fuel' ---
 
         # Para Particulates, la prioridad es Columna 1 ----> revisar si es necesario
+        if row['Key'] == 'particulates':
+            if s1 is not None and str(s1) not in ['-', 'None']:
+                return s1
+
+
         if row['Key'] == 'max_trailer_mass':
             if s1 is not None and str(s1) not in ['-', 'None']:
                 return s1
@@ -123,17 +128,24 @@ def merge_and_prioritize(
                     except (ValueError, TypeError):
                         pass
 
-            # Aplicar Grupo de Reglas 2
-            original_particulates_str = str(merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Sitio 2'].iloc[0])
-            if "Gasoline" in str(fuel_value) or "Petrol" in str(fuel_value):
-                merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Final'] = "- - - -"
-            elif "Diesel" in str(fuel_value):
-                try:
-                    num_value = float(original_particulates_str)
-                    new_value = f"{num_value:.3f}"
-                    merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Final'] = new_value
-                except (ValueError, TypeError):
-                    pass
+                # Aplicar Grupo de Reglas 2
+                original_particulates_str = str(merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Sitio 2'].iloc[0])
+                if "Gasoline" == str(fuel_value) or "Petrol" == str(fuel_value):
+                    merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Final'] = "- - - -"
+                elif "Diesel" in str(fuel_value):
+                    try:
+                        num_value = float(original_particulates_str)
+                        #Si es diferente de 0.00001 asignar el valor con 3 decimales
+                        if num_value != 0.00001:
+                            new_value = f"{num_value:.3f}"
+                        else:
+                            new_value = "0.001"    
+                        merged_df.loc[merged_df['Key'] == particulates_field_group_b, 'Valor Final'] = new_value
+                    except (ValueError, TypeError):
+                        pass
+          
+
+
         else:
             logger.warning("No se encontraron las filas 'fuel' o 'emissions_standard' para aplicar la lógica especial.")
     except Exception as e:

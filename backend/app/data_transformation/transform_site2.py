@@ -39,6 +39,7 @@ class VehicleDataTransformer_site2:
         df = self._process_transmission(df)
         df = self._add_final_drive_ratio(df)
         df = self._add_max_speed(df)
+        df = self._add_coupling_approval(df)
         df = self._aux_emissions(df)
         df = self._process_emissions_values(df)
 
@@ -605,6 +606,40 @@ class VehicleDataTransformer_site2:
 
         return df
 
+#   "EC type approval mark of couplind device if fitted": "coupling_approval",     # B40
+
+    def _add_coupling_approval(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Añade la clave 'coupling_approval' con el valor correspondiente."""
+        if "Remark 56" in df["Key"].values:            
+            coupling_value = df[df["Key"] == "Remark 56"]["Value"].values[0]
+            #Utiliza la funcion extract_marks_simple para extraer el valor de Remark 56
+            coupling_value = self.extract_marks_simple(coupling_value)
+
+            new_row = pd.DataFrame({
+                "Key": ["coupling_approval"],
+                "Value": [coupling_value]
+            })
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        return df
+
+
+    @staticmethod
+    def extract_marks_simple(text: str) -> str:
+        claves = ['Konformitätszeichen:', 'EG-Genehmigung']
+        resultados = []
+
+        for clave in claves:
+            patron = re.compile(
+                rf'{re.escape(clave)}\s*(\S(?:.*?))(?=\s\s|$|{re.escape(clave)})',
+                flags=re.IGNORECASE
+            )
+            matches = patron.findall(text)
+            for m in matches:
+                limpio = ' '.join(m.strip().split())
+                resultados.append(limpio)
+
+        return ', '.join(resultados) if resultados else "Check on website"
 
 
 #    "Maximum speed": "max_speed",                                                  # B41
@@ -618,6 +653,8 @@ class VehicleDataTransformer_site2:
       - Si es "Automatic", extrae el valor que sigue a "autom" en "19 Vehicle VMax".
       - Finalmente, crea un nuevo registro con Key "Maximum speed" y el valor obtenido.
       """
+
+            
       if "gearbox_type" in df["Key"].values and "19 Vehicle VMax" in df["Key"].values:
           gearbox_val = df[df["Key"] == "gearbox_type"]["Value"].values[0].strip().lower()
           vmax_val = df[df["Key"] == "19 Vehicle VMax"]["Value"].values[0]
@@ -632,8 +669,10 @@ class VehicleDataTransformer_site2:
           elif gearbox_val == "automatic" and match_autom:
               maximum_speed = match_autom.group(1)
           else:
-              # En caso de no encontrarse el valor, se puede optar por asignar alguno o dejarlo en None.
-              maximum_speed = "-"
+               if df[df["Key"] == "fuel"]["Value"].values[0] == "Electric":
+                  maximum_speed = match_mech.group(1)
+               else:
+                  maximum_speed = "-"
 
           # Agregar el registro de "Maximum speed"
           new_row = pd.DataFrame({
@@ -725,7 +764,7 @@ class VehicleDataTransformer_site2:
             "Emissions HC": "hc_emissions",
             "Emissions NOx": "nox_emissions",
             "Emissions HC NOx": "hc_nox_emissions",
-            "Emissions particulates": "particulates",
+            "Emissions PM": "particulates",
         }
 
         # Aplicar el mapeo de claves antes de procesar los valores
@@ -751,9 +790,13 @@ class VehicleDataTransformer_site2:
                 if num == 0.0:
                     df.loc[idx, "Value"] = "- - - -"
                 else:
-                    # Dividir el valor por 1000 y formatear a 4 decimales
-                    nuevo_valor = num / 1000
-                    df.loc[idx, "Value"] = f"{nuevo_valor:.4f}"
+                    #Si no es particulates entonces dividir el valor por 1000 y formatear a 5 decimales
+                    if "particulates" == df.loc[idx, "Key"]:
+                        nuevo_valor = num / 1000
+                        df.loc[idx, "Value"] = f"{nuevo_valor:.5f}"
+                    else:    
+                        nuevo_valor = num / 1000
+                        df.loc[idx, "Value"] = f"{nuevo_valor:.4f}"
             except (ValueError, TypeError): # Añadido TypeError para manejar mejor NaN o non-numeric
                 # Si no se puede convertir a número, se deja el valor original
                 continue
