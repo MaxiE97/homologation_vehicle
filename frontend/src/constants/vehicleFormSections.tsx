@@ -11,7 +11,7 @@ const consumoTableGroup: TableGroupConfig = {
   columnHeaders: [
     { key: "condition", label: "Condition" },
     { key: "co2", label: "CO₂ (g/km)" },
-    { key: "fuel", label: "Consumption (l/100km)" }
+    { key: "fuel", label: "Fuel consumption (l/100km)" }
   ],
   rowData: [
     {
@@ -41,7 +41,7 @@ const consumoTableGroup_2: TableGroupConfig = {
   columnHeaders: [
     { key: "condition", label: "Condition" },
     { key: "co2", label: "CO₂ (g/km)" },
-    { key: "fuel", label: "Consumption (l/100km)" }
+    { key: "fuel", label: "Fuel consumption (l/100km)" }
   ],
   rowData: [
     {
@@ -222,22 +222,24 @@ export const sections: SectionConfig[] = [
     fields: [
       // NEDC Fields (for table logic)
       { label: "CO₂ urban (g/km)", key: "co2_urban_nedc", type: "text" },
-      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban_nedc", type: "text" },
       { label: "CO₂ extra-urban (g/km)", key: "co2_extra_urban_nedc", type: "text" },
-      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban_nedc", type: "text" },
       { label: "CO₂ combined (g/km)", key: "co2_combined_nedc", type: "text" },
+
+      { label: "Fuel consumption urban (l/100km)", key: "fuel_urban_nedc", type: "text" },
+      { label: "Fuel consumption extra-urban (l/100km)", key: "fuel_extra_urban_nedc", type: "text" },
       { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_nedc", type: "text" },
 
       // WLTP Fields (for table logic)
       { label: "CO₂ low (g/km)", key: "co2_low_wltp", type: "text" },
-      { label: "Fuel consumption low (l/100km)", key: "fuel_low_wltp", type: "text" },
       { label: "CO₂ medium (g/km)", key: "co2_medium_wltp", type: "text" },
-      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium_wltp", type: "text" },
       { label: "CO₂ high (g/km)", key: "co2_high_wltp", type: "text" },
-      { label: "Fuel consumption high (l/100km)", key: "fuel_high_wltp", type: "text" },
       { label: "CO₂ maximum value (g/km)", key: "co2_maximum_value_wltp", type: "text" },
-      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value_wltp", type: "text" },
       { label: "CO₂ combined (g/km)", key: "co2_combined_wltp", type: "text" },
+
+      { label: "Fuel consumption low (l/100km)", key: "fuel_low_wltp", type: "text" },
+      { label: "Fuel consumption medium (l/100km)", key: "fuel_medium_wltp", type: "text" },
+      { label: "Fuel consumption high (l/100km)", key: "fuel_high_wltp", type: "text" },
+      { label: "Fuel consumption maximum value (l/100km)", key: "fuel_maximum_value_wltp", type: "text" },
       { label: "Fuel consumption combined (l/100km)", key: "fuel_combined_wltp", type: "text" },
       
       // Fields rendered individually (NOT in a table)
