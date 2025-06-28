@@ -619,7 +619,7 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #2 - Milieuklasse licht": "emissions_exhaust",#45
 
         "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",#B51
-        "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",#51
+        "Brandstof #2 - Roetuitstoot NEDC": "smoke_absorption",#51
 
         
         
