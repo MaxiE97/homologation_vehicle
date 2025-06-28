@@ -617,6 +617,8 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
 
         "Brandstof #1 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",                 # B52 
         "Brandstof #1 - CO2-uitstoot gewogen NEDC": "co2_combined_nedc",                      # B52 
+        "Brandstof #2 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",                 # B52 
+        "Brandstof #2 - CO2-uitstoot gewogen NEDC": "co2_combined_nedc",                      # B52 
 
 
         "Brandstof #1 - Brandstofverbruik gecombineerd NEDC": "fuel_combined_nedc",           # B55
@@ -625,11 +627,15 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
 
         "Brandstof #1 - CO2-uitstoot gecombineerd WLTP": "co2_combined_wltp",                 # B58
         "Brandstof #1 - CO2-uitstoot gewogen WLTP": "co2_combined_wltp",                      # B58
+        "Brandstof #2 - CO2-uitstoot gecombineerd WLTP": "co2_combined_wltp",                 # B58
+        "Brandstof #2 - CO2-uitstoot gewogen WLTP": "co2_combined_wltp",                      # B58
 
 
         
         "Brandstof #1 - Brandstofverbruik gecombineerd WLTP": "fuel_combined_wltp",           # B63
         "Brandstof #1 - Brandstofverbruik gewogen WLTP": "fuel_combined_wltp",                # B63
+        "Brandstof #2 - Brandstofverbruik gecombineerd WLTP": "fuel_combined_wltp",           # B63
+        "Brandstof #2 - Brandstofverbruik gewogen WLTP": "fuel_combined_wltp",                # B63
         
 
         "Brandstof #1 - Geluidsniveau rijdend": "noise_drive_by",
