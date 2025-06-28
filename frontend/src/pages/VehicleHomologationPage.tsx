@@ -44,10 +44,16 @@ const transformApiDataToState = (apiData: VehicleRow[]): { newExtractedData: Ext
 };
 
 const VehicleHomologationPage = () => {
-    // --- CAMBIO: LEER ESTADOS DESDE LOCALSTORAGE AL INICIAR ---
     const [formData, setFormData] = useState<FormData>(() => {
         try {
             const savedData = localStorage.getItem('homologationFormData');
+            return savedData ? JSON.parse(savedData) : {};
+        } catch (error) { return {}; }
+    });
+
+    const [originalFormData, setOriginalFormData] = useState<FormData>(() => {
+        try {
+            const savedData = localStorage.getItem('homologationOriginalFormData');
             return savedData ? JSON.parse(savedData) : {};
         } catch (error) { return {}; }
     });
@@ -64,8 +70,6 @@ const VehicleHomologationPage = () => {
     const [url3, setUrl3] = useState<string>(() => localStorage.getItem('homologationUrl3') || '');
     const [transmissionOption, setTransmissionOption] = useState<string>(() => localStorage.getItem('homologationTransmissionOption') || 'Default');
 
-    // Estados que no necesitan persistencia
-    const [originalFormData, setOriginalFormData] = useState<FormData>({});
     const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({});
     const [viewMode, setViewMode] = useState<ViewMode>('extracted');
     const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
@@ -74,10 +78,10 @@ const VehicleHomologationPage = () => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
 
-    // --- CAMBIO: GUARDAR ESTADOS EN LOCALSTORAGE CADA VEZ QUE CAMBIAN ---
     useEffect(() => {
         try {
             localStorage.setItem('homologationFormData', JSON.stringify(formData));
+            localStorage.setItem('homologationOriginalFormData', JSON.stringify(originalFormData));
             localStorage.setItem('homologationExtractedData', JSON.stringify(extractedData));
             localStorage.setItem('homologationUrl1', url1);
             localStorage.setItem('homologationUrl2', url2);
@@ -86,9 +90,31 @@ const VehicleHomologationPage = () => {
         } catch (error) {
             console.error("Error saving data to localStorage", error);
         }
-    }, [formData, extractedData, url1, url2, url3, transmissionOption]);
+    }, [formData, originalFormData, extractedData, url1, url2, url3, transmissionOption]);
 
     const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), []);
+    
+    // --- FUNCIÓN PARA LIMPIAR DATOS ---
+    const handleCleanAllData = useCallback(() => {
+        setFormData({});
+        setOriginalFormData({});
+        setExtractedData({});
+        setUrl1('');
+        setUrl2('');
+        setUrl3('');
+        setTransmissionOption('Default');
+        setError(null);
+
+        localStorage.removeItem('homologationFormData');
+        localStorage.removeItem('homologationOriginalFormData');
+        localStorage.removeItem('homologationExtractedData');
+        localStorage.removeItem('homologationUrl1');
+        localStorage.removeItem('homologationUrl2');
+        localStorage.removeItem('homologationUrl3');
+        localStorage.removeItem('homologationTransmissionOption');
+
+        toast.info("All form data has been cleared.");
+    }, []);
 
     const handleProcessUrls = async () => {
         if (!url1 && !url2 && !url3) {
@@ -182,7 +208,7 @@ const VehicleHomologationPage = () => {
             }
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-a.href = url;
+            a.href = url;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
@@ -215,6 +241,7 @@ a.href = url;
                             onProcessUrls={handleProcessUrls}
                             isProcessing={isProcessing}
                             processingError={error}
+                            onCleanData={handleCleanAllData} // <-- Se pasa la función aquí
                         />
                     )}
                     {viewMode !== 'extracted' && error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">{error}</div>}
