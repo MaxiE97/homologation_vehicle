@@ -626,20 +626,48 @@ class VehicleDataTransformer_site2:
 
     @staticmethod
     def extract_marks_simple(text: str) -> str:
-        claves = ['Konformitätszeichen:', 'EG-Genehmigung']
-        resultados = []
+        claves = [
+            'Konformitätszeichen',
+            'Genehmigungszeichen',
+            'Genehmigungsnummer'
+        ]
+        resultados: List[str] = []
 
+        # 1) Si hay alguna clave, extraer desde la clave hasta 3 espacios consecutivos o fin de línea
         for clave in claves:
-            patron = re.compile(
-                rf'{re.escape(clave)}\s*(\S(?:.*?))(?=\s\s|$|{re.escape(clave)})',
+            patron_clave = re.compile(
+                rf'{re.escape(clave)}\s*[:\-]?\s*(.+?)(?=\s{{3,}}|$)',
                 flags=re.IGNORECASE
             )
-            matches = patron.findall(text)
-            for m in matches:
-                limpio = ' '.join(m.strip().split())
-                resultados.append(limpio)
+            for frag in patron_clave.findall(text):
+                frag_limpio = frag.strip()
+                if frag_limpio:
+                    resultados.append(frag_limpio)
 
-        return ', '.join(resultados) if resultados else "Check on website"
+        # 2) Si NO encontramos nada con clave, aplicar regex general
+        if not resultados:
+            # Empieza por e/E + dígitos, captura todo hasta 3 espacios o final de línea
+            patron_global = re.compile(r'\b[eE]\d+.*?(?=\s{3,}|$)')
+            for m in patron_global.findall(text):
+                cad = m.strip()
+                # Verificar longitud mínima para evitar falsos positivos
+                if len(cad) > 4:
+                    resultados.append(cad)
+
+        # 3) Si no hubo nada en ninguno de los dos pasos, devolvemos cadena vacía
+        if not resultados:
+            return ''
+
+        # Quitar duplicados manteniendo orden
+        vistos = set()
+        unicos: List[str] = []
+        for r in resultados:
+            if r not in vistos:
+                vistos.add(r)
+                unicos.append(r)
+
+
+        return ', '.join(unicos) if resultados else "Check on website"
 
 
 #    "Maximum speed": "max_speed",                                                  # B41
