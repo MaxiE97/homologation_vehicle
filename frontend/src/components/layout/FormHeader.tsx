@@ -1,9 +1,11 @@
 // src/components/layout/FormHeader.tsx
 import React, { useState, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car, Languages, UserCircle, LogOut } from 'lucide-react';
+import {  Languages, UserCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../common/Modal';
+import AppLogo from '../../assets/logo.png';
+
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
@@ -49,9 +51,9 @@ const FormHeader: React.FC<FormHeaderProps> = ({
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Lado Izquierdo: Logo y Título */}
-            <div className="flex items-center space-x-4">
+            <div className="p-1 flex-shrink-0">
               <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
-                <Car className="w-6 h-6 text-white" />
+                <img src={AppLogo} alt="App Logo" className="h-9 w-auto" /> 
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Vehicle Technical Specifications</h1>
