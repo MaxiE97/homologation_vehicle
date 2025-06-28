@@ -588,6 +588,7 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Algemeen - Uitvoering": "version",
         "Algemeen - Model": "commercial_name",
         "Algemeen - Typegoedkeuringsnummer":"implication_number",
+        
         "Brandstof #1 - Nominaal continu elektrisch vermogen": "remark_electric_1",
         "Brandstof #1 - Netto maximaal elektrisch vermogen": "remark_electric_2",
         "Brandstof #1 - Elektrisch vermogen over 60 minuten": "remark_electric_3",
@@ -605,14 +606,29 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Massa - Maximum massa samenstelling": "max_combination_mass",
         "Motor - Aantal cilinders": "cylinders",
         "Motor - Cilinderinhoud": "capacity",
-        "Brandstof #1 - Brandstof	": "fuel",
-        "Brandstof #1 - Vermogen": "max_power",
-        "Brandstof #1 - Milieuklasse licht": "emissions_exhaust",
-        "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",
+
+
+        "Brandstof #1 - Brandstof	": "fuel", #B25
+        "Brandstof #2 - Brandstof	": "fuel", #B25
+
+        "Brandstof #1 - Vermogen": "max_power", #B26
+        "Brandstof #2 - Vermogen": "max_power",  #B26 
+
+
+        "Brandstof #1 - Milieuklasse licht": "emissions_exhaust",#45
+        "Brandstof #2 - Milieuklasse licht": "emissions_exhaust",#45
+
+        "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",#B51
+        "Brandstof #1 - Roetuitstoot NEDC": "smoke_absorption",#51
+
+        
+        
 
         #Emisiones
         "Brandstof #1 - Uitstoot deeltjes licht NEDC": "particulates",                       # B50
         "Brandstof #1 - Uitstoot deeltjes WLTP": "particulates",                             # B50
+        "Brandstof #2 - Uitstoot deeltjes licht NEDC": "particulates",                       # B50
+        "Brandstof #2 - Uitstoot deeltjes WLTP": "particulates",                             # B50
 
 
         "Brandstof #1 - CO2-uitstoot gecombineerd NEDC": "co2_combined_nedc",                 # B52 
@@ -624,6 +640,11 @@ DEFAULT_CONFIG_1 = VehicleDataConfig(
         "Brandstof #1 - Brandstofverbruik gecombineerd NEDC": "fuel_combined_nedc",           # B55
         "Brandstof #1 - Brandstofverbruik op snelweg NEDC": "fuel_extra_urban_nedc",          # B56
         "Brandstof #1 - Brandstofverbruik in stad NEDC": "fuel_urban_nedc",                   # B57
+        "Brandstof #2 - Brandstofverbruik gecombineerd NEDC": "fuel_combined_nedc",           # B55
+        "Brandstof #2 - Brandstofverbruik op snelweg NEDC": "fuel_extra_urban_nedc",          # B56
+        "Brandstof #2 - Brandstofverbruik in stad NEDC": "fuel_urban_nedc",                   # B57
+
+
 
         "Brandstof #1 - CO2-uitstoot gecombineerd WLTP": "co2_combined_wltp",                 # B58
         "Brandstof #1 - CO2-uitstoot gewogen WLTP": "co2_combined_wltp",                      # B58
