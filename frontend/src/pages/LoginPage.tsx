@@ -7,7 +7,6 @@ import { useAuth } from '../contexts/AuthContext'; // We import useAuth
 // MOCK credentials are now centralized in AuthContext,
 // but for the UI, we could keep track of what to use.
 const MOCK_USERNAME_HINT = "coc_user";
-const MOCK_PASSWORD_HINT = "administrador";
 
 
 const LoginPage: React.FC = () => {
@@ -24,13 +23,15 @@ const LoginPage: React.FC = () => {
     setError(null);
     setIsLoading(true);
 
-    const success = await login(username, password); // We call the login from the context
+    const result = await login(username, password); 
+
 
     setIsLoading(false);
-    if (success) {
+    if (result.success) {
       navigate('/homologation', { replace: true });
     } else {
-      setError('Incorrect username or password. Try with tecnico / password123');
+      // Usamos el mensaje de error que viene del AuthContext
+      setError(result.message);
     }
   };
 
@@ -45,7 +46,7 @@ const LoginPage: React.FC = () => {
             <LogIn className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Login</h1>
-          <p className="text-sm text-gray-600">Access the homologation platform.</p>
+          <p className="text-sm text-gray-600">Sign in to Vehicle Data Print</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -103,7 +104,7 @@ const LoginPage: React.FC = () => {
           </div>
         </form>
         <p className="mt-6 text-center text-xs text-gray-500">
-          beta version. Use {MOCK_USERNAME_HINT} / {MOCK_PASSWORD_HINT} to log in.
+          Automating vehicle homologation. Access for authorized users.
         </p>
       </div>
     </div>

@@ -77,11 +77,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+
   const logout = () => {
+    // Limpia todo lo relacionado con la sesión y el formulario
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('homologationFormData');
+    localStorage.removeItem('homologationOriginalFormData');
+    localStorage.removeItem('homologationExtractedData');
+    localStorage.removeItem('homologationUrl1');
+    localStorage.removeItem('homologationUrl2');
+    localStorage.removeItem('homologationUrl3');
+    localStorage.removeItem('homologationTransmissionOption');
+
     setIsAuthenticated(false);
     setUser(null);
-    console.log('AuthContext: Logout performed and session cleared.');
+    console.log('AuthContext: Logout and all related data cleared.');
   };
 
   return (
