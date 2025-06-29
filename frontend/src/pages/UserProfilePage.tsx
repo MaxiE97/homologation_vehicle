@@ -2,28 +2,32 @@
 
 import React, { useState, useEffect, useMemo, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserCircle, LogOut, Download, FileText, ChevronLeft, ChevronRight, Home, Phone, Mail, MessageSquareWarning, CheckCircle2, Calendar, User, Clock } from 'lucide-react';
+import { LogOut, Download, FileText, ChevronLeft, ChevronRight, Home, Phone, Mail, MessageSquareWarning, CheckCircle2, Calendar, User, Clock } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
 import { getUserProfile, updateDownloadStatus } from '../services/api';
 import type { UserProfile, DownloadHistoryItem } from '../types/vehicleSpecs';
 import Modal from '../components/common/Modal'; // <-- 1. Importar el nuevo Modal
+import AppLogo from '../assets/logo.png'; // O la ruta correcta a tu logo
 
 // --- INICIO: COMPONENTE SKELETON LOADER ---
 const UserProfileSkeleton: React.FC = () => (
     <div className="min-h-screen bg-gray-100">
         {/* Skeleton Header */}
-        <div className="bg-white border-b border-gray-200">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 animate-pulse">
+        <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 animate-pulse">
+            <div className="max-w-7xl mx-auto px-6 py-3">
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                        <div className="bg-gray-300 rounded-full w-14 h-14 mr-4"></div>
+                    {/* Left Side: Logo and Title Skeleton */}
+                    <div className="flex items-center space-x-4">
+                        <div className="bg-gray-300 rounded-lg w-11 h-11"></div>
                         <div>
-                            <div className="h-6 bg-gray-300 rounded w-40 mb-2"></div>
-                            <div className="h-4 bg-gray-300 rounded w-56"></div>
+                            <div className="h-6 bg-gray-300 rounded w-48 mb-2"></div>
+                            <div className="h-4 bg-gray-300 rounded w-32"></div>
                         </div>
                     </div>
-                    <div className="flex space-x-3">
+
+                    {/* Right Side: Buttons Skeleton */}
+                    <div className="flex items-center space-x-3">
                         <div className="h-10 bg-gray-300 rounded-lg w-32"></div>
                         <div className="h-10 bg-gray-300 rounded-lg w-28"></div>
                     </div>
@@ -191,17 +195,28 @@ const UserProfilePage: React.FC = () => {
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
                 {/* Header */}
                 <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="max-w-7xl mx-auto px-6 py-3">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                            <div className="flex items-center">
-                                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-full mr-4">
-                                    <UserCircle className="w-8 h-8 text-white" />
+
+
+                            <div className="flex items-center space-x-4">
+                                {/* Contenedor del logo, igual que en FormHeader */}
+                                <div className="h-11 w-11 flex-shrink-0 flex items-center justify-center">
+                                    <img 
+                                    src={AppLogo} 
+                                    alt="App Logo" 
+                                    className="h-full w-auto transform scale-[180%]" 
+                                    />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{profile?.username || 'Technician'}</h1>
-                                    <p className="text-gray-600">{profile?.email}</p>
-                                </div>
+                                    {/* Título cambiado a "Vehicle Data Print" */}
+                                    <h1 className="text-xl font-semibold text-gray-700 tracking-wide drop-shadow-sm select-none">
+                                    Vehicle Data Print
+                                    </h1>
+                                    {/* Subtítulo ahora muestra el nombre de usuario */}
+                                    <p className="text-sm font-semibold text-gray-700 select-none">{profile?.username}</p>                                </div>
                             </div>
+
                             <div className="flex items-center space-x-3">
                                 <button onClick={() => navigate('/homologation')} className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md">
                                     <Home className="w-4 h-4 mr-2" />
