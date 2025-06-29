@@ -1,9 +1,11 @@
 // src/components/layout/FormHeader.tsx
 import React, { useState, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Car, Languages, UserCircle, LogOut } from 'lucide-react';
+import {Languages, UserCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../common/Modal';
+import AppLogo from '../../assets/logo.png'; // O logo.svg si lo tienes
+
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
@@ -45,16 +47,23 @@ const FormHeader: React.FC<FormHeaderProps> = ({
   return (
     <Fragment>
       <div className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        {/* --- CAMBIO: Se usa max-w-7xl para coincidir con el contenido de la página --- */}
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Lado Izquierdo: Logo y Título */}
             <div className="flex items-center space-x-4">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
-                <Car className="w-6 h-6 text-white" />
+              {/* --- CAMBIO: Contenedor para el logo --- */}
+              {/* Este div define un "marco" fijo (h-12 w-12) y centra la imagen en su interior. */}
+              <div className="h-11 w-11 flex-shrink-0 flex items-center justify-center">
+                <img 
+                  src={AppLogo} 
+                  alt="App Logo" 
+                  className="h-full w-auto transform scale-[180%]" 
+                />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Vehicle Technical Specifications</h1>
+                <h1 className="text-xl font-semibold text-gray-700 tracking-wide drop-shadow-sm select-none">
+                  Vehicle Data Print
+                </h1>
               </div>
             </div>
 
@@ -67,7 +76,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                     <span className="font-semibold text-blue-600">{completedFields}</span> of {totalFields} fields
                   </div>
 
-                  {/* --- CAMBIO: Contenedor para agrupar los controles principales --- */}
+                  {/* Contenedor para agrupar los controles principales */}
                   <div className="flex items-center space-x-4">
                     {/* Controles de Idioma y Traducción */}
                     <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
@@ -100,7 +109,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({
                     </div>
                   </div>
                   
-                  {/* --- CAMBIO: Divisor visual y sección de usuario --- */}
+                  {/* Divisor visual y sección de usuario */}
                   <div className="flex items-center space-x-4">
                     <div className="h-6 w-px bg-gray-200"></div> {/* Divisor Vertical */}
                     <Link to="/profile" title="View Profile" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
