@@ -1,6 +1,6 @@
 // frontend/src/contexts/AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, type ReactNode, useCallback } from 'react';
-import { isAxiosError } from 'axios'; 
+import { isAxiosError } from 'axios';
 import api from '../services/api';
 
 // User interface, based on the backend schema
@@ -9,6 +9,7 @@ interface User {
   email?: string;
   user_metadata?: {
     username?: string;
+    role?: string; // <-- AÑADIDO: El rol del usuario (ej: 'trial', 'full')
     [key: string]: any;
   };
 }
@@ -30,6 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserProfile = useCallback(async () => {
     try {
+      // Esta petición ahora debería incluir el 'role' dentro de 'user_metadata' desde el backend
       const { data } = await api.get<User>('/auth/users/me');
       setUser(data);
       setIsAuthenticated(true);
@@ -60,6 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { access_token } = response.data;
       if (access_token) {
         localStorage.setItem('accessToken', access_token);
+        // fetchUserProfile obtendrá los datos del usuario, incluyendo el nuevo campo 'role'
         await fetchUserProfile();
         return { success: true, message: 'Login successful.' };
       }

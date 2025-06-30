@@ -14,8 +14,8 @@ SUPABASE_SERVICE_KEY = config("SUPABASE_SERVICE_KEY")
 
 # --- DATOS DEL USUARIO A ACTUALIZAR ---
 # Cambia estos valores cada vez que ejecutes el script para un nuevo usuario
-USER_ID_TO_UPDATE = "0270ca36-acf4-456c-8a47-76ca6dc26dfc" # <-- Pega aquí el ID del nuevo usuario
-USERNAME_TO_SET = "coc_user" # <-- Elige el username para este usuario
+USER_ID_TO_UPDATE = "9f77ef86-09fa-44d5-b45e-2f682829544a" # <-- Pega aquí el ID del nuevo usuario
+USERNAME_TO_SET = "test_user" # <-- Elige el username para este usuario
 
 # --- EJECUCIÓN DEL SCRIPT ---
 logging.info("Iniciando script para actualizar usuario y crear perfil...")

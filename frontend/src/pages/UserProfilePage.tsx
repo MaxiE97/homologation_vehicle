@@ -288,7 +288,14 @@ const UserProfilePage: React.FC = () => {
                                                     <tr key={download.id} className={`border-b border-gray-100 hover:bg-gray-50/70 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
                                                         <td className="p-4 font-mono text-sm font-medium text-gray-900">{download.cds_identifier}</td>
                                                         <td className="p-4 text-sm text-gray-700">
-                                                            {new Date(download.downloaded_at).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                                {new Date(download.downloaded_at).toLocaleString('es-ES', { 
+                                                                    year: 'numeric', 
+                                                                    month: '2-digit', 
+                                                                    day: '2-digit', 
+                                                                    hour: '2-digit', 
+                                                                    minute: '2-digit',
+                                                                    timeZone: 'Europe/Madrid' 
+                                                                })}
                                                         </td>
                                                         <td className="p-4 text-center">
                                                             <button onClick={() => handleStatusToggle(download.id)} className={`inline-flex items-center justify-center w-32 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 ${download.status === 'Ok' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}`}>

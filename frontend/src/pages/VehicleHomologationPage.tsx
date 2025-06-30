@@ -1,6 +1,8 @@
 // frontend/src/pages/VehicleHomologationPage.tsx
 
 import { useState, useMemo, useCallback, Fragment, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext'; // <-- 1. IMPORTAR useAuth
+import { AlertTriangle } from 'lucide-react'; // <-- 2. IMPORTAR ICONO
 import FormHeader from '../components/layout/FormHeader';
 import FormActions from '../components/layout/FormActions';
 import ExtractedDataView from '../components/vehicleForm/ExtractedDataView';
@@ -44,6 +46,8 @@ const transformApiDataToState = (apiData: VehicleRow[]): { newExtractedData: Ext
 };
 
 const VehicleHomologationPage = () => {
+    const { user } = useAuth(); // <-- 3. OBTENER DATOS DEL USUARIO
+    
     const [formData, setFormData] = useState<FormData>(() => {
         try {
             const savedData = localStorage.getItem('homologationFormData');
@@ -234,6 +238,19 @@ const VehicleHomologationPage = () => {
                     onTranslateRequest={handleTranslateFinalValues}
                 />
                 <div className="max-w-7xl mx-auto px-6 py-6">
+
+                    {/* --- INICIO: BANNER PARA USUARIO TRIAL --- */}
+                    {user && user.user_metadata?.role === 'trial' && (
+                        <div className="bg-yellow-100/80 backdrop-blur-sm border-l-4 border-yellow-500 text-yellow-900 p-4 rounded-lg shadow-sm mb-6 flex items-center" role="alert">
+                            <AlertTriangle className="h-6 w-6 mr-4 text-yellow-600 flex-shrink-0" />
+                            <div className="flex-grow">
+                                <p className="font-bold">Trial Account</p>
+                                <p className="text-sm">You have 20 free downloads. Please contact us to get the full version.</p>
+                            </div>
+                        </div>
+                    )}
+                    {/* --- FIN: BANNER PARA USUARIO TRIAL --- */}
+
                     {viewMode === 'extracted' && (
                         <UrlInputSection
                             url1={url1} setUrl1={setUrl1} url2={url2} setUrl2={setUrl2} url3={url3} setUrl3={setUrl3}
@@ -241,7 +258,7 @@ const VehicleHomologationPage = () => {
                             onProcessUrls={handleProcessUrls}
                             isProcessing={isProcessing}
                             processingError={error}
-                            onCleanData={handleCleanAllData} // <-- Se pasa la función aquí
+                            onCleanData={handleCleanAllData}
                         />
                     )}
                     {viewMode !== 'extracted' && error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">{error}</div>}
