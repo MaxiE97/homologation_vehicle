@@ -1,8 +1,8 @@
 // frontend/src/pages/VehicleHomologationPage.tsx
 
 import { useState, useMemo, useCallback, Fragment, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext'; // <-- 1. IMPORTAR useAuth
-import { AlertTriangle } from 'lucide-react'; // <-- 2. IMPORTAR ICONO
+import { useAuth } from '../contexts/AuthContext';
+import { AlertTriangle } from 'lucide-react';
 import FormHeader from '../components/layout/FormHeader';
 import FormActions from '../components/layout/FormActions';
 import ExtractedDataView from '../components/vehicleForm/ExtractedDataView';
@@ -10,11 +10,15 @@ import SectionsView from '../components/vehicleForm/SectionsView';
 import UnifiedView from '../components/vehicleForm/UnifiedView';
 import UrlInputSection from '../components/vehicleForm/UrlInputSection';
 import Modal from '../components/common/Modal';
-import type { FormData, ExtractedData, CollapsedSections } from '../types/vehicleSpecs';
+// --- INICIO: MODIFICACIÓN (1/4) ---
+import type { FormData, ExtractedData, CollapsedSections, UserProfile } from '../types/vehicleSpecs';
+// --- FIN: MODIFICACIÓN (1/4) ---
 import { sections as allSections } from '../constants/vehicleFormSections';
 import { supportedLanguages, predefinedTranslations } from '../constants/localization';
 import { toast } from 'react-toastify';
-import api from '../services/api';
+// --- INICIO: MODIFICACIÓN (2/4) ---
+import api, { getUserProfile } from '../services/api'; // Aseguramos que getUserProfile se importe
+// --- FIN: MODIFICACIÓN (2/4) ---
 
 type ViewMode = 'extracted' | 'sections' | 'unified';
 
@@ -46,8 +50,12 @@ const transformApiDataToState = (apiData: VehicleRow[]): { newExtractedData: Ext
 };
 
 const VehicleHomologationPage = () => {
-    const { user } = useAuth(); // <-- 3. OBTENER DATOS DEL USUARIO
+    const { user } = useAuth();
     
+    // --- INICIO: MODIFICACIÓN (3/4) ---
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    // --- FIN: MODIFICACIÓN (3/4) ---
+
     const [formData, setFormData] = useState<FormData>(() => {
         try {
             const savedData = localStorage.getItem('homologationFormData');
@@ -55,25 +63,23 @@ const VehicleHomologationPage = () => {
         } catch (error) { return {}; }
     });
 
+    // ... (resto de tus 'useState' sin cambios)
     const [originalFormData, setOriginalFormData] = useState<FormData>(() => {
-        try {
-            const savedData = localStorage.getItem('homologationOriginalFormData');
-            return savedData ? JSON.parse(savedData) : {};
-        } catch (error) { return {}; }
+      try {
+          const savedData = localStorage.getItem('homologationOriginalFormData');
+          return savedData ? JSON.parse(savedData) : {};
+      } catch (error) { return {}; }
     });
-
     const [extractedData, setExtractedData] = useState<ExtractedData>(() => {
         try {
             const savedData = localStorage.getItem('homologationExtractedData');
             return savedData ? JSON.parse(savedData) : {};
         } catch (error) { return {}; }
     });
-
     const [url1, setUrl1] = useState<string>(() => localStorage.getItem('homologationUrl1') || '');
     const [url2, setUrl2] = useState<string>(() => localStorage.getItem('homologationUrl2') || '');
     const [url3, setUrl3] = useState<string>(() => localStorage.getItem('homologationUrl3') || '');
     const [transmissionOption, setTransmissionOption] = useState<string>(() => localStorage.getItem('homologationTransmissionOption') || 'Default');
-
     const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({});
     const [viewMode, setViewMode] = useState<ViewMode>('extracted');
     const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
@@ -96,9 +102,40 @@ const VehicleHomologationPage = () => {
         }
     }, [formData, originalFormData, extractedData, url1, url2, url3, transmissionOption]);
 
+    // --- INICIO: MODIFICACIÓN (4/4) ---
+    useEffect(() => {
+      const fetchProfile = async () => {
+          // Solo hacemos la llamada si es un usuario 'trial'
+          if (user && user.user_metadata?.role === 'trial') {
+              try {
+                  const profileData = await getUserProfile();
+                  setUserProfile(profileData);
+              } catch (error) {
+                  console.error("Error fetching user profile:", error);
+                  toast.error("Could not load your download count.");
+              }
+          }
+      };
+
+      fetchProfile();
+    }, [user]); // Se ejecuta cuando el estado del usuario cambia
+
+    // Llamada a la API para refrescar el perfil DESPUÉS de una descarga exitosa.
+    const refreshUserProfile = async () => {
+        if (user && user.user_metadata?.role === 'trial') {
+            try {
+                const profileData = await getUserProfile();
+                setUserProfile(profileData);
+            } catch (error) {
+                console.error("Failed to refresh user profile:", error);
+            }
+        }
+    };
+    // --- FIN: MODIFICACIÓN (4/4) ---
+
     const allFieldsFlat = useMemo(() => allSections.flatMap(section => section.fields), []);
     
-    // --- FUNCIÓN PARA LIMPIAR DATOS ---
+    // ... (handleCleanAllData, handleProcessUrls sin cambios)
     const handleCleanAllData = useCallback(() => {
         setFormData({});
         setOriginalFormData({});
@@ -108,7 +145,6 @@ const VehicleHomologationPage = () => {
         setUrl3('');
         setTransmissionOption('Default');
         setError(null);
-
         localStorage.removeItem('homologationFormData');
         localStorage.removeItem('homologationOriginalFormData');
         localStorage.removeItem('homologationExtractedData');
@@ -116,7 +152,6 @@ const VehicleHomologationPage = () => {
         localStorage.removeItem('homologationUrl2');
         localStorage.removeItem('homologationUrl3');
         localStorage.removeItem('homologationTransmissionOption');
-
         toast.info("All form data has been cleared.");
     }, []);
 
@@ -127,7 +162,6 @@ const VehicleHomologationPage = () => {
         }
         setIsProcessing(true);
         setError(null);
-        
         try {
             const payload = { url1: url1 || null, url2: url2 || null, url3: url3 || null, transmission_option: transmissionOption };
             const response = await api.post<VehicleRow[]>('/process-vehicle', payload);
@@ -219,6 +253,11 @@ const VehicleHomologationPage = () => {
             a.remove();
             window.URL.revokeObjectURL(url);
             toast.success('Document generated successfully!');
+            
+            // --- INICIO: LLAMADA PARA REFRESCAR EL PERFIL ---
+            await refreshUserProfile();
+            // --- FIN: LLAMADA PARA REFRESCAR EL PERFIL ---
+
         } catch (err) {
             console.error("Error submitting data for export:", err);
             toast.error("Failed to generate the document.");
@@ -239,18 +278,21 @@ const VehicleHomologationPage = () => {
                 />
                 <div className="max-w-7xl mx-auto px-6 py-6">
 
-                    {/* --- INICIO: BANNER PARA USUARIO TRIAL --- */}
-                    {user && user.user_metadata?.role === 'trial' && (
+                    {/* --- INICIO: BANNER MODIFICADO PARA USUARIO TRIAL --- */}
+                    {user && user.user_metadata?.role === 'trial' && userProfile && (
                         <div className="bg-yellow-100/80 backdrop-blur-sm border-l-4 border-yellow-500 text-yellow-900 p-4 rounded-lg shadow-sm mb-6 flex items-center" role="alert">
                             <AlertTriangle className="h-6 w-6 mr-4 text-yellow-600 flex-shrink-0" />
                             <div className="flex-grow">
                                 <p className="font-bold">Trial Account</p>
-                                <p className="text-sm">You have 20 free downloads. Please contact us to get the full version.</p>
+                                <p className="text-sm">
+                                    You have {Math.max(0, userProfile.download_limit - userProfile.download_count)} of {userProfile.download_limit} free downloads remaining. Please contact us to get the full version.
+                                </p>
                             </div>
                         </div>
                     )}
-                    {/* --- FIN: BANNER PARA USUARIO TRIAL --- */}
+                    {/* --- FIN: BANNER MODIFICADO PARA USUARIO TRIAL --- */}
 
+                    {/* ... (resto del JSX sin cambios) */}
                     {viewMode === 'extracted' && (
                         <UrlInputSection
                             url1={url1} setUrl1={setUrl1} url2={url2} setUrl2={setUrl2} url3={url3} setUrl3={setUrl3}

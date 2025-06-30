@@ -63,4 +63,6 @@ export interface UserProfile {
   email: string | null;
   username: string | null;
   downloads: DownloadHistoryItem[];
+  download_count: number; // <-- AÑADIDO
+  download_limit: number; // <-- AÑADIDO
 }

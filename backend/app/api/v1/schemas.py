@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List, Any, Dict
 import uuid
 from datetime import datetime
-from app.data_transformation.key_map import FINAL_KEY_MAP 
+from app.data_transformation.key_map import FINAL_KEY_MAP
 
 # --- Modelos para Scraping/Procesamiento (Existentes) ---
 class ScrapingRequest(BaseModel):
@@ -69,13 +69,15 @@ class DownloadHistoryItem(BaseModel):
     id: uuid.UUID  
     cds_identifier: Optional[str] 
     downloaded_at: datetime
-    status: str     
+    status: str    
 
 class UserProfileResponse(BaseModel):
     """Define la estructura completa del perfil de usuario que se enviará al frontend."""
     email: Optional[EmailStr]
     username: Optional[str]
     downloads: List[DownloadHistoryItem]
+    download_count: int  # <-- AÑADIDO
+    download_limit: int  # <-- AÑADIDO
 
 class StatusUpdateRequest(BaseModel):
     """Define el cuerpo esperado para la solicitud de cambio de estado."""

@@ -4,8 +4,8 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 from postgrest.exceptions import APIError as PostgrestAPIError
-from datetime import datetime 
-from zoneinfo import ZoneInfo 
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # Importamos los modelos y dependencias necesarios
 from .schemas import AuthenticatedUser, UserProfileResponse, DownloadHistoryItem
@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get(
-    "/", 
-    response_model=UserProfileResponse, 
+    "/",
+    response_model=UserProfileResponse,
     tags=["Profile"],
     summary="Get User Profile and Download History"
 )
@@ -66,11 +66,19 @@ async def get_user_profile(
             logger.info(f"No download history found for user ID: {current_user.id}")
             # Si no hay datos, la lista simplemente se quedará vacía, lo cual es correcto.
 
-        # Construir la respuesta final del perfil
+        # --- INICIO: MODIFICACIÓN ---
+        # 4. Contar descargas y definir el límite
+        download_count = len(downloads_response.data) if downloads_response.data else 0
+        download_limit = 20 # Límite para usuarios 'trial'
+        # --- FIN: MODIFICACIÓN ---
+
+        # 5. Construir la respuesta final del perfil
         user_profile = UserProfileResponse(
             email=current_user.email,
             username=current_user.user_metadata.get('username', 'N/A'),
-            downloads=download_history
+            downloads=download_history,
+            download_count=download_count, # <-- AÑADIDO
+            download_limit=download_limit  # <-- AÑADIDO
         )
 
         return user_profile
