@@ -1,6 +1,11 @@
 # --- Framework ---
 fastapi
 uvicorn[standard]
+gunicorn # Recomendado para producción
+
+# --- Validación y Configuración ---
+pydantic
+email-validator # Crítico para la validación de email
 python-decouple
 
 # --- Supabase & DB ---
