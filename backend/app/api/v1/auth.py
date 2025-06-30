@@ -31,11 +31,11 @@ async def login_for_access_token(
     user_id = None # Inicializamos user_id para logging en caso de error
 
     try:
-        # --- LÓGICA DE LOGIN CORREGIDA (2 PASOS) ---
+        # --- LÓGICA DE LOGIN CORREGIDA (3 PASOS) ---
 
-        # PASO 1: Buscar el perfil en 'profiles' para obtener el ID del usuario.
+        # PASO 1: Buscar el perfil en 'profiles' para obtener el ID y rol del usuario.
         logger.debug(f"Paso 1: Consultando 'profiles' para el username: {form_data.username}")
-        profile_response = admin_db.table('profiles').select('id').eq('username', form_data.username).single().execute()
+        profile_response = admin_db.table('profiles').select('id, user_role').eq('username', form_data.username).single().execute()
 
         if not profile_response.data:
             logger.warning(f"Login fallido: No se encontró perfil para el username '{form_data.username}'.")
@@ -46,9 +46,10 @@ async def login_for_access_token(
             )
         
         user_id = profile_response.data['id']
-        logger.info(f"Paso 1 Exitoso: Perfil encontrado para '{form_data.username}'. User ID: {user_id}")
+        user_role = profile_response.data.get('user_role')
+        logger.info(f"Paso 1 Exitoso: Perfil encontrado para '{form_data.username}'. User ID: {user_id}, Role: {user_role}")
 
-        # PASO 2: Usar el ID para obtener los datos del usuario (incluido el email) desde Supabase Auth.
+        # PASO 2: Usar el ID para obtener los datos del usuario (incluido el email y metadatos) desde Supabase Auth.
         logger.debug(f"Paso 2: Obteniendo datos del usuario desde Auth con ID: {user_id}")
         user_auth_response = admin_db.auth.admin.get_user_by_id(user_id)
         
@@ -58,6 +59,14 @@ async def login_for_access_token(
             raise HTTPException(status_code=500, detail="User data inconsistency.")
 
         user_email = user_auth_response.user.email
+        current_metadata = user_auth_response.user.user_metadata or {}
+        
+        # Sincronizar el rol desde la tabla 'profiles' a los metadatos de 'auth.users'
+        if user_role and current_metadata.get('role') != user_role:
+            current_metadata['role'] = user_role
+            admin_db.auth.admin.update_user_by_id(user_id, {"user_metadata": current_metadata})
+            logger.info(f"Rol del usuario {user_id} sincronizado a '{user_role}' en los metadatos de Auth.")
+
         logger.info(f"Paso 2 Exitoso: Email encontrado: {user_email}")
 
         # PASO 3: Intentar iniciar sesión con el email y la contraseña.
