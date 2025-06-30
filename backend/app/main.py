@@ -1,7 +1,9 @@
 # backend/app/main.py
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware # <--- 1. IMPORTAR
+from fastapi.middleware.cors import CORSMiddleware 
 import logging 
+import os 
+
 
 # Configuración básica del logging
 logging.basicConfig(
@@ -20,19 +22,21 @@ app = FastAPI(
 )
 
 # --- 2. AÑADIR MIDDLEWARE DE CORS ---
-# Lista de orígenes permitidos (los dominios desde donde tu frontend hará las peticiones)
-origins = [
-    "http://localhost:5173", # El origen por defecto de Vite
-    "http://localhost:3000", # Un origen común para React en desarrollo
-    # "https://tu-dominio-de-produccion.com", # <--- AÑADE AQUÍ TU DOMINIO DE PRODUCCIÓN CUANDO LO TENGAS
-]
+# Lee los orígenes permitidos desde una variable de entorno.
+# Si la variable no existe, usa una lista por defecto para el desarrollo local.
+# Los orígenes en la variable de entorno deben estar separados por comas.
+allowed_origins_str = os.environ.get(
+    "ALLOWED_ORIGINS", 
+    "http://localhost:5173,http://localhost:3000"
+)
+allowed_origins = allowed_origins_str.split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True, # Permite cookies/credenciales de autorización
-    allow_methods=["*"],    # Permite todos los métodos (GET, POST, etc.)
-    allow_headers=["*"],    # Permite todas las cabeceras
+    allow_origins=allowed_origins, # Usamos la lista dinámica
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 # --- FIN DE LA CONFIGURACIÓN DE CORS ---
 

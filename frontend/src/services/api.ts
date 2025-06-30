@@ -2,9 +2,13 @@
 import axios from 'axios';
 import type { UserProfile } from '../types/vehicleSpecs';
 
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+
+
 // 1. CREACIÓN DE LA INSTANCIA DE AXIOS
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
